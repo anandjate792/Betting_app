@@ -241,7 +241,7 @@ export default function AdminPredictionPanel() {
           <CardTitle className="text-white">Recent Slots</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
+          <div className="max-h-96 overflow-y-auto space-y-2">
             {slots.slice(0, 10).map((slot) => (
               <div
                 key={slot.id}

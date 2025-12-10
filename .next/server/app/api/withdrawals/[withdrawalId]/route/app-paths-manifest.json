@@ -1,0 +1,3 @@
+{
+  "/api/withdrawals/[withdrawalId]/route": "app/api/withdrawals/[withdrawalId]/route.js"
+}

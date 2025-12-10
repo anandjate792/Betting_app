@@ -1,0 +1,19 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/auth/change-password/route": "/api/auth/change-password",
+  "/api/auth/login/route": "/api/auth/login",
+  "/api/auth/me/route": "/api/auth/me",
+  "/api/bets/route": "/api/bets",
+  "/api/prediction-slots/[slotId]/route": "/api/prediction-slots/[slotId]",
+  "/api/prediction-slots/auto-complete/route": "/api/prediction-slots/auto-complete",
+  "/api/prediction-slots/auto-create/route": "/api/prediction-slots/auto-create",
+  "/api/prediction-slots/route": "/api/prediction-slots",
+  "/api/transactions/[transactionId]/route": "/api/transactions/[transactionId]",
+  "/api/transactions/route": "/api/transactions",
+  "/api/users/[userId]/route": "/api/users/[userId]",
+  "/api/users/route": "/api/users",
+  "/api/withdrawals/[withdrawalId]/route": "/api/withdrawals/[withdrawalId]",
+  "/api/withdrawals/route": "/api/withdrawals",
+  "/page": "/"
+}

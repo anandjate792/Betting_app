@@ -38,6 +38,10 @@ const predictionSlotSchema = new mongoose.Schema({
     },
     default: {},
   },
+  companyCommission: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -49,4 +53,3 @@ if (mongoose.models.PredictionSlot) {
 }
 
 export default mongoose.model("PredictionSlot", predictionSlotSchema);
-

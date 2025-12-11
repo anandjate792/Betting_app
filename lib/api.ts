@@ -1,37 +1,40 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export interface ApiResponse<T> {
-  data?: T
-  error?: string
+  data?: T;
+  error?: string;
 }
 
 const getToken = () => {
-  if (typeof window === "undefined") return null
-  return localStorage.getItem("authToken")
-}
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("authToken");
+};
 
-async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function apiCall<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...options.headers,
-  }
+  };
 
-  const token = getToken()
+  const token = getToken();
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
-  })
+  });
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.error || "API Error")
+    const error = await response.json();
+    throw new Error(error.error || "API Error");
   }
 
-  return response.json()
+  return response.json();
 }
 
 export const authApi = {
@@ -49,7 +52,7 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify({ oldPassword, newPassword }),
     }),
-}
+};
 
 export const userApi = {
   getAllUsers: () => apiCall("/users", { method: "GET" }),
@@ -58,38 +61,49 @@ export const userApi = {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
     }),
-  deleteUser: (userId: string) => apiCall(`/users/${userId}`, { method: "DELETE" }),
+  deleteUser: (userId: string) =>
+    apiCall(`/users/${userId}`, { method: "DELETE" }),
   addMoney: (userId: string, amount: number) =>
     apiCall(`/users/${userId}`, {
       method: "POST",
       body: JSON.stringify({ amount }),
     }),
-}
+};
 
 export const transactionApi = {
-  getAllTransactions: () => apiCall("/transactions?admin=true", { method: "GET" }),
+  getAllTransactions: () =>
+    apiCall("/transactions?admin=true", { method: "GET" }),
   getUserTransactions: () => apiCall("/transactions", { method: "GET" }),
-  createTransaction: (amount: number, description: string, screenshotImage: string) =>
+  createTransaction: (
+    amount: number,
+    description: string,
+    screenshotImage: string
+  ) =>
     apiCall("/transactions", {
       method: "POST",
       body: JSON.stringify({ amount, description, screenshotImage }),
     }),
   approveTransaction: (transactionId: string) =>
-    apiCall(`/transactions/${transactionId}?action=approve`, { method: "POST" }),
+    apiCall(`/transactions/${transactionId}?action=approve`, {
+      method: "POST",
+    }),
   rejectTransaction: (transactionId: string) =>
     apiCall(`/transactions/${transactionId}?action=reject`, { method: "POST" }),
-}
+};
 
 export const predictionApi = {
   getCurrentSlot: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/prediction-slots?current=true`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/prediction-slots?current=true`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+          },
+        }
+      );
       if (response.status === 404) {
         return null;
       }
@@ -99,7 +113,10 @@ export const predictionApi = {
       }
       return response.json();
     } catch (error: any) {
-      if (error?.message?.includes("No active slot found") || error?.message?.includes("404")) {
+      if (
+        error?.message?.includes("No active slot found") ||
+        error?.message?.includes("404")
+      ) {
         return null;
       }
       throw error;
@@ -116,9 +133,22 @@ export const predictionApi = {
       method: "POST",
       body: JSON.stringify({ winningIcon }),
     }),
-  autoCreateSlot: () => apiCall("/prediction-slots/auto-create", { method: "POST" }),
-  autoCompleteSlots: () => apiCall("/prediction-slots/auto-complete", { method: "POST" }),
-}
+  autoCreateSlot: () =>
+    apiCall("/prediction-slots/auto-create", { method: "POST" }),
+  autoCreateSlotToggle: (enabled: boolean) =>
+    apiCall(
+      `/prediction-slots/auto-create?toggle=true&enabled=${
+        enabled ? "1" : "0"
+      }`,
+      {
+        method: "POST",
+      }
+    ),
+  getAutoCreateStatus: () =>
+    apiCall("/prediction-slots/auto-create", { method: "GET" }),
+  autoCompleteSlots: () =>
+    apiCall("/prediction-slots/auto-complete", { method: "POST" }),
+};
 
 export const betApi = {
   getBets: (slotId?: string) => {
@@ -130,7 +160,7 @@ export const betApi = {
       method: "POST",
       body: JSON.stringify({ slotId, icon, amount }),
     }),
-}
+};
 
 export const withdrawalApi = {
   getWithdrawals: () => apiCall("/withdrawals", { method: "GET" }),
@@ -143,4 +173,4 @@ export const withdrawalApi = {
     apiCall(`/withdrawals/${withdrawalId}?action=approve`, { method: "POST" }),
   rejectWithdrawal: (withdrawalId: string) =>
     apiCall(`/withdrawals/${withdrawalId}?action=reject`, { method: "POST" }),
-}
+};

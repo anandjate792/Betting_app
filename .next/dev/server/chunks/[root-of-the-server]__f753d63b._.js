@@ -232,6 +232,10 @@ const predictionSlotSchema = new __TURBOPACK__imported__module__$5b$externals$5d
         },
         default: {}
     },
+    companyCommission: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -345,17 +349,23 @@ async function GET(request) {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
         const url = new URL(request.url);
         const slotId = url.searchParams.get("slotId");
+        const page = parseInt(url.searchParams.get("page") || "1");
+        const limit = parseInt(url.searchParams.get("limit") || "20");
+        const skip = (page - 1) * limit;
         const query = {
             userId: user._id
         };
         if (slotId) {
             query.slotId = slotId;
         }
+        const total = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments(query);
         const bets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).sort({
             createdAt: -1
-        }).populate("slotId", "slotNumber startTime endTime winningIcon");
+        }).skip(skip).limit(limit).populate("slotId", "slotNumber startTime endTime winningIcon");
         const formatted = bets.map((b)=>({
                 id: b._id.toString(),
+                userId: b.userId.toString(),
+                userName: b.userName,
                 slotId: b.slotId?._id?.toString(),
                 slotNumber: b.slotId?.slotNumber,
                 icon: b.icon,
@@ -364,7 +374,16 @@ async function GET(request) {
                 status: b.status,
                 createdAt: b.createdAt
             }));
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(formatted);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            data: formatted,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+                hasMore: skip + limit < total
+            }
+        });
     } catch (error) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: error instanceof Error ? error.message : "Server error"
@@ -406,6 +425,25 @@ async function POST(request) {
             });
         }
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
+        const existingBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({
+            userId: user._id,
+            slotId,
+            status: {
+                $in: [
+                    "pending",
+                    "won",
+                    "lost",
+                    "cancelled"
+                ]
+            }
+        });
+        if (existingBet) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "You already placed a bet on this slot. Please wait for the result."
+            }, {
+                status: 400
+            });
+        }
         const slot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(slotId);
         if (!slot) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

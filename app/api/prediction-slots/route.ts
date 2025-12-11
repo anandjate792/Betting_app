@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import { verifyToken } from "@/lib/auth-token";
 import PredictionSlot from "@/lib/models/PredictionSlot";
 import User from "@/lib/models/User";
+import Setting from "@/lib/models/Setting";
 
 const getAuthUser = async (request: NextRequest) => {
   const authHeader = request.headers.get("authorization");
@@ -23,12 +24,37 @@ export async function GET(request: NextRequest) {
     const current = url.searchParams.get("current") === "true";
 
     if (current) {
+      const autoCreateSetting = await Setting.findOne({ key: "autoCreateSlots" });
+      const autoCreateEnabled = Boolean(autoCreateSetting?.value);
       const now = new Date();
-      const slot = await PredictionSlot.findOne({
+      let slot = await PredictionSlot.findOne({
         startTime: { $lte: now },
         endTime: { $gte: now },
         status: "open",
       }).sort({ startTime: -1 });
+
+      if (!slot && autoCreateEnabled) {
+        // create an on-demand slot so users aren't blocked when admin is offline
+        const nextSlotStart = new Date(now);
+        nextSlotStart.setSeconds(0);
+        nextSlotStart.setMilliseconds(0);
+        if (nextSlotStart.getMinutes() % 10 !== 0) {
+          nextSlotStart.setMinutes(Math.floor(nextSlotStart.getMinutes() / 10) * 10);
+        }
+        const nextSlotEnd = new Date(nextSlotStart);
+        nextSlotEnd.setMinutes(nextSlotEnd.getMinutes() + 10);
+
+        const lastSlot = await PredictionSlot.findOne().sort({ slotNumber: -1 });
+        const slotNumber = lastSlot ? lastSlot.slotNumber + 1 : 1;
+
+        slot = await PredictionSlot.create({
+          slotNumber,
+          startTime: nextSlotStart,
+          endTime: nextSlotEnd,
+          status: "open",
+          betsByIcon: new Map(),
+        });
+      }
 
       if (!slot) {
         return NextResponse.json({ error: "No active slot found" }, { status: 404 });

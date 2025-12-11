@@ -65,6 +65,12 @@ export default function PredictionDashboard() {
   const [timeRemaining, setTimeRemaining] = useState<string>("");
   const [activeTab, setActiveTab] = useState("prediction");
   const [myBets, setMyBets] = useState<any[]>([]);
+  const [hasBetCurrentSlot, setHasBetCurrentSlot] = useState(false);
+  const [currentSlotBet, setCurrentSlotBet] = useState<{
+    icon: string;
+    amount: number;
+  } | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [transactionAmount, setTransactionAmount] = useState<string>("");
   const [transactionDescription, setTransactionDescription] =
     useState<string>("");
@@ -107,6 +113,7 @@ export default function PredictionDashboard() {
       } else {
         setCurrentSlot(null);
       }
+      await loadMyCurrentSlotBet(slot?.id);
     } catch (error: any) {
       setCurrentSlot(null);
     }
@@ -119,6 +126,31 @@ export default function PredictionDashboard() {
     } catch (error) {
       console.error("Failed to load bets:", error);
     }
+  };
+
+  const loadMyCurrentSlotBet = async (slotId?: string) => {
+    if (!slotId) {
+      setHasBetCurrentSlot(false);
+      setCurrentSlotBet(null);
+      return;
+    }
+    try {
+      const bets = await betApi.getBets(slotId);
+      const selfBet = (bets as any[]).find((b) => b.slotId === slotId);
+      setHasBetCurrentSlot(Boolean(selfBet));
+      setCurrentSlotBet(
+        selfBet ? { icon: selfBet.icon, amount: selfBet.amount } : null
+      );
+    } catch (error) {
+      console.error("Failed to load current slot bet:", error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadCurrentSlot();
+    await loadMyBets();
+    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -256,6 +288,14 @@ export default function PredictionDashboard() {
         return;
       }
 
+      if (hasBetCurrentSlot) {
+        setError(
+          "You have already placed a bet for this slot. Please wait for the result."
+        );
+        setLoading(false);
+        return;
+      }
+
       const result = await betApi.placeBet(
         currentSlot.id,
         selectedIcon,
@@ -268,6 +308,7 @@ export default function PredictionDashboard() {
       useAppStore.setState({ user: profile });
 
       await loadCurrentSlot();
+      await loadMyBets();
     } catch (err: any) {
       setError(err.message || "Failed to place bet");
     } finally {
@@ -294,6 +335,14 @@ export default function PredictionDashboard() {
                 ₹{user?.walletBalance.toFixed(2) || "0.00"}
               </p>
             </div>
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              className="text-slate-200 border-slate-600 bg-slate-800 hover:bg-slate-700"
+              disabled={refreshing}
+            >
+              {refreshing ? "Refreshing..." : "Refresh"}
+            </Button>
             <Button
               onClick={logout}
               variant="ghost"
@@ -348,10 +397,6 @@ export default function PredictionDashboard() {
                         <p className="text-xl font-bold text-blue-400">
                           {currentSlot.totalBets}
                         </p>
-                        <p className="text-sm text-slate-400">Total Amount</p>
-                        <p className="text-xl font-bold text-green-400">
-                          ₹{currentSlot.totalAmount.toFixed(2)}
-                        </p>
                       </div>
                     </div>
                   </CardHeader>
@@ -378,13 +423,15 @@ export default function PredictionDashboard() {
                               totalBets: 0,
                               totalAmount: 0,
                             };
+                            const isSelected = selectedIcon === id;
+                            const isMyBet = currentSlotBet?.icon === id;
                             return (
                               <button
                                 key={id}
                                 type="button"
                                 onClick={() => setSelectedIcon(id)}
                                 className={`p-4 rounded-lg border-2 transition-all ${
-                                  selectedIcon === id
+                                  isSelected
                                     ? "border-blue-500 bg-blue-500/20"
                                     : "border-slate-600 bg-slate-700 hover:border-slate-500"
                                 }`}
@@ -397,13 +444,18 @@ export default function PredictionDashboard() {
                                   {iconData.totalBets} bets • ₹
                                   {iconData.totalAmount.toFixed(0)}
                                 </p>
+                                {isMyBet && (
+                                  <p className="text-[10px] text-amber-300 mt-1 font-semibold">
+                                    Your bet
+                                  </p>
+                                )}
                               </button>
                             );
                           })}
                         </div>
                       </div>
 
-                      <div>
+                      <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-300">
                           Bet Amount (₹)
                         </label>
@@ -416,6 +468,25 @@ export default function PredictionDashboard() {
                           onChange={(e) => setBetAmount(e.target.value)}
                           className="mt-1 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                         />
+                        {hasBetCurrentSlot && (
+                          <p className="text-xs text-amber-400">
+                            You have already placed a bet for this slot. Please
+                            wait for the result.
+                          </p>
+                        )}
+                        {currentSlotBet && (
+                          <p className="text-xs text-slate-300">
+                            You placed{" "}
+                            <span className="text-white font-semibold">
+                              ₹{currentSlotBet.amount.toFixed(2)}
+                            </span>{" "}
+                            on{" "}
+                            <span className="font-semibold text-blue-200">
+                              {currentSlotBet.icon}
+                            </span>
+                            . Awaiting result.
+                          </p>
+                        )}
                       </div>
 
                       {error && <p className="text-sm text-red-400">{error}</p>}
@@ -425,7 +496,8 @@ export default function PredictionDashboard() {
                         disabled={
                           loading ||
                           !selectedIcon ||
-                          Number.parseFloat(betAmount) < 50
+                          Number.parseFloat(betAmount) < 50 ||
+                          hasBetCurrentSlot
                         }
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
                       >

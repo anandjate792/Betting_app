@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import {
   Card,
@@ -19,11 +19,11 @@ import {
   CheckCircle,
   XCircle,
   Settings,
-  Search,
 } from "lucide-react";
 import SettingsModal from "./settings-modal";
 import AdminPredictionPanel from "./admin-prediction-panel";
 import { withdrawalApi } from "@/lib/api";
+import { predictionApi } from "@/lib/api";
 
 export default function AdminDashboard() {
   const {
@@ -48,55 +48,32 @@ export default function AdminDashboard() {
   >(null);
   const [showSettings, setShowSettings] = useState(false);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [autoCreateEnabled, setAutoCreateEnabled] = useState(false);
 
-  // Search filters
-  const [userSearch, setUserSearch] = useState("");
-  const [transactionSearch, setTransactionSearch] = useState("");
-  const [withdrawalSearch, setWithdrawalSearch] = useState("");
+  useEffect(() => {
+    const loadAutoCreate = async () => {
+      try {
+        const status = await predictionApi.getAutoCreateStatus();
+        setAutoCreateEnabled(Boolean((status as any).enabled));
+      } catch (error) {
+        console.error("Failed to fetch auto-create status:", error);
+      }
+    };
+    void loadAutoCreate();
+  }, []);
 
   const regularUsers = users.filter((u) => u.role === "user");
   const pendingTransactions = transactions.filter(
     (t) => t.status === "pending"
   );
   const pendingWithdrawals = withdrawals.filter((w) => w.status === "pending");
-
-  // Filtered lists
-  const filteredUsers = regularUsers.filter(
-    (user) =>
-      user.name.toLowerCase().includes(userSearch.toLowerCase()) ||
-      user.email.toLowerCase().includes(userSearch.toLowerCase())
-  );
-
-  const filteredTransactions = transactions.filter(
-    (trans) =>
-      trans.userName.toLowerCase().includes(transactionSearch.toLowerCase()) ||
-      trans.description?.toLowerCase().includes(transactionSearch.toLowerCase())
-  );
-
-  const filteredWithdrawals = withdrawals.filter((withdrawal) =>
-    withdrawal.userName.toLowerCase().includes(withdrawalSearch.toLowerCase())
-  );
-
-  // Helper function to safely format dates
-  const formatDate = (dateString?: string | Date) => {
-    if (!dateString) return "N/A";
-    try {
-      const date = new Date(dateString);
-      return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString();
-    } catch {
-      return "Invalid Date";
-    }
-  };
-
-  const formatDateTime = (dateString?: string | Date) => {
-    if (!dateString) return "N/A";
-    try {
-      const date = new Date(dateString);
-      return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
-    } catch {
-      return "Invalid Date";
-    }
-  };
+  const commissionEarnings = transactions
+    .filter(
+      (t) =>
+        t.userId === user?.id &&
+        t.description.toLowerCase().includes("commission")
+    )
+    .reduce((sum, t) => sum + t.amount, 0);
 
   const loadWithdrawals = async () => {
     try {
@@ -146,11 +123,20 @@ export default function AdminDashboard() {
     }
   };
 
+  const toggleAutoCreate = async (enabled: boolean) => {
+    try {
+      await predictionApi.autoCreateSlotToggle(enabled);
+      setAutoCreateEnabled(enabled);
+    } catch (error) {
+      console.error("Failed to toggle auto-create:", error);
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
         {/* Header */}
-        <div className="border-b border-slate-700 bg-slate-800 sticky top-0 z-10">
+        <div className="border-b border-slate-700 bg-slate-800">
           <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
@@ -178,6 +164,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="max-w-7xl mx-auto p-4 space-y-6">
+          {/* ... existing stats and tabs code ... */}
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="border-slate-700 bg-slate-800">
@@ -219,12 +206,50 @@ export default function AdminDashboard() {
             <Card className="border-slate-700 bg-slate-800">
               <CardHeader>
                 <CardTitle className="text-slate-300 text-sm font-medium">
-                  Pending Withdrawals
+                  Admin Profit Wallet
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-purple-400">
-                  {pendingWithdrawals.length}
+                <div className="text-xl font-semibold text-green-400">
+                  ₹{user?.walletBalance?.toFixed(2) ?? "0.00"}
+                </div>
+                <p className="text-xs text-slate-400 mt-1">
+                  Lifetime commission earned: ₹{commissionEarnings.toFixed(2)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-700 bg-slate-800">
+              <CardHeader>
+                <CardTitle className="text-slate-300 text-sm font-medium">
+                  Auto Slot Creation
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-sm text-slate-400">
+                  Keeps generating slots every 10 minutes even if admin is
+                  offline.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => toggleAutoCreate(true)}
+                    variant={autoCreateEnabled ? "default" : "outline"}
+                    className={
+                      autoCreateEnabled ? "bg-green-600 hover:bg-green-700" : ""
+                    }
+                  >
+                    Enable
+                  </Button>
+                  <Button
+                    onClick={() => toggleAutoCreate(false)}
+                    variant={!autoCreateEnabled ? "default" : "outline"}
+                    className={
+                      !autoCreateEnabled
+                        ? "bg-slate-700 hover:bg-slate-600"
+                        : ""
+                    }
+                  >
+                    Disable
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -327,61 +352,38 @@ export default function AdminDashboard() {
 
               {/* Users List */}
               <Card className="border-slate-700 bg-slate-800">
-                <CardHeader className="sticky top-0 bg-slate-800 z-10">
+                <CardHeader>
                   <CardTitle className="text-white">Registered Users</CardTitle>
-                  <div className="relative mt-2">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      type="text"
-                      placeholder="Search users by name or email..."
-                      value={userSearch}
-                      onChange={(e) => setUserSearch(e.target.value)}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                    />
-                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="max-h-[500px] overflow-y-auto pr-2 space-y-3">
-                    {filteredUsers.length === 0 ? (
-                      <p className="text-slate-400 text-center py-8">
-                        No users found
-                      </p>
-                    ) : (
-                      filteredUsers.map((u) => (
-                        <div
-                          key={u.id}
-                          className="flex justify-between items-center p-4 bg-slate-700 rounded-lg hover:bg-slate-700/80 transition"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-white truncate">
-                              {u.name}
-                            </p>
-                            <p className="text-sm text-slate-400 truncate">
-                              {u.email}
-                            </p>
-                            <p className="text-xs text-slate-500 mt-1">
-                              Joined: {formatDate(u.createdAt)}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-4 ml-4">
-                            <div className="text-right">
-                              <p className="font-semibold text-green-400">
-                                ${u.walletBalance?.toFixed(2) || "0.00"}
-                              </p>
-                              <p className="text-xs text-slate-400">Balance</p>
-                            </div>
-                            <Button
-                              onClick={() => deleteUser(u.id)}
-                              variant="ghost"
-                              className="text-red-400 hover:text-red-600 hover:bg-red-900/20"
-                              size="sm"
-                            >
-                              Delete
-                            </Button>
-                          </div>
+                  <div className="space-y-3">
+                    {regularUsers.map((u) => (
+                      <div
+                        key={u.id}
+                        className="flex justify-between items-center p-3 bg-slate-700 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-semibold text-white">{u.name}</p>
+                          <p className="text-sm text-slate-400">{u.email}</p>
                         </div>
-                      ))
-                    )}
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="font-semibold text-green-400">
+                              ${u.walletBalance.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-slate-400">Balance</p>
+                          </div>
+                          <Button
+                            onClick={() => deleteUser(u.id)}
+                            variant="ghost"
+                            className="text-red-400 hover:text-red-600"
+                            size="sm"
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -414,11 +416,10 @@ export default function AdminDashboard() {
                             </p>
                             <p>
                               <strong>Amount:</strong> $
-                              {trans.amount?.toFixed(2) || "0.00"}
+                              {trans.amount.toFixed(2)}
                             </p>
                             <p>
-                              <strong>Description:</strong>{" "}
-                              {trans.description || "No description"}
+                              <strong>Description:</strong> {trans.description}
                             </p>
                           </div>
                           <Button
@@ -450,27 +451,27 @@ export default function AdminDashboard() {
                       No pending transactions
                     </p>
                   ) : (
-                    <div className="max-h-[500px] overflow-y-auto space-y-3 pr-2">
+                    <div className="space-y-3">
                       {pendingTransactions.map((trans) => (
                         <div
                           key={trans.id}
-                          className="p-4 bg-slate-700 rounded-lg border border-slate-600 hover:bg-slate-700/80 transition"
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
                         >
                           <div className="flex justify-between items-start mb-3">
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-white truncate">
+                            <div>
+                              <p className="font-semibold text-white">
                                 {trans.userName}
                               </p>
-                              <p className="text-sm text-slate-400 truncate">
-                                {trans.description || "No description"}
+                              <p className="text-sm text-slate-400">
+                                {trans.description}
                               </p>
                             </div>
-                            <p className="text-lg font-bold text-green-400 ml-4">
-                              ${trans.amount?.toFixed(2) || "0.00"}
+                            <p className="text-lg font-bold text-green-400">
+                              ${trans.amount.toFixed(2)}
                             </p>
                           </div>
                           <p className="text-xs text-slate-400 mb-3">
-                            {formatDateTime(trans.createdAt)}
+                            {new Date(trans.createdAt).toLocaleString()}
                           </p>
 
                           {trans.screenshotImage && (
@@ -494,7 +495,7 @@ export default function AdminDashboard() {
                           <div className="flex gap-2">
                             <Button
                               onClick={() =>
-                                user && approveTransaction(trans.id, user.id)
+                                approveTransaction(trans.id, user!.id)
                               }
                               className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                               size="sm"
@@ -545,8 +546,7 @@ export default function AdminDashboard() {
                         <option value="">Choose a user...</option>
                         {regularUsers.map((u) => (
                           <option key={u.id} value={u.id}>
-                            {u.name} ({u.email}) - $
-                            {u.walletBalance?.toFixed(2) || "0.00"}
+                            {u.name} ({u.email}) - ${u.walletBalance.toFixed(2)}
                           </option>
                         ))}
                       </select>
@@ -575,151 +575,117 @@ export default function AdminDashboard() {
             </TabsContent>
 
             {/* Withdrawals Tab */}
-            <TabsContent value="withdrawals" className="mt-6 space-y-6">
-              {/* Pending Withdrawals */}
+            <TabsContent value="withdrawals" className="mt-6">
               <Card className="border-slate-700 bg-slate-800">
-                <CardHeader className="sticky top-0 bg-slate-800 z-10">
+                <CardHeader>
                   <CardTitle className="text-white">
-                    Pending Withdrawal Requests
+                    Withdrawal Requests
                   </CardTitle>
                   <CardDescription className="text-slate-400">
                     Approve or reject user withdrawal requests
                   </CardDescription>
-                  <div className="relative mt-2">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      type="text"
-                      placeholder="Search by user name..."
-                      value={withdrawalSearch}
-                      onChange={(e) => setWithdrawalSearch(e.target.value)}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                    />
-                  </div>
                 </CardHeader>
                 <CardContent>
-                  {pendingWithdrawals.filter((w) =>
-                    w.userName
-                      .toLowerCase()
-                      .includes(withdrawalSearch.toLowerCase())
-                  ).length === 0 ? (
+                  {pendingWithdrawals.length === 0 ? (
                     <p className="text-slate-400 text-center py-8">
                       No pending withdrawal requests
                     </p>
                   ) : (
-                    <div className="max-h-[400px] overflow-y-auto space-y-3 pr-2">
-                      {pendingWithdrawals
-                        .filter((w) =>
-                          w.userName
-                            .toLowerCase()
-                            .includes(withdrawalSearch.toLowerCase())
-                        )
-                        .map((withdrawal) => (
-                          <div
-                            key={withdrawal.id}
-                            className="p-4 bg-slate-700 rounded-lg border border-slate-600 hover:bg-slate-700/80 transition"
-                          >
-                            <div className="flex justify-between items-start mb-3">
-                              <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-white truncate">
-                                  {withdrawal.userName}
-                                </p>
-                                <p className="text-sm text-slate-400">
-                                  Amount: ₹
-                                  {withdrawal.amount?.toFixed(2) || "0.00"}
-                                </p>
-                                <p className="text-xs text-slate-400 mt-1">
-                                  {formatDateTime(withdrawal.createdAt)}
-                                </p>
-                              </div>
-                              <div className="text-right ml-4">
-                                <p className="text-lg font-bold text-purple-400">
-                                  ₹{withdrawal.amount?.toFixed(2) || "0.00"}
-                                </p>
-                                <p className="text-xs text-slate-400">
-                                  Requested
-                                </p>
-                              </div>
+                    <div className="space-y-3">
+                      {pendingWithdrawals.map((withdrawal) => (
+                        <div
+                          key={withdrawal.id}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <p className="font-semibold text-white">
+                                {withdrawal.userName}
+                              </p>
+                              <p className="text-sm text-slate-400">
+                                Amount: ₹{withdrawal.amount.toFixed(2)}
+                              </p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {new Date(
+                                  withdrawal.createdAt
+                                ).toLocaleString()}
+                              </p>
                             </div>
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={() =>
-                                  handleApproveWithdrawal(withdrawal.id)
-                                }
-                                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                                size="sm"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Approve
-                              </Button>
-                              <Button
-                                onClick={() =>
-                                  handleRejectWithdrawal(withdrawal.id)
-                                }
-                                variant="destructive"
-                                className="flex-1"
-                                size="sm"
-                              >
-                                <XCircle className="w-4 h-4 mr-2" />
-                                Reject
-                              </Button>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-purple-400">
+                                ₹{withdrawal.amount.toFixed(2)}
+                              </p>
                             </div>
                           </div>
-                        ))}
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() =>
+                                handleApproveWithdrawal(withdrawal.id)
+                              }
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                              size="sm"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Approve
+                            </Button>
+                            <Button
+                              onClick={() =>
+                                handleRejectWithdrawal(withdrawal.id)
+                              }
+                              variant="destructive"
+                              className="flex-1"
+                              size="sm"
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </CardContent>
               </Card>
 
-              {/* All Withdrawals */}
-              <Card className="border-slate-700 bg-slate-800">
-                <CardHeader className="sticky top-0 bg-slate-800 z-10">
+              <Card className="border-slate-700 bg-slate-800 mt-6">
+                <CardHeader>
                   <CardTitle className="text-white">All Withdrawals</CardTitle>
-                  <div className="relative mt-2">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      type="text"
-                      placeholder="Search by user name..."
-                      value={withdrawalSearch}
-                      onChange={(e) => setWithdrawalSearch(e.target.value)}
-                      className="pl-10 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                    />
-                  </div>
                 </CardHeader>
                 <CardContent>
-                  {filteredWithdrawals.length === 0 ? (
-                    <p className="text-slate-400 text-center py-8">
-                      No withdrawals found
+                  {withdrawals.length === 0 ? (
+                    <p className="text-slate-400 text-center py-4">
+                      No withdrawals
                     </p>
                   ) : (
-                    <div className="max-h-[500px] overflow-y-auto">
+                    <div className="overflow-x-auto">
                       <table className="w-full text-sm">
-                        <thead className="sticky top-0 bg-slate-800">
+                        <thead>
                           <tr className="border-b border-slate-600">
-                            <th className="text-left py-3 px-2 text-slate-300">
+                            <th className="text-left py-2 px-2 text-slate-300">
                               User
                             </th>
-                            <th className="text-left py-3 px-2 text-slate-300">
+                            <th className="text-left py-2 px-2 text-slate-300">
                               Amount
                             </th>
-                            <th className="text-left py-3 px-2 text-slate-300">
+                            <th className="text-left py-2 px-2 text-slate-300">
                               Status
                             </th>
-                            <th className="text-left py-3 px-2 text-slate-300">
+                            <th className="text-left py-2 px-2 text-slate-300">
                               Date
                             </th>
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredWithdrawals.map((w) => (
+                          {withdrawals.map((w) => (
                             <tr
                               key={w.id}
-                              className="border-b border-slate-700 hover:bg-slate-700/50 transition"
+                              className="border-b border-slate-700 hover:bg-slate-700/50"
                             >
                               <td className="py-3 px-2 text-white">
                                 {w.userName}
                               </td>
                               <td className="py-3 px-2 text-purple-400 font-semibold">
-                                ₹{w.amount?.toFixed(2) || "0.00"}
+                                ₹{w.amount.toFixed(2)}
                               </td>
                               <td className="py-3 px-2">
                                 <span
@@ -731,12 +697,12 @@ export default function AdminDashboard() {
                                       : "bg-red-600 text-white"
                                   }`}
                                 >
-                                  {w.status?.charAt(0).toUpperCase() +
-                                    w.status?.slice(1) || "Unknown"}
+                                  {w.status.charAt(0).toUpperCase() +
+                                    w.status.slice(1)}
                                 </span>
                               </td>
                               <td className="py-3 px-2 text-slate-400">
-                                {formatDate(w.createdAt)}
+                                {new Date(w.createdAt).toLocaleDateString()}
                               </td>
                             </tr>
                           ))}
@@ -756,60 +722,44 @@ export default function AdminDashboard() {
 
           {/* Transaction History */}
           <Card className="border-slate-700 bg-slate-800">
-            <CardHeader className="sticky top-0 bg-slate-800 z-10">
+            <CardHeader>
               <CardTitle className="text-white">All Transactions</CardTitle>
-              <div className="relative mt-2">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  type="text"
-                  placeholder="Search by user name or description..."
-                  value={transactionSearch}
-                  onChange={(e) => setTransactionSearch(e.target.value)}
-                  className="pl-10 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                />
-              </div>
             </CardHeader>
             <CardContent>
-              {filteredTransactions.length === 0 ? (
-                <p className="text-slate-400 text-center py-8">
-                  No transactions found
+              {transactions.length === 0 ? (
+                <p className="text-slate-400 text-center py-4">
+                  No transactions
                 </p>
               ) : (
-                <div className="max-h-[500px] overflow-y-auto">
+                <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="sticky top-0 bg-slate-800">
+                    <thead>
                       <tr className="border-b border-slate-600">
-                        <th className="text-left py-3 px-2 text-slate-300">
+                        <th className="text-left py-2 px-2 text-slate-300">
                           User
                         </th>
-                        <th className="text-left py-3 px-2 text-slate-300">
+                        <th className="text-left py-2 px-2 text-slate-300">
                           Amount
                         </th>
-                        <th className="text-left py-3 px-2 text-slate-300">
-                          Description
-                        </th>
-                        <th className="text-left py-3 px-2 text-slate-300">
+                        <th className="text-left py-2 px-2 text-slate-300">
                           Status
                         </th>
-                        <th className="text-left py-3 px-2 text-slate-300">
+                        <th className="text-left py-2 px-2 text-slate-300">
                           Date
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredTransactions.map((trans) => (
+                      {transactions.map((trans) => (
                         <tr
                           key={trans.id}
-                          className="border-b border-slate-700 hover:bg-slate-700/50 transition"
+                          className="border-b border-slate-700 hover:bg-slate-700/50"
                         >
                           <td className="py-3 px-2 text-white">
                             {trans.userName}
                           </td>
                           <td className="py-3 px-2 text-green-400 font-semibold">
-                            ${trans.amount?.toFixed(2) || "0.00"}
-                          </td>
-                          <td className="py-3 px-2 text-slate-300 max-w-[200px] truncate">
-                            {trans.description || "No description"}
+                            ${trans.amount.toFixed(2)}
                           </td>
                           <td className="py-3 px-2">
                             <span
@@ -821,12 +771,12 @@ export default function AdminDashboard() {
                                   : "bg-red-600 text-white"
                               }`}
                             >
-                              {trans.status?.charAt(0).toUpperCase() +
-                                trans.status?.slice(1) || "Unknown"}
+                              {trans.status.charAt(0).toUpperCase() +
+                                trans.status.slice(1)}
                             </span>
                           </td>
                           <td className="py-3 px-2 text-slate-400">
-                            {formatDate(trans.createdAt)}
+                            {new Date(trans.createdAt).toLocaleDateString()}
                           </td>
                         </tr>
                       ))}

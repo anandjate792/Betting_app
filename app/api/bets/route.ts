@@ -33,9 +33,13 @@ export async function GET(request: NextRequest) {
       query.slotId = slotId;
     }
 
-    const bets = await Bet.find(query).sort({ createdAt: -1 }).populate("slotId", "slotNumber startTime endTime winningIcon");
+    const bets = await Bet.find(query)
+      .sort({ createdAt: -1 })
+      .populate("slotId", "slotNumber startTime endTime winningIcon");
     const formatted = bets.map((b) => ({
       id: b._id.toString(),
+      userId: b.userId.toString(),
+      userName: b.userName,
       slotId: (b.slotId as any)?._id?.toString(),
       slotNumber: (b.slotId as any)?.slotNumber,
       icon: b.icon,
@@ -47,7 +51,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(formatted);
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Server error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -61,18 +68,42 @@ export async function POST(request: NextRequest) {
     const { slotId, icon, amount } = await request.json();
 
     if (!slotId || !icon || !amount) {
-      return NextResponse.json({ error: "Slot ID, icon, and amount are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Slot ID, icon, and amount are required" },
+        { status: 400 }
+      );
     }
 
     if (amount < 50) {
-      return NextResponse.json({ error: "Minimum bet amount is 50 rupees" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Minimum bet amount is 50 rupees" },
+        { status: 400 }
+      );
     }
 
     if (user.walletBalance < amount) {
-      return NextResponse.json({ error: "Insufficient wallet balance" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Insufficient wallet balance" },
+        { status: 400 }
+      );
     }
 
     await connectDB();
+
+    const existingBet = await Bet.findOne({
+      userId: user._id,
+      slotId,
+      status: { $in: ["pending", "won", "lost", "cancelled"] },
+    });
+    if (existingBet) {
+      return NextResponse.json(
+        {
+          error:
+            "You already placed a bet on this slot. Please wait for the result.",
+        },
+        { status: 400 }
+      );
+    }
 
     const slot = await PredictionSlot.findById(slotId);
     if (!slot) {
@@ -81,14 +112,33 @@ export async function POST(request: NextRequest) {
 
     const now = new Date();
     if (now < slot.startTime || now > slot.endTime) {
-      return NextResponse.json({ error: "Slot is not active" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Slot is not active" },
+        { status: 400 }
+      );
     }
 
     if (slot.status !== "open") {
-      return NextResponse.json({ error: "Slot is not open for betting" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Slot is not open for betting" },
+        { status: 400 }
+      );
     }
 
-    const validIcons = ["umbrella", "fish", "hen", "coin", "star", "heart", "diamond", "spade", "club", "trophy", "crown", "gem"];
+    const validIcons = [
+      "umbrella",
+      "fish",
+      "hen",
+      "coin",
+      "star",
+      "heart",
+      "diamond",
+      "spade",
+      "club",
+      "trophy",
+      "crown",
+      "gem",
+    ];
     if (!validIcons.includes(icon)) {
       return NextResponse.json({ error: "Invalid icon" }, { status: 400 });
     }
@@ -111,7 +161,10 @@ export async function POST(request: NextRequest) {
     const betsByIcon = slot.betsByIcon || new Map();
     const existingData = betsByIcon.get(icon);
     const iconData = existingData
-      ? { totalBets: existingData.totalBets + 1, totalAmount: existingData.totalAmount + amount }
+      ? {
+          totalBets: existingData.totalBets + 1,
+          totalAmount: existingData.totalAmount + amount,
+        }
       : { totalBets: 1, totalAmount: amount };
     betsByIcon.set(icon, iconData);
     slot.betsByIcon = betsByIcon;
@@ -130,7 +183,9 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Server error" },
+      { status: 500 }
+    );
   }
 }
-

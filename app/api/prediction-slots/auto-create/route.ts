@@ -1,10 +1,29 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import PredictionSlot from "@/lib/models/PredictionSlot";
+import Setting from "@/lib/models/Setting";
+
+export async function GET() {
+  await connectDB();
+  const setting = await Setting.findOne({ key: "autoCreateSlots" });
+  return NextResponse.json({ enabled: Boolean(setting?.value) });
+}
 
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
+
+    // Toggle auto-create flag when called with ?toggle=true&enabled=1|0
+    const url = new URL(request.url);
+    if (url.searchParams.get("toggle") === "true") {
+      const enabled = url.searchParams.get("enabled") === "1";
+      await Setting.findOneAndUpdate(
+        { key: "autoCreateSlots" },
+        { value: enabled },
+        { upsert: true, new: true },
+      );
+      return NextResponse.json({ message: `Auto-create ${enabled ? "enabled" : "disabled"}` });
+    }
 
     const now = new Date();
     const nextSlotStart = new Date(now);

@@ -73,6 +73,42 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/admin/add-money",
+      "regex": "^/admin/add\\-money(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/add\\-money(?:/)?$"
+    },
+    {
+      "page": "/admin/approvals",
+      "regex": "^/admin/approvals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/approvals(?:/)?$"
+    },
+    {
+      "page": "/admin/prediction",
+      "regex": "^/admin/prediction(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/prediction(?:/)?$"
+    },
+    {
+      "page": "/admin/users",
+      "regex": "^/admin/users(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/users(?:/)?$"
+    },
+    {
+      "page": "/admin/withdrawals",
+      "regex": "^/admin/withdrawals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/withdrawals(?:/)?$"
+    },
+    {
       "page": "/api/auth/change-password",
       "regex": "^/api/auth/change\\-password(?:/)?$",
       "routeKeys": {},
@@ -131,6 +167,36 @@
       "regex": "^/api/withdrawals(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/withdrawals(?:/)?$"
+    },
+    {
+      "page": "/dashboard",
+      "regex": "^/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/dashboard/prediction",
+      "regex": "^/dashboard/prediction(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/prediction(?:/)?$"
+    },
+    {
+      "page": "/dashboard/transactions",
+      "regex": "^/dashboard/transactions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/transactions(?:/)?$"
+    },
+    {
+      "page": "/dashboard/wallet",
+      "regex": "^/dashboard/wallet(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/wallet(?:/)?$"
+    },
+    {
+      "page": "/dashboard/withdrawals",
+      "regex": "^/dashboard/withdrawals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/withdrawals(?:/)?$"
     }
   ],
   "dataRoutes": [],

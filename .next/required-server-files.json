@@ -99,7 +99,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/home/aravind/Downloads/wallet-and-transactions (1)",
+    "outputFileTracingRoot": "/home/aravind/StudioProjects/WT/wallet-and-transactions1",
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -289,11 +289,11 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.mjs",
     "turbopack": {
-      "root": "/home/aravind/Downloads/wallet-and-transactions (1)"
+      "root": "/home/aravind/StudioProjects/WT/wallet-and-transactions1"
     },
     "distDirRoot": ".next"
   },
-  "appDir": "/home/aravind/Downloads/wallet-and-transactions (1)",
+  "appDir": "/home/aravind/StudioProjects/WT/wallet-and-transactions1",
   "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",

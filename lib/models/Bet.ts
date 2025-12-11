@@ -39,6 +39,11 @@ const betSchema = new mongoose.Schema({
   },
 });
 
+// Add indexes for better query performance
+betSchema.index({ userId: 1, createdAt: -1 });
+betSchema.index({ slotId: 1, userId: 1 });
+betSchema.index({ createdAt: -1 });
+
 if (mongoose.models.Bet) {
   delete mongoose.models.Bet;
 }

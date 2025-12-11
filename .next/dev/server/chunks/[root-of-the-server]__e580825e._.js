@@ -253,6 +253,18 @@ const betSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose
         default: Date.now
     }
 });
+// Add indexes for better query performance
+betSchema.index({
+    userId: 1,
+    createdAt: -1
+});
+betSchema.index({
+    slotId: 1,
+    userId: 1
+});
+betSchema.index({
+    createdAt: -1
+});
 if (__TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Bet) {
     delete __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Bet;
 }
@@ -310,6 +322,18 @@ const transactionSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$
         type: Date,
         default: Date.now
     }
+});
+// Add indexes for better query performance
+transactionSchema.index({
+    userId: 1,
+    createdAt: -1
+});
+transactionSchema.index({
+    status: 1,
+    createdAt: -1
+});
+transactionSchema.index({
+    createdAt: -1
 });
 const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Transaction || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model("Transaction", transactionSchema);
 }),

@@ -26,28 +26,49 @@ export async function GET(request: NextRequest) {
 
     const url = new URL(request.url)
     const isAdmin = url.searchParams.get("admin") === "true"
+    const limit = Math.min(parseInt(url.searchParams.get("limit") || "10"), 50) // Max 50 per page
+    const skip = parseInt(url.searchParams.get("skip") || "0")
 
     if (isAdmin && user.role !== "admin") {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 })
     }
 
     const query = isAdmin ? {} : { userId: user._id }
-    const results = await Transaction.find(query).sort({ createdAt: -1 })
+    
+    // Use lean() for better performance and select only needed fields
+    // Exclude screenshotImage from list query for faster loading (load only when viewing details)
+    const [results, total] = await Promise.all([
+      Transaction.find(query)
+        .select("_id userId userName amount status description createdAt approvedAt approvedBy")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Transaction.countDocuments(query)
+    ])
 
-    const formatted = results.map((t) => ({
+    const formatted = results.map((t: any) => ({
       id: t._id.toString(),
       userId: t.userId.toString(),
       userName: t.userName,
       amount: t.amount,
       status: t.status,
-      screenshotImage: t.screenshotImage,
+      screenshotImage: t.screenshotImage || undefined,
       description: t.description,
       createdAt: t.createdAt,
-      approvedAt: t.approvedAt,
+      approvedAt: t.approvedAt || undefined,
       approvedBy: t.approvedBy ? t.approvedBy.toString() : undefined,
     }))
 
-    return NextResponse.json(formatted)
+    return NextResponse.json({
+      data: formatted,
+      pagination: {
+        total,
+        limit,
+        skip,
+        hasMore: skip + limit < total,
+      },
+    })
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Server error" }, { status: 500 })
   }

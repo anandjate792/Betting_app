@@ -171,6 +171,18 @@ const withdrawalSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$m
         default: Date.now
     }
 });
+// Add indexes for better query performance
+withdrawalSchema.index({
+    userId: 1,
+    createdAt: -1
+});
+withdrawalSchema.index({
+    status: 1,
+    createdAt: -1
+});
+withdrawalSchema.index({
+    createdAt: -1
+});
 if (__TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Withdrawal) {
     delete __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Withdrawal;
 }
@@ -278,12 +290,19 @@ const getAdmin = async (request)=>{
 };
 async function GET(request) {
     try {
+        const url = new URL(request.url);
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "10"), 50);
+        const skip = parseInt(url.searchParams.get("skip") || "0");
         const admin = await getAdmin(request);
         if (admin) {
             await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
-            const withdrawals = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find().sort({
-                createdAt: -1
-            }).populate("userId", "name email");
+            const query = {};
+            const [withdrawals, total] = await Promise.all([
+                __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).select("_id userId userName amount status approvedBy approvedAt createdAt").sort({
+                    createdAt: -1
+                }).skip(skip).limit(limit).lean(),
+                __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments(query)
+            ]);
             const formatted = withdrawals.map((w)=>({
                     id: w._id.toString(),
                     userId: w.userId.toString(),
@@ -294,7 +313,15 @@ async function GET(request) {
                     approvedAt: w.approvedAt,
                     createdAt: w.createdAt
                 }));
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(formatted);
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                data: formatted,
+                pagination: {
+                    total,
+                    limit,
+                    skip,
+                    hasMore: skip + limit < total
+                }
+            });
         }
         const user = await getAuthUser(request);
         if (!user) {
@@ -305,11 +332,15 @@ async function GET(request) {
             });
         }
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
-        const withdrawals = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
+        const query = {
             userId: user._id
-        }).sort({
-            createdAt: -1
-        });
+        };
+        const [withdrawals, total] = await Promise.all([
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).select("_id amount status approvedAt createdAt").sort({
+                createdAt: -1
+            }).skip(skip).limit(limit).lean(),
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments(query)
+        ]);
         const formatted = withdrawals.map((w)=>({
                 id: w._id.toString(),
                 amount: w.amount,
@@ -317,7 +348,15 @@ async function GET(request) {
                 approvedAt: w.approvedAt,
                 createdAt: w.createdAt
             }));
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(formatted);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            data: formatted,
+            pagination: {
+                total,
+                limit,
+                skip,
+                hasMore: skip + limit < total
+            }
+        });
     } catch (error) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: error instanceof Error ? error.message : "Server error"

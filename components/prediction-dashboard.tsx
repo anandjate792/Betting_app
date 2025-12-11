@@ -87,6 +87,39 @@ export default function PredictionDashboard() {
   const [betsLoading, setBetsLoading] = useState(false);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [withdrawalsLoading, setWithdrawalsLoading] = useState(false);
+  const [betsHasMore, setBetsHasMore] = useState(true);
+  const [transactionsHasMore, setTransactionsHasMore] = useState(true);
+  const [withdrawalsHasMore, setWithdrawalsHasMore] = useState(true);
+  const [betsSkip, setBetsSkip] = useState(0);
+  const [transactionsSkip, setTransactionsSkip] = useState(0);
+  const [withdrawalsSkip, setWithdrawalsSkip] = useState(0);
+  const betsScrollRef = useRef<HTMLDivElement>(null);
+  const transactionsScrollRef = useRef<HTMLDivElement>(null);
+  const withdrawalsScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleBetsScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    if (bottom && betsHasMore && !betsLoading) {
+      loadMyBets(false);
+    }
+  };
+
+  const handleTransactionsScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    if (bottom && transactionsHasMore && !transactionsLoading) {
+      loadTransactions(false);
+    }
+  };
+
+  const handleWithdrawalsScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    if (bottom && withdrawalsHasMore && !withdrawalsLoading) {
+      loadWithdrawals(false);
+    }
+  };
 
   useEffect(() => {
     loadCurrentSlot();
@@ -128,11 +161,27 @@ export default function PredictionDashboard() {
     }
   };
 
-  const loadMyBets = async () => {
+  const loadMyBets = async (reset = false) => {
+    if (reset) {
+      setBetsSkip(0);
+      setMyBets([]);
+      setBetsHasMore(true);
+    }
+    if (!betsHasMore && !reset) return;
+    
     setBetsLoading(true);
     try {
-      const bets = await betApi.getBets();
-      setMyBets(bets as any[]);
+      const response = await betApi.getBets(undefined, 10, reset ? 0 : betsSkip);
+      // Handle both old format (array) and new format (paginated)
+      if (Array.isArray(response)) {
+        setMyBets(reset ? response : [...myBets, ...response]);
+        setBetsHasMore(false);
+      } else {
+        const newBets = response.data || [];
+        setMyBets((prev) => reset ? newBets : [...prev, ...newBets]);
+        setBetsHasMore(response.pagination?.hasMore || false);
+        setBetsSkip((prev) => reset ? 10 : prev + 10);
+      }
     } catch (error) {
       console.error("Failed to load bets:", error);
     } finally {
@@ -147,8 +196,10 @@ export default function PredictionDashboard() {
       return;
     }
     try {
-      const bets = await betApi.getBets(slotId);
-      const selfBet = (bets as any[]).find((b) => b.slotId === slotId);
+      const response = await betApi.getBets(slotId, 10, 0);
+      // Handle both old format (array) and new format (paginated)
+      const betsArray = Array.isArray(response) ? response : (response.data || []);
+      const selfBet = betsArray.find((b: any) => b.slotId === slotId);
       setHasBetCurrentSlot(Boolean(selfBet));
       setCurrentSlotBet(
         selfBet ? { icon: selfBet.icon, amount: selfBet.amount } : null
@@ -161,22 +212,36 @@ export default function PredictionDashboard() {
   const handleRefresh = async () => {
     setRefreshing(true);
     await loadCurrentSlot();
-    await loadMyBets();
+    await loadMyBets(true);
+    await loadTransactions(true);
+    await loadWithdrawals(true);
     setRefreshing(false);
   };
 
   useEffect(() => {
     if (activeTab === "dashboard") {
-      loadMyBets();
-      loadTransactions();
-      loadWithdrawals();
+      loadMyBets(true);
+      loadTransactions(true);
+      loadWithdrawals(true);
     }
   }, [activeTab]);
 
-  const loadTransactions = async () => {
+  const loadTransactions = async (reset = false) => {
+    if (reset) {
+      setTransactionsSkip(0);
+      setTransactionsHasMore(true);
+    }
+    if (!transactionsHasMore && !reset) return;
+    
     setTransactionsLoading(true);
     try {
-      await fetchTransactions();
+      const response = await fetchTransactions(10, reset ? 0 : transactionsSkip);
+      if (response?.pagination) {
+        setTransactionsHasMore(response.pagination.hasMore || false);
+        setTransactionsSkip((prev) => reset ? 10 : prev + 10);
+      } else {
+        setTransactionsHasMore(false);
+      }
     } catch (error) {
       console.error("Failed to load transactions:", error);
     } finally {
@@ -184,11 +249,27 @@ export default function PredictionDashboard() {
     }
   };
 
-  const loadWithdrawals = async () => {
+  const loadWithdrawals = async (reset = false) => {
+    if (reset) {
+      setWithdrawalsSkip(0);
+      setMyWithdrawals([]);
+      setWithdrawalsHasMore(true);
+    }
+    if (!withdrawalsHasMore && !reset) return;
+    
     setWithdrawalsLoading(true);
     try {
-      const withdrawals = await withdrawalApi.getWithdrawals();
-      setMyWithdrawals(withdrawals as any[]);
+      const response = await withdrawalApi.getWithdrawals(10, reset ? 0 : withdrawalsSkip);
+      // Handle both old format (array) and new format (paginated)
+      if (Array.isArray(response)) {
+        setMyWithdrawals(reset ? response : [...myWithdrawals, ...response]);
+        setWithdrawalsHasMore(false);
+      } else {
+        const newWithdrawals = response.data || [];
+        setMyWithdrawals((prev) => reset ? newWithdrawals : [...prev, ...newWithdrawals]);
+        setWithdrawalsHasMore(response.pagination?.hasMore || false);
+        setWithdrawalsSkip((prev) => reset ? 10 : prev + 10);
+      }
     } catch (error) {
       console.error("Failed to load withdrawals:", error);
     } finally {
@@ -343,44 +424,7 @@ export default function PredictionDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-      <div className="border-b border-slate-700 bg-slate-800">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Prediction Game</h1>
-            <p className="text-slate-400 text-sm">
-              {currentSlot
-                ? `Slot #${currentSlot.slotNumber}`
-                : "Waiting for next slot..."}
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm text-slate-400">Wallet Balance</p>
-              <p className="text-2xl font-bold text-green-400">
-                ₹{user?.walletBalance.toFixed(2) || "0.00"}
-              </p>
-            </div>
-            <Button
-              onClick={handleRefresh}
-              variant="outline"
-              className="text-slate-200 border-slate-600 bg-slate-800 hover:bg-slate-700"
-              disabled={refreshing}
-            >
-              {refreshing ? "Refreshing..." : "Refresh"}
-            </Button>
-            <Button
-              onClick={logout}
-              variant="ghost"
-              className="text-slate-400 hover:text-red-400"
-            >
-              Logout
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto p-4 space-y-6">
+    <div className="max-w-7xl mx-auto p-4 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-slate-700">
             <TabsTrigger value="prediction">Prediction Game</TabsTrigger>
@@ -465,7 +509,7 @@ export default function PredictionDashboard() {
                                 onClick={() => setSelectedIcon(id)}
                                 className={`p-4 rounded-lg border-2 transition-all ${
                                   isSelected
-                                    ? "border-blue-500 bg-blue-500/20"
+                                    ? "border-blue-500 bg-blue-500 bg-opacity-20"
                                     : "border-slate-600 bg-slate-700 hover:border-slate-500"
                                 }`}
                               >
@@ -564,8 +608,12 @@ export default function PredictionDashboard() {
                     No bets placed yet
                   </p>
                 ) : (
-                  <ScrollArea className="h-[400px]">
-                    <div className="space-y-3 pr-4">
+                  <div 
+                    className="h-[400px] overflow-y-auto pr-4"
+                    onScroll={handleBetsScroll}
+                    ref={betsScrollRef}
+                  >
+                    <div className="space-y-3">
                       {myBets.map((bet) => (
                         <div
                           key={bet.id}
@@ -606,8 +654,13 @@ export default function PredictionDashboard() {
                           </div>
                         </div>
                       ))}
+                      {betsHasMore && (
+                        <div className="flex justify-center py-4">
+                          <Spinner className="w-5 h-5 text-blue-400" />
+                        </div>
+                      )}
                     </div>
-                  </ScrollArea>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -801,8 +854,12 @@ export default function PredictionDashboard() {
                     No withdrawal requests yet
                   </p>
                 ) : (
-                  <ScrollArea className="h-[400px]">
-                    <div className="space-y-3 pr-4">
+                  <div 
+                    className="h-[400px] overflow-y-auto pr-4"
+                    onScroll={handleWithdrawalsScroll}
+                    ref={withdrawalsScrollRef}
+                  >
+                    <div className="space-y-3">
                       {myWithdrawals.map((withdrawal) => (
                         <div
                           key={withdrawal.id}
@@ -842,8 +899,13 @@ export default function PredictionDashboard() {
                           </div>
                         </div>
                       ))}
+                      {withdrawalsHasMore && (
+                        <div className="flex justify-center py-4">
+                          <Spinner className="w-5 h-5 text-blue-400" />
+                        </div>
+                      )}
                     </div>
-                  </ScrollArea>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -868,8 +930,12 @@ export default function PredictionDashboard() {
                     No transactions yet
                   </p>
                 ) : (
-                  <ScrollArea className="h-[400px]">
-                    <div className="space-y-3 pr-4">
+                  <div 
+                    className="h-[400px] overflow-y-auto pr-4"
+                    onScroll={handleTransactionsScroll}
+                    ref={transactionsScrollRef}
+                  >
+                    <div className="space-y-3">
                       {userTransactions.map((transaction) => (
                         <div
                           key={transaction.id}
@@ -909,14 +975,18 @@ export default function PredictionDashboard() {
                           </div>
                         </div>
                       ))}
+                      {transactionsHasMore && (
+                        <div className="flex justify-center py-4">
+                          <Spinner className="w-5 h-5 text-blue-400" />
+                        </div>
+                      )}
                     </div>
-                  </ScrollArea>
+                  </div>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }

@@ -177,6 +177,18 @@ const transactionSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$
         default: Date.now
     }
 });
+// Add indexes for better query performance
+transactionSchema.index({
+    userId: 1,
+    createdAt: -1
+});
+transactionSchema.index({
+    status: 1,
+    createdAt: -1
+});
+transactionSchema.index({
+    createdAt: -1
+});
 const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Transaction || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model("Transaction", transactionSchema);
 }),
 "[project]/lib/models/User.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
@@ -279,6 +291,9 @@ async function GET(request) {
         }
         const url = new URL(request.url);
         const isAdmin = url.searchParams.get("admin") === "true";
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "10"), 50) // Max 50 per page
+        ;
+        const skip = parseInt(url.searchParams.get("skip") || "0");
         if (isAdmin && user.role !== "admin") {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Admin access required"
@@ -289,22 +304,35 @@ async function GET(request) {
         const query = isAdmin ? {} : {
             userId: user._id
         };
-        const results = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Transaction$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).sort({
-            createdAt: -1
-        });
+        // Use lean() for better performance and select only needed fields
+        // Exclude screenshotImage from list query for faster loading (load only when viewing details)
+        const [results, total] = await Promise.all([
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Transaction$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).select("_id userId userName amount status description createdAt approvedAt approvedBy").sort({
+                createdAt: -1
+            }).skip(skip).limit(limit).lean(),
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Transaction$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments(query)
+        ]);
         const formatted = results.map((t)=>({
                 id: t._id.toString(),
                 userId: t.userId.toString(),
                 userName: t.userName,
                 amount: t.amount,
                 status: t.status,
-                screenshotImage: t.screenshotImage,
+                screenshotImage: t.screenshotImage || undefined,
                 description: t.description,
                 createdAt: t.createdAt,
-                approvedAt: t.approvedAt,
+                approvedAt: t.approvedAt || undefined,
                 approvedBy: t.approvedBy ? t.approvedBy.toString() : undefined
             }));
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(formatted);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            data: formatted,
+            pagination: {
+                total,
+                limit,
+                skip,
+                hasMore: skip + limit < total
+            }
+        });
     } catch (error) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: error instanceof Error ? error.message : "Server error"

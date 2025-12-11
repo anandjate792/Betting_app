@@ -38,6 +38,8 @@ interface AppStore {
   user: User | null
   users: AppUser[]
   transactions: Transaction[]
+  totalTransactions: number
+  isLoading: boolean
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
   createUser: (name: string, email: string, password: string) => Promise<void>
@@ -55,6 +57,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
   user: null,
   users: [],
   transactions: [],
+  totalTransactions: 0,
+  isLoading: true,
 
   login: async (email: string, password: string) => {
     try {
@@ -62,6 +66,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       localStorage.setItem("authToken", response.token)
       set({
         user: response.user,
+        isLoading: false,
       })
       if (response.user.role === "admin") {
         await get().fetchUsers()
@@ -70,13 +75,14 @@ export const useAppStore = create<AppStore>((set, get) => ({
       return true
     } catch (error) {
       console.error("Login error:", error)
+      set({ isLoading: false })
       return false
     }
   },
 
   logout: () => {
     localStorage.removeItem("authToken")
-    set({ user: null, users: [], transactions: [] })
+    set({ user: null, users: [], transactions: [], totalTransactions: 0, isLoading: false })
   },
 
   createUser: async (name: string, email: string, password: string) => {
@@ -166,43 +172,70 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
   },
 
-  fetchTransactions: async () => {
+  fetchTransactions: async (limit = 10, skip = 0) => {
     try {
       const currentUser = get().user
-      if (!currentUser) return
-      const transactions =
+      if (!currentUser) return { data: [], pagination: { hasMore: false } }
+      const response =
         currentUser.role === "admin"
-          ? await transactionApi.getAllTransactions()
-          : await transactionApi.getUserTransactions()
-      set({ transactions })
+          ? await transactionApi.getAllTransactions(limit, skip)
+          : await transactionApi.getUserTransactions(limit, skip)
+      
+      // Handle both old format (array) and new format (paginated)
+      if (Array.isArray(response)) {
+        set({ transactions: response, totalTransactions: response.length })
+        return { data: response, pagination: { hasMore: false, total: response.length } }
+      }
+      
+      // New paginated format
+      if (skip === 0) {
+        // First load - replace all
+        set({ 
+          transactions: response.data || [],
+          totalTransactions: response.pagination?.total || 0
+        })
+      } else {
+        // Load more - append
+        set((state) => ({
+          transactions: [...(state.transactions || []), ...(response.data || [])],
+          totalTransactions: response.pagination?.total || state.totalTransactions
+        }))
+      }
+      return response
     } catch (error) {
       console.error("Fetch transactions error:", error)
+      return { data: [], pagination: { hasMore: false } }
     }
   },
 }))
 
 export const useLoadStore = () => {
   useEffect(() => {
-    const token = localStorage.getItem("authToken")
-    if (!token) return
-
     const initialize = async () => {
+      const token = localStorage.getItem("authToken")
+      if (!token) {
+        useAppStore.setState({ isLoading: false })
+        return
+      }
+
       try {
         const profile = await authApi.getProfile()
         useAppStore.setState((state) => ({
           ...state,
           user: profile,
+          isLoading: false,
         }))
 
         const { role } = profile
         if (role === "admin") {
           await useAppStore.getState().fetchUsers()
         }
-        await useAppStore.getState().fetchTransactions()
+        // Fetch first page to get total count
+        await useAppStore.getState().fetchTransactions(10, 0)
       } catch (error) {
         console.error("Session restore error:", error)
         localStorage.removeItem("authToken")
-        useAppStore.setState({ user: null, users: [], transactions: [] })
+        useAppStore.setState({ user: null, users: [], transactions: [], isLoading: false })
       }
     }
 

@@ -33,6 +33,7 @@ export default function AdminDashboard() {
     logout,
     users,
     transactions,
+    totalTransactions,
     deleteUser,
     createUser,
     approveTransaction,
@@ -83,7 +84,8 @@ export default function AdminDashboard() {
   const loadTransactions = async () => {
     setTransactionsLoading(true);
     try {
-      await useAppStore.getState().fetchTransactions();
+      // Fetch first page to get total count
+      await useAppStore.getState().fetchTransactions(10, 0);
     } catch (error) {
       console.error("Failed to load transactions:", error);
     } finally {
@@ -231,7 +233,7 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-green-400">
-                  {transactions.length}
+                  {totalTransactions || transactions.length}
                 </div>
               </CardContent>
             </Card>

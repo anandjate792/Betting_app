@@ -176,6 +176,18 @@ const betSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose
         default: Date.now
     }
 });
+// Add indexes for better query performance
+betSchema.index({
+    userId: 1,
+    createdAt: -1
+});
+betSchema.index({
+    slotId: 1,
+    userId: 1
+});
+betSchema.index({
+    createdAt: -1
+});
 if (__TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Bet) {
     delete __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Bet;
 }
@@ -349,38 +361,49 @@ async function GET(request) {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
         const url = new URL(request.url);
         const slotId = url.searchParams.get("slotId");
-        const page = parseInt(url.searchParams.get("page") || "1");
-        const limit = parseInt(url.searchParams.get("limit") || "20");
-        const skip = (page - 1) * limit;
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "10"), 50);
+        const skip = parseInt(url.searchParams.get("skip") || "0");
         const query = {
             userId: user._id
         };
         if (slotId) {
             query.slotId = slotId;
         }
-        const total = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments(query);
-        const bets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).sort({
-            createdAt: -1
-        }).skip(skip).limit(limit).populate("slotId", "slotNumber startTime endTime winningIcon");
-        const formatted = bets.map((b)=>({
+        const [bets, total] = await Promise.all([
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).select("_id userId userName slotId icon amount payout status createdAt").sort({
+                createdAt: -1
+            }).skip(skip).limit(limit).populate("slotId", "slotNumber startTime endTime winningIcon status").lean(),
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments(query)
+        ]);
+        const formatted = bets.map((b)=>{
+            const slotId = b.slotId;
+            const isPopulated = slotId && typeof slotId === 'object' && slotId._id;
+            return {
                 id: b._id.toString(),
                 userId: b.userId.toString(),
                 userName: b.userName,
-                slotId: b.slotId?._id?.toString(),
-                slotNumber: b.slotId?.slotNumber,
+                slotId: isPopulated ? slotId._id.toString() : slotId?.toString() || null,
+                slotNumber: isPopulated ? slotId.slotNumber : null,
                 icon: b.icon,
                 amount: b.amount,
                 payout: b.payout,
                 status: b.status,
-                createdAt: b.createdAt
-            }));
+                createdAt: b.createdAt,
+                slot: isPopulated ? {
+                    slotNumber: slotId.slotNumber,
+                    startTime: slotId.startTime,
+                    endTime: slotId.endTime,
+                    winningIcon: slotId.winningIcon,
+                    status: slotId.status
+                } : null
+            };
+        });
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             data: formatted,
             pagination: {
-                page,
-                limit,
                 total,
-                totalPages: Math.ceil(total / limit),
+                limit,
+                skip,
                 hasMore: skip + limit < total
             }
         });
@@ -502,9 +525,9 @@ async function POST(request) {
         slot.totalAmount += amount;
         const betsByIcon = slot.betsByIcon || new Map();
         const existingData = betsByIcon.get(icon);
-        const iconData = existingData ? {
+        const iconData = existingData && typeof existingData.totalBets === "number" ? {
             totalBets: existingData.totalBets + 1,
-            totalAmount: existingData.totalAmount + amount
+            totalAmount: (existingData.totalAmount || 0) + amount
         } : {
             totalBets: 1,
             totalAmount: amount

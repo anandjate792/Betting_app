@@ -41,4 +41,9 @@ const transactionSchema = new mongoose.Schema({
   },
 })
 
+// Add indexes for better query performance
+transactionSchema.index({ userId: 1, createdAt: -1 })
+transactionSchema.index({ status: 1, createdAt: -1 })
+transactionSchema.index({ createdAt: -1 })
+
 export default mongoose.models.Transaction || mongoose.model("Transaction", transactionSchema)

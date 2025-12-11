@@ -71,9 +71,10 @@ export const userApi = {
 };
 
 export const transactionApi = {
-  getAllTransactions: () =>
-    apiCall("/transactions?admin=true", { method: "GET" }),
-  getUserTransactions: () => apiCall("/transactions", { method: "GET" }),
+  getAllTransactions: (limit = 10, skip = 0) =>
+    apiCall(`/transactions?admin=true&limit=${limit}&skip=${skip}`, { method: "GET" }),
+  getUserTransactions: (limit = 10, skip = 0) =>
+    apiCall(`/transactions?limit=${limit}&skip=${skip}`, { method: "GET" }),
   createTransaction: (
     amount: number,
     description: string,
@@ -151,8 +152,10 @@ export const predictionApi = {
 };
 
 export const betApi = {
-  getBets: (slotId?: string) => {
-    const url = slotId ? `/bets?slotId=${slotId}` : "/bets";
+  getBets: (slotId?: string, limit = 10, skip = 0) => {
+    const url = slotId
+      ? `/bets?slotId=${slotId}&limit=${limit}&skip=${skip}`
+      : `/bets?limit=${limit}&skip=${skip}`;
     return apiCall(url, { method: "GET" });
   },
   placeBet: (slotId: string, icon: string, amount: number) =>
@@ -163,7 +166,8 @@ export const betApi = {
 };
 
 export const withdrawalApi = {
-  getWithdrawals: () => apiCall("/withdrawals", { method: "GET" }),
+  getWithdrawals: (limit = 10, skip = 0) =>
+    apiCall(`/withdrawals?limit=${limit}&skip=${skip}`, { method: "GET" }),
   requestWithdrawal: (amount: number) =>
     apiCall("/withdrawals", {
       method: "POST",

@@ -1,6 +1,12 @@
 {
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
+  "/admin/add-money/page": "/admin/add-money",
+  "/admin/approvals/page": "/admin/approvals",
+  "/admin/page": "/admin",
+  "/admin/prediction/page": "/admin/prediction",
+  "/admin/users/page": "/admin/users",
+  "/admin/withdrawals/page": "/admin/withdrawals",
   "/api/auth/change-password/route": "/api/auth/change-password",
   "/api/auth/login/route": "/api/auth/login",
   "/api/auth/me/route": "/api/auth/me",
@@ -15,5 +21,10 @@
   "/api/users/route": "/api/users",
   "/api/withdrawals/[withdrawalId]/route": "/api/withdrawals/[withdrawalId]",
   "/api/withdrawals/route": "/api/withdrawals",
+  "/dashboard/page": "/dashboard",
+  "/dashboard/prediction/page": "/dashboard/prediction",
+  "/dashboard/transactions/page": "/dashboard/transactions",
+  "/dashboard/wallet/page": "/dashboard/wallet",
+  "/dashboard/withdrawals/page": "/dashboard/withdrawals",
   "/page": "/"
 }

@@ -31,11 +31,25 @@ const getAdmin = async (request: NextRequest) => {
 
 export async function GET(request: NextRequest) {
   try {
+    const url = new URL(request.url);
+    const limit = Math.min(parseInt(url.searchParams.get("limit") || "10"), 50);
+    const skip = parseInt(url.searchParams.get("skip") || "0");
+
     const admin = await getAdmin(request);
     if (admin) {
       await connectDB();
-      const withdrawals = await Withdrawal.find().sort({ createdAt: -1 }).populate("userId", "name email");
-      const formatted = withdrawals.map((w) => ({
+      const query = {};
+      const [withdrawals, total] = await Promise.all([
+        Withdrawal.find(query)
+          .select("_id userId userName amount status approvedBy approvedAt createdAt")
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        Withdrawal.countDocuments(query),
+      ]);
+
+      const formatted = withdrawals.map((w: any) => ({
         id: w._id.toString(),
         userId: w.userId.toString(),
         userName: w.userName,
@@ -45,7 +59,16 @@ export async function GET(request: NextRequest) {
         approvedAt: w.approvedAt,
         createdAt: w.createdAt,
       }));
-      return NextResponse.json(formatted);
+
+      return NextResponse.json({
+        data: formatted,
+        pagination: {
+          total,
+          limit,
+          skip,
+          hasMore: skip + limit < total,
+        },
+      });
     }
 
     const user = await getAuthUser(request);
@@ -54,8 +77,18 @@ export async function GET(request: NextRequest) {
     }
 
     await connectDB();
-    const withdrawals = await Withdrawal.find({ userId: user._id }).sort({ createdAt: -1 });
-    const formatted = withdrawals.map((w) => ({
+    const query = { userId: user._id };
+    const [withdrawals, total] = await Promise.all([
+      Withdrawal.find(query)
+        .select("_id amount status approvedAt createdAt")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Withdrawal.countDocuments(query),
+    ]);
+
+    const formatted = withdrawals.map((w: any) => ({
       id: w._id.toString(),
       amount: w.amount,
       status: w.status,
@@ -63,7 +96,15 @@ export async function GET(request: NextRequest) {
       createdAt: w.createdAt,
     }));
 
-    return NextResponse.json(formatted);
+    return NextResponse.json({
+      data: formatted,
+      pagination: {
+        total,
+        limit,
+        skip,
+        hasMore: skip + limit < total,
+      },
+    });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Server error" }, { status: 500 });
   }

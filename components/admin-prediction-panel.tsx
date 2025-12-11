@@ -32,6 +32,8 @@ import {
   Gem,
 } from "lucide-react";
 import { predictionApi } from "@/lib/api";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Spinner } from "@/components/ui/spinner";
 
 const ICONS = [
   { id: "umbrella", name: "Umbrella", Icon: Umbrella },
@@ -55,6 +57,8 @@ export default function AdminPredictionPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [slotsLoading, setSlotsLoading] = useState(true);
+  const [slotLoading, setSlotLoading] = useState(true);
 
   useEffect(() => {
     loadSlots();
@@ -77,6 +81,8 @@ export default function AdminPredictionPanel() {
   }, []);
 
   const loadSlots = async () => {
+    setSlotsLoading(true);
+    setSlotLoading(true);
     try {
       const allSlots = (await predictionApi.getAllSlots()) as any[];
       setSlots(allSlots);
@@ -85,6 +91,9 @@ export default function AdminPredictionPanel() {
       setCurrentSlot(current);
     } catch (error) {
       console.error("Failed to load slots:", error);
+    } finally {
+      setSlotsLoading(false);
+      setSlotLoading(false);
     }
   };
 
@@ -175,7 +184,14 @@ export default function AdminPredictionPanel() {
         </CardContent>
       </Card>
 
-      {currentSlot && (
+      {slotLoading ? (
+        <Card className="border-slate-700 bg-slate-800">
+          <CardContent className="flex items-center justify-center py-12">
+            <Spinner className="w-6 h-6 text-blue-400" />
+            <p className="ml-3 text-slate-400">Loading current slot...</p>
+          </CardContent>
+        </Card>
+      ) : currentSlot && (
         <Card className="border-slate-700 bg-slate-800">
           <CardHeader>
             <CardTitle className="text-white">Current Active Slot</CardTitle>
@@ -241,8 +257,15 @@ export default function AdminPredictionPanel() {
           <CardTitle className="text-white">Recent Slots</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {slots.slice(0, 10).map((slot) => (
+          {slotsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Spinner className="w-6 h-6 text-blue-400" />
+              <p className="ml-3 text-slate-400">Loading slots...</p>
+            </div>
+          ) : (
+            <ScrollArea className="h-[400px]">
+              <div className="space-y-2 pr-4">
+                {slots.slice(0, 10).map((slot) => (
               <div
                 key={slot.id}
                 className="p-3 bg-slate-700 rounded-lg flex justify-between items-center"
@@ -271,7 +294,9 @@ export default function AdminPredictionPanel() {
                 </div>
               </div>
             ))}
-          </div>
+              </div>
+            </ScrollArea>
+          )}
         </CardContent>
       </Card>
     </div>

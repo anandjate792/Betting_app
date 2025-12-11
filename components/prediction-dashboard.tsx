@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Umbrella,
   Egg,
@@ -81,6 +83,10 @@ export default function PredictionDashboard() {
   const [withdrawalAmount, setWithdrawalAmount] = useState<string>("");
   const [withdrawalLoading, setWithdrawalLoading] = useState(false);
   const [myWithdrawals, setMyWithdrawals] = useState<any[]>([]);
+  const [slotLoading, setSlotLoading] = useState(true);
+  const [betsLoading, setBetsLoading] = useState(false);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
+  const [withdrawalsLoading, setWithdrawalsLoading] = useState(false);
 
   useEffect(() => {
     loadCurrentSlot();
@@ -100,6 +106,7 @@ export default function PredictionDashboard() {
   }, [currentSlot]);
 
   const loadCurrentSlot = async () => {
+    setSlotLoading(true);
     try {
       const slot = (await predictionApi.getCurrentSlot()) as any;
       if (slot) {
@@ -116,15 +123,20 @@ export default function PredictionDashboard() {
       await loadMyCurrentSlotBet(slot?.id);
     } catch (error: any) {
       setCurrentSlot(null);
+    } finally {
+      setSlotLoading(false);
     }
   };
 
   const loadMyBets = async () => {
+    setBetsLoading(true);
     try {
       const bets = await betApi.getBets();
       setMyBets(bets as any[]);
     } catch (error) {
       console.error("Failed to load bets:", error);
+    } finally {
+      setBetsLoading(false);
     }
   };
 
@@ -156,17 +168,31 @@ export default function PredictionDashboard() {
   useEffect(() => {
     if (activeTab === "dashboard") {
       loadMyBets();
-      fetchTransactions();
+      loadTransactions();
       loadWithdrawals();
     }
   }, [activeTab]);
 
+  const loadTransactions = async () => {
+    setTransactionsLoading(true);
+    try {
+      await fetchTransactions();
+    } catch (error) {
+      console.error("Failed to load transactions:", error);
+    } finally {
+      setTransactionsLoading(false);
+    }
+  };
+
   const loadWithdrawals = async () => {
+    setWithdrawalsLoading(true);
     try {
       const withdrawals = await withdrawalApi.getWithdrawals();
       setMyWithdrawals(withdrawals as any[]);
     } catch (error) {
       console.error("Failed to load withdrawals:", error);
+    } finally {
+      setWithdrawalsLoading(false);
     }
   };
 
@@ -362,7 +388,14 @@ export default function PredictionDashboard() {
           </TabsList>
 
           <TabsContent value="prediction" className="mt-6 space-y-6">
-            {!currentSlot ? (
+            {slotLoading ? (
+              <Card className="border-slate-700 bg-slate-800">
+                <CardContent className="flex items-center justify-center py-12">
+                  <Spinner className="w-8 h-8 text-blue-400" />
+                  <p className="ml-3 text-slate-400">Loading slot...</p>
+                </CardContent>
+              </Card>
+            ) : !currentSlot ? (
               <Card className="border-slate-700 bg-slate-800">
                 <CardHeader>
                   <CardTitle className="text-white">No Active Slot</CardTitle>
@@ -521,53 +554,60 @@ export default function PredictionDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {myBets.length === 0 ? (
+                {betsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Spinner className="w-6 h-6 text-blue-400" />
+                    <p className="ml-3 text-slate-400">Loading betting history...</p>
+                  </div>
+                ) : myBets.length === 0 ? (
                   <p className="text-slate-400 text-center py-8">
                     No bets placed yet
                   </p>
                 ) : (
-                  <div className="space-y-3">
-                    {myBets.map((bet) => (
-                      <div
-                        key={bet.id}
-                        className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold text-white">
-                              Slot #{bet.slotNumber || "N/A"}
-                            </p>
-                            <p className="text-sm text-slate-400">
-                              Icon: {bet.icon} • Amount: ₹
-                              {bet.amount.toFixed(2)}
-                            </p>
-                            <p className="text-xs text-slate-400 mt-1">
-                              {new Date(bet.createdAt).toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <span
-                              className={`text-xs px-3 py-1 rounded-full ${
-                                bet.status === "won"
-                                  ? "bg-green-600 text-white"
-                                  : bet.status === "lost"
-                                  ? "bg-red-600 text-white"
-                                  : "bg-yellow-600 text-white"
-                              }`}
-                            >
-                              {bet.status.charAt(0).toUpperCase() +
-                                bet.status.slice(1)}
-                            </span>
-                            {bet.status === "won" && bet.payout > 0 && (
-                              <p className="text-sm text-green-400 mt-2">
-                                Won: ₹{bet.payout.toFixed(2)}
+                  <ScrollArea className="h-[400px]">
+                    <div className="space-y-3 pr-4">
+                      {myBets.map((bet) => (
+                        <div
+                          key={bet.id}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-semibold text-white">
+                                Slot #{bet.slotNumber || "N/A"}
                               </p>
-                            )}
+                              <p className="text-sm text-slate-400">
+                                Icon: {bet.icon} • Amount: ₹
+                                {bet.amount.toFixed(2)}
+                              </p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {new Date(bet.createdAt).toLocaleString()}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <span
+                                className={`text-xs px-3 py-1 rounded-full ${
+                                  bet.status === "won"
+                                    ? "bg-green-600 text-white"
+                                    : bet.status === "lost"
+                                    ? "bg-red-600 text-white"
+                                    : "bg-yellow-600 text-white"
+                                }`}
+                              >
+                                {bet.status.charAt(0).toUpperCase() +
+                                  bet.status.slice(1)}
+                              </span>
+                              {bet.status === "won" && bet.payout > 0 && (
+                                <p className="text-sm text-green-400 mt-2">
+                                  Won: ₹{bet.payout.toFixed(2)}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 )}
               </CardContent>
             </Card>
@@ -751,52 +791,59 @@ export default function PredictionDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {myWithdrawals.length === 0 ? (
+                {withdrawalsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Spinner className="w-6 h-6 text-blue-400" />
+                    <p className="ml-3 text-slate-400">Loading withdrawal history...</p>
+                  </div>
+                ) : myWithdrawals.length === 0 ? (
                   <p className="text-slate-400 text-center py-8">
                     No withdrawal requests yet
                   </p>
                 ) : (
-                  <div className="space-y-3">
-                    {myWithdrawals.map((withdrawal) => (
-                      <div
-                        key={withdrawal.id}
-                        className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold text-white">
-                              ₹{withdrawal.amount.toFixed(2)}
-                            </p>
-                            <p className="text-sm text-slate-400">
-                              {new Date(withdrawal.createdAt).toLocaleString()}
-                            </p>
-                            {withdrawal.approvedAt && (
-                              <p className="text-xs text-green-400 mt-1">
-                                Approved:{" "}
-                                {new Date(
-                                  withdrawal.approvedAt
-                                ).toLocaleString()}
+                  <ScrollArea className="h-[400px]">
+                    <div className="space-y-3 pr-4">
+                      {myWithdrawals.map((withdrawal) => (
+                        <div
+                          key={withdrawal.id}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-semibold text-white">
+                                ₹{withdrawal.amount.toFixed(2)}
                               </p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <span
-                              className={`text-xs px-3 py-1 rounded-full ${
-                                withdrawal.status === "approved"
-                                  ? "bg-green-600 text-white"
-                                  : withdrawal.status === "rejected"
-                                  ? "bg-red-600 text-white"
-                                  : "bg-yellow-600 text-white"
-                              }`}
-                            >
-                              {withdrawal.status.charAt(0).toUpperCase() +
-                                withdrawal.status.slice(1)}
-                            </span>
+                              <p className="text-sm text-slate-400">
+                                {new Date(withdrawal.createdAt).toLocaleString()}
+                              </p>
+                              {withdrawal.approvedAt && (
+                                <p className="text-xs text-green-400 mt-1">
+                                  Approved:{" "}
+                                  {new Date(
+                                    withdrawal.approvedAt
+                                  ).toLocaleString()}
+                                </p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <span
+                                className={`text-xs px-3 py-1 rounded-full ${
+                                  withdrawal.status === "approved"
+                                    ? "bg-green-600 text-white"
+                                    : withdrawal.status === "rejected"
+                                    ? "bg-red-600 text-white"
+                                    : "bg-yellow-600 text-white"
+                                }`}
+                              >
+                                {withdrawal.status.charAt(0).toUpperCase() +
+                                  withdrawal.status.slice(1)}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 )}
               </CardContent>
             </Card>
@@ -811,52 +858,59 @@ export default function PredictionDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {userTransactions.length === 0 ? (
+                {transactionsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Spinner className="w-6 h-6 text-blue-400" />
+                    <p className="ml-3 text-slate-400">Loading transaction history...</p>
+                  </div>
+                ) : userTransactions.length === 0 ? (
                   <p className="text-slate-400 text-center py-8">
                     No transactions yet
                   </p>
                 ) : (
-                  <div className="space-y-3">
-                    {userTransactions.map((transaction) => (
-                      <div
-                        key={transaction.id}
-                        className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold text-white">
-                              {transaction.description}
-                            </p>
-                            <p className="text-sm text-slate-400">
-                              {new Date(transaction.createdAt).toLocaleString()}
-                            </p>
-                            {transaction.status === "approved" && (
-                              <p className="text-xs text-green-400 mt-1">
-                                ✓ Approved
+                  <ScrollArea className="h-[400px]">
+                    <div className="space-y-3 pr-4">
+                      {userTransactions.map((transaction) => (
+                        <div
+                          key={transaction.id}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-semibold text-white">
+                                {transaction.description}
                               </p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-green-400">
-                              ₹{transaction.amount.toFixed(2)}
-                            </p>
-                            <span
-                              className={`text-xs px-3 py-1 rounded-full ${
-                                transaction.status === "pending"
-                                  ? "bg-yellow-600 text-white"
-                                  : transaction.status === "approved"
-                                  ? "bg-green-600 text-white"
-                                  : "bg-red-600 text-white"
-                              }`}
-                            >
-                              {transaction.status.charAt(0).toUpperCase() +
-                                transaction.status.slice(1)}
-                            </span>
+                              <p className="text-sm text-slate-400">
+                                {new Date(transaction.createdAt).toLocaleString()}
+                              </p>
+                              {transaction.status === "approved" && (
+                                <p className="text-xs text-green-400 mt-1">
+                                  ✓ Approved
+                                </p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-green-400">
+                                ₹{transaction.amount.toFixed(2)}
+                              </p>
+                              <span
+                                className={`text-xs px-3 py-1 rounded-full ${
+                                  transaction.status === "pending"
+                                    ? "bg-yellow-600 text-white"
+                                    : transaction.status === "approved"
+                                    ? "bg-green-600 text-white"
+                                    : "bg-red-600 text-white"
+                                }`}
+                              >
+                                {transaction.status.charAt(0).toUpperCase() +
+                                  transaction.status.slice(1)}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 )}
               </CardContent>
             </Card>

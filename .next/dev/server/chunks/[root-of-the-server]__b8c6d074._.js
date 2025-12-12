@@ -291,8 +291,7 @@ async function GET(request) {
         }
         const url = new URL(request.url);
         const isAdmin = url.searchParams.get("admin") === "true";
-        const limit = Math.min(parseInt(url.searchParams.get("limit") || "10"), 50) // Max 50 per page
-        ;
+        const limit = Math.min(parseInt(url.searchParams.get("limit") || "10"), 50); // Max 50 per page
         const skip = parseInt(url.searchParams.get("skip") || "0");
         if (isAdmin && user.role !== "admin") {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -305,9 +304,11 @@ async function GET(request) {
             userId: user._id
         };
         // Use lean() for better performance and select only needed fields
-        // Exclude screenshotImage from list query for faster loading (load only when viewing details)
+        // Include screenshotImage for admin requests (needed for approvals)
+        // Exclude screenshotImage for regular users to optimize performance
+        const selectFields = isAdmin ? "_id userId userName amount status description screenshotImage createdAt approvedAt approvedBy" : "_id userId userName amount status description createdAt approvedAt approvedBy";
         const [results, total] = await Promise.all([
-            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Transaction$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).select("_id userId userName amount status description createdAt approvedAt approvedBy").sort({
+            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Transaction$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).select(selectFields).sort({
                 createdAt: -1
             }).skip(skip).limit(limit).lean(),
             __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Transaction$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments(query)

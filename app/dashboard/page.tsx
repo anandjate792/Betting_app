@@ -11,7 +11,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Wallet, Gamepad2, ArrowUpDown, CreditCard } from "lucide-react";
+import {
+  Wallet,
+  Gamepad2,
+  ArrowUpDown,
+  CreditCard,
+  RefreshCw,
+} from "lucide-react";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -24,6 +30,7 @@ import {
   Spade,
   Club,
   Trophy,
+  Crown,
   Gem,
   Fish,
 } from "lucide-react";
@@ -42,6 +49,7 @@ const ICONS = [
   { id: "spade", name: "Spade", Icon: Spade, color: "text-slate-700" },
   { id: "club", name: "Club", Icon: Club, color: "text-green-600" },
   { id: "trophy", name: "Trophy", Icon: Trophy, color: "text-yellow-600" },
+  { id: "crown", name: "Crown", Icon: Crown, color: "text-purple-500" },
   { id: "gem", name: "Gem", Icon: Gem, color: "text-pink-500" },
 ];
 
@@ -66,6 +74,7 @@ export default function DashboardPage() {
   const [betsLoading, setBetsLoading] = useState(false);
   const [betsSkip, setBetsSkip] = useState(10);
   const [betsHasMore, setBetsHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadCurrentSlot();
@@ -173,6 +182,30 @@ export default function DashboardPage() {
     setTimeRemaining(`${minutes}:${seconds.toString().padStart(2, "0")}`);
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Refresh user profile to update wallet balance
+      const profile = (await authApi.getProfile()) as any;
+      useAppStore.setState({ user: profile });
+
+      // Refresh current slot
+      await loadCurrentSlot();
+
+      // Refresh betting history
+      await loadMyBets(true);
+
+      // Update time remaining
+      if (currentSlot) {
+        updateTimeRemaining();
+      }
+    } catch (err) {
+      console.error("Refresh failed:", err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const handlePlaceBet = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -250,10 +283,24 @@ export default function DashboardPage() {
       {/* Wallet Balance Card */}
       <Card className="border-slate-700 bg-slate-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
-            <Wallet className="w-5 h-5" />
-            Wallet Balance
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Wallet className="w-5 h-5" />
+              Wallet Balance
+            </CardTitle>
+            <Button
+              onClick={onRefresh}
+              disabled={refreshing}
+              variant="ghost"
+              size="sm"
+              className="text-blue-400 hover:text-blue-300 hover:bg-slate-700"
+            >
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+              />
+              Refresh
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-4xl font-bold text-green-400">
@@ -302,11 +349,6 @@ export default function DashboardPage() {
                 No active slot. Waiting for the next prediction slot to be
                 created.
               </p>
-              <Link href="/dashboard/prediction">
-                <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
-                  Go to Prediction Game
-                </Button>
-              </Link>
             </div>
           ) : (
             <form onSubmit={handlePlaceBet} className="space-y-4">
@@ -437,67 +479,78 @@ export default function DashboardPage() {
                     const slotNumber = slot?.slotNumber || bet.slotNumber;
                     const isWinner = slot?.winningIcon === bet.icon;
                     const isCompleted = slot?.status === "completed";
+                    const betStatus =
+                      bet.status ||
+                      (isCompleted ? (isWinner ? "won" : "lost") : "pending");
                     return (
                       <div
                         key={bet.id}
                         className="p-4 bg-slate-700 rounded-lg border border-slate-600"
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <p className="font-semibold text-white">
-                              Slot #{slotNumber || "N/A"}
-                            </p>
-                            <p className="text-sm text-slate-400">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-sm font-semibold text-blue-300">
+                                {bet.icon}
+                              </span>
+                              <span className="text-sm text-slate-400">•</span>
+                              <p className="text-sm font-semibold text-white">
+                                Slot #{slotNumber || "N/A"}
+                              </p>
+                            </div>
+                            <p className="text-xs text-slate-400">
                               {slot?.startTime
                                 ? new Date(slot.startTime).toLocaleString()
                                 : bet.createdAt
                                 ? new Date(bet.createdAt).toLocaleString()
                                 : "Unknown date"}
                             </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-purple-400">
-                              ₹{bet.amount.toFixed(2)}
+                            <p className="text-xs text-slate-500 mt-1">
+                              Bet: ₹{bet.amount.toFixed(2)}
                             </p>
-                            {isCompleted && (
-                              <span
-                                className={`text-xs px-2 py-1 rounded-full ${
-                                  isWinner
-                                    ? "bg-green-600 text-white"
-                                    : "bg-red-600 text-white"
-                                }`}
-                              >
-                                {isWinner ? "Won" : "Lost"}
-                              </span>
+                          </div>
+                          <div className="text-right ml-4">
+                            {betStatus === "won" && bet.payout > 0 && (
+                              <>
+                                <p className="text-lg font-bold text-green-400">
+                                  +₹{bet.payout.toFixed(2)}
+                                </p>
+                                <span className="text-xs px-2 py-1 rounded-full bg-green-600 text-white inline-block mt-1">
+                                  Won
+                                </span>
+                              </>
                             )}
-                            {!isCompleted && (
-                              <span className="text-xs px-2 py-1 rounded-full bg-yellow-600 text-white">
-                                Pending
-                              </span>
+                            {betStatus === "lost" && (
+                              <>
+                                <p className="text-lg font-bold text-red-400">
+                                  -₹{bet.amount.toFixed(2)}
+                                </p>
+                                <span className="text-xs px-2 py-1 rounded-full bg-red-600 text-white inline-block mt-1">
+                                  Lost
+                                </span>
+                              </>
+                            )}
+                            {betStatus === "pending" && (
+                              <>
+                                <p className="text-sm text-slate-400">
+                                  Pending
+                                </p>
+                                <span className="text-xs px-2 py-1 rounded-full bg-yellow-600 text-white inline-block mt-1">
+                                  Pending
+                                </span>
+                              </>
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-sm text-slate-300">Icon:</span>
-                          <span className="text-sm font-semibold text-blue-300">
-                            {bet.icon}
-                          </span>
-                          {isCompleted && slot?.winningIcon && (
-                            <>
-                              <span className="text-sm text-slate-400">•</span>
-                              <span className="text-sm text-slate-300">
-                                Winner:
-                              </span>
-                              <span className="text-sm font-semibold text-green-300">
-                                {slot.winningIcon}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                        {isWinner && isCompleted && (
-                          <p className="text-xs text-green-400 mt-2">
-                            🎉 Congratulations! You won this bet!
-                          </p>
+                        {isCompleted && slot?.winningIcon && (
+                          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-600">
+                            <span className="text-xs text-slate-400">
+                              Winning Icon:
+                            </span>
+                            <span className="text-xs font-semibold text-green-300">
+                              {slot.winningIcon}
+                            </span>
+                          </div>
                         )}
                       </div>
                     );

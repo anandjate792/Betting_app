@@ -46,7 +46,7 @@ const ICONS = [
   { id: "star", name: "Star", Icon: Star, color: "text-yellow-400" },
   { id: "heart", name: "Heart", Icon: Heart, color: "text-red-500" },
   { id: "diamond", name: "Diamond", Icon: Diamond, color: "text-cyan-500" },
-  { id: "spade", name: "Spade", Icon: Spade, color: "text-slate-700" },
+  { id: "spade", name: "Spade", Icon: Spade, color: "text-white-700" },
   { id: "club", name: "Club", Icon: Club, color: "text-green-600" },
   { id: "trophy", name: "Trophy", Icon: Trophy, color: "text-yellow-600" },
   { id: "crown", name: "Crown", Icon: Crown, color: "text-purple-500" },
@@ -99,7 +99,8 @@ export default function PredictionDashboard() {
 
   const handleBetsScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    const bottom =
+      target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
     if (bottom && betsHasMore && !betsLoading) {
       loadMyBets(false);
     }
@@ -107,7 +108,8 @@ export default function PredictionDashboard() {
 
   const handleTransactionsScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    const bottom =
+      target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
     if (bottom && transactionsHasMore && !transactionsLoading) {
       loadTransactions(false);
     }
@@ -115,7 +117,8 @@ export default function PredictionDashboard() {
 
   const handleWithdrawalsScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    const bottom =
+      target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
     if (bottom && withdrawalsHasMore && !withdrawalsLoading) {
       loadWithdrawals(false);
     }
@@ -168,19 +171,23 @@ export default function PredictionDashboard() {
       setBetsHasMore(true);
     }
     if (!betsHasMore && !reset) return;
-    
+
     setBetsLoading(true);
     try {
-      const response = await betApi.getBets(undefined, 10, reset ? 0 : betsSkip);
+      const response = await betApi.getBets(
+        undefined,
+        10,
+        reset ? 0 : betsSkip
+      );
       // Handle both old format (array) and new format (paginated)
       if (Array.isArray(response)) {
         setMyBets(reset ? response : [...myBets, ...response]);
         setBetsHasMore(false);
       } else {
         const newBets = response.data || [];
-        setMyBets((prev) => reset ? newBets : [...prev, ...newBets]);
+        setMyBets((prev) => (reset ? newBets : [...prev, ...newBets]));
         setBetsHasMore(response.pagination?.hasMore || false);
-        setBetsSkip((prev) => reset ? 10 : prev + 10);
+        setBetsSkip((prev) => (reset ? 10 : prev + 10));
       }
     } catch (error) {
       console.error("Failed to load bets:", error);
@@ -198,7 +205,9 @@ export default function PredictionDashboard() {
     try {
       const response = await betApi.getBets(slotId, 10, 0);
       // Handle both old format (array) and new format (paginated)
-      const betsArray = Array.isArray(response) ? response : (response.data || []);
+      const betsArray = Array.isArray(response)
+        ? response
+        : response.data || [];
       const selfBet = betsArray.find((b: any) => b.slotId === slotId);
       setHasBetCurrentSlot(Boolean(selfBet));
       setCurrentSlotBet(
@@ -232,13 +241,16 @@ export default function PredictionDashboard() {
       setTransactionsHasMore(true);
     }
     if (!transactionsHasMore && !reset) return;
-    
+
     setTransactionsLoading(true);
     try {
-      const response = await fetchTransactions(10, reset ? 0 : transactionsSkip);
+      const response = await fetchTransactions(
+        10,
+        reset ? 0 : transactionsSkip
+      );
       if (response?.pagination) {
         setTransactionsHasMore(response.pagination.hasMore || false);
-        setTransactionsSkip((prev) => reset ? 10 : prev + 10);
+        setTransactionsSkip((prev) => (reset ? 10 : prev + 10));
       } else {
         setTransactionsHasMore(false);
       }
@@ -256,19 +268,24 @@ export default function PredictionDashboard() {
       setWithdrawalsHasMore(true);
     }
     if (!withdrawalsHasMore && !reset) return;
-    
+
     setWithdrawalsLoading(true);
     try {
-      const response = await withdrawalApi.getWithdrawals(10, reset ? 0 : withdrawalsSkip);
+      const response = await withdrawalApi.getWithdrawals(
+        10,
+        reset ? 0 : withdrawalsSkip
+      );
       // Handle both old format (array) and new format (paginated)
       if (Array.isArray(response)) {
         setMyWithdrawals(reset ? response : [...myWithdrawals, ...response]);
         setWithdrawalsHasMore(false);
       } else {
         const newWithdrawals = response.data || [];
-        setMyWithdrawals((prev) => reset ? newWithdrawals : [...prev, ...newWithdrawals]);
+        setMyWithdrawals((prev) =>
+          reset ? newWithdrawals : [...prev, ...newWithdrawals]
+        );
         setWithdrawalsHasMore(response.pagination?.hasMore || false);
-        setWithdrawalsSkip((prev) => reset ? 10 : prev + 10);
+        setWithdrawalsSkip((prev) => (reset ? 10 : prev + 10));
       }
     } catch (error) {
       console.error("Failed to load withdrawals:", error);
@@ -425,568 +442,558 @@ export default function PredictionDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-slate-700">
-            <TabsTrigger value="prediction">Prediction Game</TabsTrigger>
-            <TabsTrigger value="dashboard">My Dashboard</TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 bg-slate-700">
+          <TabsTrigger value="prediction">Prediction Game</TabsTrigger>
+          <TabsTrigger value="dashboard">My Dashboard</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="prediction" className="mt-6 space-y-6">
-            {slotLoading ? (
-              <Card className="border-slate-700 bg-slate-800">
-                <CardContent className="flex items-center justify-center py-12">
-                  <Spinner className="w-8 h-8 text-blue-400" />
-                  <p className="ml-3 text-slate-400">Loading slot...</p>
-                </CardContent>
-              </Card>
-            ) : !currentSlot ? (
+        <TabsContent value="prediction" className="mt-6 space-y-6">
+          {slotLoading ? (
+            <Card className="border-slate-700 bg-slate-800">
+              <CardContent className="flex items-center justify-center py-12">
+                <Spinner className="w-8 h-8 text-blue-400" />
+                <p className="ml-3 text-slate-400">Loading slot...</p>
+              </CardContent>
+            </Card>
+          ) : !currentSlot ? (
+            <Card className="border-slate-700 bg-slate-800">
+              <CardHeader>
+                <CardTitle className="text-white">No Active Slot</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Waiting for the next prediction slot to be created. Please
+                  check back soon!
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-400 text-center py-8">
+                  The next slot will be created automatically every 10 minutes.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
               <Card className="border-slate-700 bg-slate-800">
                 <CardHeader>
-                  <CardTitle className="text-white">No Active Slot</CardTitle>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="text-white">Current Slot</CardTitle>
+                      <CardDescription className="text-slate-400">
+                        Slot #{currentSlot.slotNumber} • Time Remaining:{" "}
+                        {timeRemaining}
+                      </CardDescription>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-slate-400">Total Bets</p>
+                      <p className="text-xl font-bold text-blue-400">
+                        {currentSlot.totalBets}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+
+              <Card className="border-slate-700 bg-slate-800">
+                <CardHeader>
+                  <CardTitle className="text-white">
+                    Select Icon & Place Bet
+                  </CardTitle>
                   <CardDescription className="text-slate-400">
-                    Waiting for the next prediction slot to be created. Please
-                    check back soon!
+                    Minimum bet: ₹50
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-400 text-center py-8">
-                    The next slot will be created automatically every 10
-                    minutes.
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                <Card className="border-slate-700 bg-slate-800">
-                  <CardHeader>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <CardTitle className="text-white">
-                          Current Slot
-                        </CardTitle>
-                        <CardDescription className="text-slate-400">
-                          Slot #{currentSlot.slotNumber} • Time Remaining:{" "}
-                          {timeRemaining}
-                        </CardDescription>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-slate-400">Total Bets</p>
-                        <p className="text-xl font-bold text-blue-400">
-                          {currentSlot.totalBets}
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-
-                <Card className="border-slate-700 bg-slate-800">
-                  <CardHeader>
-                    <CardTitle className="text-white">
-                      Select Icon & Place Bet
-                    </CardTitle>
-                    <CardDescription className="text-slate-400">
-                      Minimum bet: ₹50
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handlePlaceBet} className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium text-slate-300 mb-2 block">
-                          Choose Icon
-                        </label>
-                        <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                          {ICONS.map(({ id, name, Icon, color }) => {
-                            const iconData = betsByIcon[id] || {
-                              totalBets: 0,
-                              totalAmount: 0,
-                            };
-                            const isSelected = selectedIcon === id;
-                            const isMyBet = currentSlotBet?.icon === id;
-                            return (
-                              <button
-                                key={id}
-                                type="button"
-                                onClick={() => setSelectedIcon(id)}
-                                className={`p-4 rounded-lg border-2 transition-all ${
-                                  isSelected
-                                    ? "border-blue-500 bg-blue-500 bg-opacity-20"
-                                    : "border-slate-600 bg-slate-700 hover:border-slate-500"
-                                }`}
-                              >
-                                <Icon
-                                  className={`w-8 h-8 mx-auto mb-2 ${color}`}
-                                />
-                                <p className="text-xs text-slate-300">{name}</p>
-                                <p className="text-xs text-slate-400 mt-1">
-                                  {iconData.totalBets} bets • ₹
-                                  {iconData.totalAmount.toFixed(0)}
-                                </p>
-                                {isMyBet && (
-                                  <p className="text-[10px] text-amber-300 mt-1 font-semibold">
-                                    Your bet
-                                  </p>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-300">
-                          Bet Amount (₹)
-                        </label>
-                        <Input
-                          type="number"
-                          min="50"
-                          step="10"
-                          placeholder="50"
-                          value={betAmount}
-                          onChange={(e) => setBetAmount(e.target.value)}
-                          className="mt-1 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                        />
-                        {hasBetCurrentSlot && (
-                          <p className="text-xs text-amber-400">
-                            You have already placed a bet for this slot. Please
-                            wait for the result.
-                          </p>
-                        )}
-                        {currentSlotBet && (
-                          <p className="text-xs text-slate-300">
-                            You placed{" "}
-                            <span className="text-white font-semibold">
-                              ₹{currentSlotBet.amount.toFixed(2)}
-                            </span>{" "}
-                            on{" "}
-                            <span className="font-semibold text-blue-200">
-                              {currentSlotBet.icon}
-                            </span>
-                            . Awaiting result.
-                          </p>
-                        )}
-                      </div>
-
-                      {error && <p className="text-sm text-red-400">{error}</p>}
-
-                      <Button
-                        type="submit"
-                        disabled={
-                          loading ||
-                          !selectedIcon ||
-                          Number.parseFloat(betAmount) < 50 ||
-                          hasBetCurrentSlot
-                        }
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-                      >
-                        {loading
-                          ? "Placing Bet..."
-                          : `Place Bet (₹${betAmount})`}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-          </TabsContent>
-
-          <TabsContent value="dashboard" className="mt-6 space-y-6">
-            <Card className="border-slate-700 bg-slate-800">
-              <CardHeader>
-                <CardTitle className="text-white">My Betting History</CardTitle>
-                <CardDescription className="text-slate-400">
-                  View all your bets and their results
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {betsLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Spinner className="w-6 h-6 text-blue-400" />
-                    <p className="ml-3 text-slate-400">Loading betting history...</p>
-                  </div>
-                ) : myBets.length === 0 ? (
-                  <p className="text-slate-400 text-center py-8">
-                    No bets placed yet
-                  </p>
-                ) : (
-                  <div 
-                    className="h-[400px] overflow-y-auto pr-4"
-                    onScroll={handleBetsScroll}
-                    ref={betsScrollRef}
-                  >
-                    <div className="space-y-3">
-                      {myBets.map((bet) => (
-                        <div
-                          key={bet.id}
-                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-semibold text-white">
-                                Slot #{bet.slotNumber || "N/A"}
-                              </p>
-                              <p className="text-sm text-slate-400">
-                                Icon: {bet.icon} • Amount: ₹
-                                {bet.amount.toFixed(2)}
-                              </p>
+                  <form onSubmit={handlePlaceBet} className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-slate-300 mb-2 block">
+                        Choose Icon
+                      </label>
+                      <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
+                        {ICONS.map(({ id, name, Icon, color }) => {
+                          const iconData = betsByIcon[id] || {
+                            totalBets: 0,
+                            totalAmount: 0,
+                          };
+                          const isSelected = selectedIcon === id;
+                          const isMyBet = currentSlotBet?.icon === id;
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => setSelectedIcon(id)}
+                              className={`p-4 rounded-lg border-2 transition-all ${
+                                isSelected
+                                  ? "border-blue-500 bg-blue-500 bg-opacity-20"
+                                  : "border-slate-600 bg-slate-700 hover:border-slate-500"
+                              }`}
+                            >
+                              <Icon
+                                className={`w-8 h-8 mx-auto mb-2 ${color}`}
+                              />
+                              <p className="text-xs text-slate-300">{name}</p>
                               <p className="text-xs text-slate-400 mt-1">
-                                {new Date(bet.createdAt).toLocaleString()}
+                                {iconData.totalBets} bets • ₹
+                                {iconData.totalAmount.toFixed(0)}
                               </p>
-                            </div>
-                            <div className="text-right">
-                              <span
-                                className={`text-xs px-3 py-1 rounded-full ${
-                                  bet.status === "won"
-                                    ? "bg-green-600 text-white"
-                                    : bet.status === "lost"
-                                    ? "bg-red-600 text-white"
-                                    : "bg-yellow-600 text-white"
-                                }`}
-                              >
-                                {bet.status.charAt(0).toUpperCase() +
-                                  bet.status.slice(1)}
-                              </span>
-                              {bet.status === "won" && bet.payout > 0 && (
-                                <p className="text-sm text-green-400 mt-2">
-                                  Won: ₹{bet.payout.toFixed(2)}
+                              {isMyBet && (
+                                <p className="text-[10px] text-amber-300 mt-1 font-semibold">
+                                  Your bet
                                 </p>
                               )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      {betsHasMore && (
-                        <div className="flex justify-center py-4">
-                          <Spinner className="w-5 h-5 text-blue-400" />
-                        </div>
-                      )}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
 
-            <Card className="border-slate-700 bg-slate-800">
-              <CardHeader>
-                <CardTitle className="text-white">
-                  Add Money to Wallet
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Upload payment screenshot for admin approval
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmitTransaction} className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-slate-300">
-                      Amount (₹)
-                    </label>
-                    <Input
-                      type="number"
-                      placeholder="100"
-                      value={transactionAmount}
-                      onChange={(e) => setTransactionAmount(e.target.value)}
-                      className="mt-1 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-slate-300">
-                      Description
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="GPay payment for..."
-                      value={transactionDescription}
-                      onChange={(e) =>
-                        setTransactionDescription(e.target.value)
-                      }
-                      className="mt-1 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-slate-300">
-                      Upload Screenshot
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                      <Button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full bg-slate-700 hover:bg-slate-600 text-white border border-slate-600"
-                        variant="outline"
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        {imagePreview ? "Change Image" : "Choose Image"}
-                      </Button>
-                    </div>
-                  </div>
-                  {imagePreview && (
-                    <div className="mt-4">
-                      <p className="text-sm text-slate-300 mb-2">Preview:</p>
-                      <img
-                        src={imagePreview || "/placeholder.svg"}
-                        alt="Screenshot preview"
-                        className="w-full max-h-48 object-cover rounded-lg border border-slate-600"
-                      />
-                    </div>
-                  )}
-                  {error && <p className="text-sm text-red-400">{error}</p>}
-                  <Button
-                    type="submit"
-                    disabled={!screenshotImage || transactionLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-                  >
-                    {transactionLoading
-                      ? "Submitting..."
-                      : "Submit for Approval"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-700 bg-slate-800">
-              <CardHeader>
-                <CardTitle className="text-white">Wallet Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 bg-slate-700 rounded-lg">
-                    <div>
-                      <p className="text-sm text-slate-400">Current Balance</p>
-                      <p className="text-3xl font-bold text-green-400">
-                        ₹{user?.walletBalance.toFixed(2) || "0.00"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-sm text-slate-400">
-                    <p>• Minimum bet amount: ₹50</p>
-                    <p>• Winnings are automatically added to your wallet</p>
-                    <p>
-                      • Upload payment screenshot to add funds (admin approval
-                      required)
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-slate-700 bg-slate-800">
-              <CardHeader>
-                <CardTitle className="text-white">Withdraw Money</CardTitle>
-                <CardDescription className="text-slate-400">
-                  {user && user.walletBalance >= 1000
-                    ? "Request withdrawal (Minimum: ₹1000)"
-                    : "Minimum wallet balance of ₹1000 required for withdrawal"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {user && user.walletBalance >= 1000 ? (
-                  <form
-                    onSubmit={handleRequestWithdrawal}
-                    className="space-y-4"
-                  >
-                    <div>
+                    <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-300">
-                        Withdrawal Amount (₹)
+                        Bet Amount (₹)
                       </label>
                       <Input
                         type="number"
-                        min="1000"
-                        step="100"
-                        placeholder="1000"
-                        value={withdrawalAmount}
-                        onChange={(e) => setWithdrawalAmount(e.target.value)}
+                        min="50"
+                        step="10"
+                        placeholder="50"
+                        value={betAmount}
+                        onChange={(e) => setBetAmount(e.target.value)}
                         className="mt-1 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                       />
-                      <p className="text-xs text-slate-400 mt-1">
-                        Available balance: ₹{user.walletBalance.toFixed(2)}
-                      </p>
+                      {hasBetCurrentSlot && (
+                        <p className="text-xs text-amber-400">
+                          You have already placed a bet for this slot. Please
+                          wait for the result.
+                        </p>
+                      )}
+                      {currentSlotBet && (
+                        <p className="text-xs text-slate-300">
+                          You placed{" "}
+                          <span className="text-white font-semibold">
+                            ₹{currentSlotBet.amount.toFixed(2)}
+                          </span>{" "}
+                          on{" "}
+                          <span className="font-semibold text-blue-200">
+                            {currentSlotBet.icon}
+                          </span>
+                          . Awaiting result.
+                        </p>
+                      )}
                     </div>
+
                     {error && <p className="text-sm text-red-400">{error}</p>}
+
                     <Button
                       type="submit"
                       disabled={
-                        withdrawalLoading ||
-                        Number.parseFloat(withdrawalAmount) < 1000 ||
-                        Number.parseFloat(withdrawalAmount) > user.walletBalance
+                        loading ||
+                        !selectedIcon ||
+                        Number.parseFloat(betAmount) < 50 ||
+                        hasBetCurrentSlot
                       }
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
                     >
-                      {withdrawalLoading
-                        ? "Processing..."
-                        : `Request Withdrawal (₹${withdrawalAmount || "0"})`}
+                      {loading ? "Placing Bet..." : `Place Bet (₹${betAmount})`}
                     </Button>
                   </form>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-slate-400 mb-4">
-                      Your current balance: ₹
-                      {user?.walletBalance.toFixed(2) || "0.00"}
-                    </p>
-                    <p className="text-slate-500 text-sm">
-                      You need at least ₹1000 in your wallet to request a
-                      withdrawal. Add more funds to enable this feature.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
 
-            <Card className="border-slate-700 bg-slate-800">
-              <CardHeader>
-                <CardTitle className="text-white">Withdrawal History</CardTitle>
-                <CardDescription className="text-slate-400">
-                  Your withdrawal requests and their status
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {withdrawalsLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Spinner className="w-6 h-6 text-blue-400" />
-                    <p className="ml-3 text-slate-400">Loading withdrawal history...</p>
-                  </div>
-                ) : myWithdrawals.length === 0 ? (
-                  <p className="text-slate-400 text-center py-8">
-                    No withdrawal requests yet
+        <TabsContent value="dashboard" className="mt-6 space-y-6">
+          <Card className="border-slate-700 bg-slate-800">
+            <CardHeader>
+              <CardTitle className="text-white">My Betting History</CardTitle>
+              <CardDescription className="text-slate-400">
+                View all your bets and their results
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {betsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Spinner className="w-6 h-6 text-blue-400" />
+                  <p className="ml-3 text-slate-400">
+                    Loading betting history...
                   </p>
-                ) : (
-                  <div 
-                    className="h-[400px] overflow-y-auto pr-4"
-                    onScroll={handleWithdrawalsScroll}
-                    ref={withdrawalsScrollRef}
-                  >
-                    <div className="space-y-3">
-                      {myWithdrawals.map((withdrawal) => (
-                        <div
-                          key={withdrawal.id}
-                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-semibold text-white">
-                                ₹{withdrawal.amount.toFixed(2)}
+                </div>
+              ) : myBets.length === 0 ? (
+                <p className="text-slate-400 text-center py-8">
+                  No bets placed yet
+                </p>
+              ) : (
+                <div
+                  className="h-[400px] overflow-y-auto pr-4"
+                  onScroll={handleBetsScroll}
+                  ref={betsScrollRef}
+                >
+                  <div className="space-y-3">
+                    {myBets.map((bet) => (
+                      <div
+                        key={bet.id}
+                        className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold text-white">
+                              Slot #{bet.slotNumber || "N/A"}
+                            </p>
+                            <p className="text-sm text-slate-400">
+                              Icon: {bet.icon} • Amount: ₹
+                              {bet.amount.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-slate-400 mt-1">
+                              {new Date(bet.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span
+                              className={`text-xs px-3 py-1 rounded-full ${
+                                bet.status === "won"
+                                  ? "bg-green-600 text-white"
+                                  : bet.status === "lost"
+                                  ? "bg-red-600 text-white"
+                                  : "bg-yellow-600 text-white"
+                              }`}
+                            >
+                              {bet.status.charAt(0).toUpperCase() +
+                                bet.status.slice(1)}
+                            </span>
+                            {bet.status === "won" && bet.payout > 0 && (
+                              <p className="text-sm text-green-400 mt-2">
+                                Won: ₹{bet.payout.toFixed(2)}
                               </p>
-                              <p className="text-sm text-slate-400">
-                                {new Date(withdrawal.createdAt).toLocaleString()}
-                              </p>
-                              {withdrawal.approvedAt && (
-                                <p className="text-xs text-green-400 mt-1">
-                                  Approved:{" "}
-                                  {new Date(
-                                    withdrawal.approvedAt
-                                  ).toLocaleString()}
-                                </p>
-                              )}
-                            </div>
-                            <div className="text-right">
-                              <span
-                                className={`text-xs px-3 py-1 rounded-full ${
-                                  withdrawal.status === "approved"
-                                    ? "bg-green-600 text-white"
-                                    : withdrawal.status === "rejected"
-                                    ? "bg-red-600 text-white"
-                                    : "bg-yellow-600 text-white"
-                                }`}
-                              >
-                                {withdrawal.status.charAt(0).toUpperCase() +
-                                  withdrawal.status.slice(1)}
-                              </span>
-                            </div>
+                            )}
                           </div>
                         </div>
-                      ))}
-                      {withdrawalsHasMore && (
-                        <div className="flex justify-center py-4">
-                          <Spinner className="w-5 h-5 text-blue-400" />
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    ))}
+                    {betsHasMore && (
+                      <div className="flex justify-center py-4">
+                        <Spinner className="w-5 h-5 text-blue-400" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-700 bg-slate-800">
+            <CardHeader>
+              <CardTitle className="text-white">Add Money to Wallet</CardTitle>
+              <CardDescription className="text-slate-400">
+                Upload payment screenshot for admin approval
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmitTransaction} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-300">
+                    Amount (₹)
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="100"
+                    value={transactionAmount}
+                    onChange={(e) => setTransactionAmount(e.target.value)}
+                    className="mt-1 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-300">
+                    Description
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="GPay payment for..."
+                    value={transactionDescription}
+                    onChange={(e) => setTransactionDescription(e.target.value)}
+                    className="mt-1 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-300">
+                    Upload Screenshot
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full bg-slate-700 hover:bg-slate-600 text-white border border-slate-600"
+                      variant="outline"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {imagePreview ? "Change Image" : "Choose Image"}
+                    </Button>
+                  </div>
+                </div>
+                {imagePreview && (
+                  <div className="mt-4">
+                    <p className="text-sm text-slate-300 mb-2">Preview:</p>
+                    <img
+                      src={imagePreview || "/placeholder.svg"}
+                      alt="Screenshot preview"
+                      className="w-full max-h-48 object-cover rounded-lg border border-slate-600"
+                    />
                   </div>
                 )}
-              </CardContent>
-            </Card>
+                {error && <p className="text-sm text-red-400">{error}</p>}
+                <Button
+                  type="submit"
+                  disabled={!screenshotImage || transactionLoading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                >
+                  {transactionLoading ? "Submitting..." : "Submit for Approval"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
 
-            <Card className="border-slate-700 bg-slate-800">
-              <CardHeader>
-                <CardTitle className="text-white">
-                  Transaction History
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Your payment requests and their status
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {transactionsLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Spinner className="w-6 h-6 text-blue-400" />
-                    <p className="ml-3 text-slate-400">Loading transaction history...</p>
+          <Card className="border-slate-700 bg-slate-800">
+            <CardHeader>
+              <CardTitle className="text-white">Wallet Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-slate-700 rounded-lg">
+                  <div>
+                    <p className="text-sm text-slate-400">Current Balance</p>
+                    <p className="text-3xl font-bold text-green-400">
+                      ₹{user?.walletBalance.toFixed(2) || "0.00"}
+                    </p>
                   </div>
-                ) : userTransactions.length === 0 ? (
-                  <p className="text-slate-400 text-center py-8">
-                    No transactions yet
+                </div>
+                <div className="text-sm text-slate-400">
+                  <p>• Minimum bet amount: ₹50</p>
+                  <p>• Winnings are automatically added to your wallet</p>
+                  <p>
+                    • Upload payment screenshot to add funds (admin approval
+                    required)
                   </p>
-                ) : (
-                  <div 
-                    className="h-[400px] overflow-y-auto pr-4"
-                    onScroll={handleTransactionsScroll}
-                    ref={transactionsScrollRef}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-slate-700 bg-slate-800">
+            <CardHeader>
+              <CardTitle className="text-white">Withdraw Money</CardTitle>
+              <CardDescription className="text-slate-400">
+                {user && user.walletBalance >= 1000
+                  ? "Request withdrawal (Minimum: ₹1000)"
+                  : "Minimum wallet balance of ₹1000 required for withdrawal"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {user && user.walletBalance >= 1000 ? (
+                <form onSubmit={handleRequestWithdrawal} className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-slate-300">
+                      Withdrawal Amount (₹)
+                    </label>
+                    <Input
+                      type="number"
+                      min="1000"
+                      step="100"
+                      placeholder="1000"
+                      value={withdrawalAmount}
+                      onChange={(e) => setWithdrawalAmount(e.target.value)}
+                      className="mt-1 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                    />
+                    <p className="text-xs text-slate-400 mt-1">
+                      Available balance: ₹{user.walletBalance.toFixed(2)}
+                    </p>
+                  </div>
+                  {error && <p className="text-sm text-red-400">{error}</p>}
+                  <Button
+                    type="submit"
+                    disabled={
+                      withdrawalLoading ||
+                      Number.parseFloat(withdrawalAmount) < 1000 ||
+                      Number.parseFloat(withdrawalAmount) > user.walletBalance
+                    }
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50"
                   >
-                    <div className="space-y-3">
-                      {userTransactions.map((transaction) => (
-                        <div
-                          key={transaction.id}
-                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-semibold text-white">
-                                {transaction.description}
+                    {withdrawalLoading
+                      ? "Processing..."
+                      : `Request Withdrawal (₹${withdrawalAmount || "0"})`}
+                  </Button>
+                </form>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-slate-400 mb-4">
+                    Your current balance: ₹
+                    {user?.walletBalance.toFixed(2) || "0.00"}
+                  </p>
+                  <p className="text-slate-500 text-sm">
+                    You need at least ₹1000 in your wallet to request a
+                    withdrawal. Add more funds to enable this feature.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-700 bg-slate-800">
+            <CardHeader>
+              <CardTitle className="text-white">Withdrawal History</CardTitle>
+              <CardDescription className="text-slate-400">
+                Your withdrawal requests and their status
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {withdrawalsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Spinner className="w-6 h-6 text-blue-400" />
+                  <p className="ml-3 text-slate-400">
+                    Loading withdrawal history...
+                  </p>
+                </div>
+              ) : myWithdrawals.length === 0 ? (
+                <p className="text-slate-400 text-center py-8">
+                  No withdrawal requests yet
+                </p>
+              ) : (
+                <div
+                  className="h-[400px] overflow-y-auto pr-4"
+                  onScroll={handleWithdrawalsScroll}
+                  ref={withdrawalsScrollRef}
+                >
+                  <div className="space-y-3">
+                    {myWithdrawals.map((withdrawal) => (
+                      <div
+                        key={withdrawal.id}
+                        className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold text-white">
+                              ₹{withdrawal.amount.toFixed(2)}
+                            </p>
+                            <p className="text-sm text-slate-400">
+                              {new Date(withdrawal.createdAt).toLocaleString()}
+                            </p>
+                            {withdrawal.approvedAt && (
+                              <p className="text-xs text-green-400 mt-1">
+                                Approved:{" "}
+                                {new Date(
+                                  withdrawal.approvedAt
+                                ).toLocaleString()}
                               </p>
-                              <p className="text-sm text-slate-400">
-                                {new Date(transaction.createdAt).toLocaleString()}
-                              </p>
-                              {transaction.status === "approved" && (
-                                <p className="text-xs text-green-400 mt-1">
-                                  ✓ Approved
-                                </p>
-                              )}
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-bold text-green-400">
-                                ₹{transaction.amount.toFixed(2)}
-                              </p>
-                              <span
-                                className={`text-xs px-3 py-1 rounded-full ${
-                                  transaction.status === "pending"
-                                    ? "bg-yellow-600 text-white"
-                                    : transaction.status === "approved"
-                                    ? "bg-green-600 text-white"
-                                    : "bg-red-600 text-white"
-                                }`}
-                              >
-                                {transaction.status.charAt(0).toUpperCase() +
-                                  transaction.status.slice(1)}
-                              </span>
-                            </div>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <span
+                              className={`text-xs px-3 py-1 rounded-full ${
+                                withdrawal.status === "approved"
+                                  ? "bg-green-600 text-white"
+                                  : withdrawal.status === "rejected"
+                                  ? "bg-red-600 text-white"
+                                  : "bg-yellow-600 text-white"
+                              }`}
+                            >
+                              {withdrawal.status.charAt(0).toUpperCase() +
+                                withdrawal.status.slice(1)}
+                            </span>
                           </div>
                         </div>
-                      ))}
-                      {transactionsHasMore && (
-                        <div className="flex justify-center py-4">
-                          <Spinner className="w-5 h-5 text-blue-400" />
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    ))}
+                    {withdrawalsHasMore && (
+                      <div className="flex justify-center py-4">
+                        <Spinner className="w-5 h-5 text-blue-400" />
+                      </div>
+                    )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-700 bg-slate-800">
+            <CardHeader>
+              <CardTitle className="text-white">Transaction History</CardTitle>
+              <CardDescription className="text-slate-400">
+                Your payment requests and their status
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {transactionsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Spinner className="w-6 h-6 text-blue-400" />
+                  <p className="ml-3 text-slate-400">
+                    Loading transaction history...
+                  </p>
+                </div>
+              ) : userTransactions.length === 0 ? (
+                <p className="text-slate-400 text-center py-8">
+                  No transactions yet
+                </p>
+              ) : (
+                <div
+                  className="h-[400px] overflow-y-auto pr-4"
+                  onScroll={handleTransactionsScroll}
+                  ref={transactionsScrollRef}
+                >
+                  <div className="space-y-3">
+                    {userTransactions.map((transaction) => (
+                      <div
+                        key={transaction.id}
+                        className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold text-white">
+                              {transaction.description}
+                            </p>
+                            <p className="text-sm text-slate-400">
+                              {new Date(transaction.createdAt).toLocaleString()}
+                            </p>
+                            {transaction.status === "approved" && (
+                              <p className="text-xs text-green-400 mt-1">
+                                ✓ Approved
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-green-400">
+                              ₹{transaction.amount.toFixed(2)}
+                            </p>
+                            <span
+                              className={`text-xs px-3 py-1 rounded-full ${
+                                transaction.status === "pending"
+                                  ? "bg-yellow-600 text-white"
+                                  : transaction.status === "approved"
+                                  ? "bg-green-600 text-white"
+                                  : "bg-red-600 text-white"
+                              }`}
+                            >
+                              {transaction.status.charAt(0).toUpperCase() +
+                                transaction.status.slice(1)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {transactionsHasMore && (
+                      <div className="flex justify-center py-4">
+                        <Spinner className="w-5 h-5 text-blue-400" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

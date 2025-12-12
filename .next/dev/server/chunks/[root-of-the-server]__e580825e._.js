@@ -468,21 +468,19 @@ async function POST(request) {
                 icon: leastBetIcon,
                 status: "pending"
             });
-            const totalWinningAmount = winningBets.reduce((sum, bet)=>sum + bet.amount, 0);
-            const totalSlotAmount = currentSlot.totalAmount;
-            const companyCommission = Math.max(10, totalSlotAmount * 0.05);
-            const availablePayout = totalSlotAmount - companyCommission;
+            const totalSlotAmount = currentSlot.totalAmount; // Total pool from all bets
+            // New logic: Take 10% commission from total pool, distribute remaining 90% equally among winners
+            const companyCommission = totalSlotAmount * 0.10;
+            const totalPayoutToWinners = totalSlotAmount * 0.90;
+            const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
             currentSlot.companyCommission = companyCommission;
             await currentSlot.save();
-            let payoutMultiplier = 1;
-            if (totalWinningAmount > 0) {
-                payoutMultiplier = Math.min(availablePayout / totalWinningAmount, 2);
-            }
             for (const bet of winningBets){
                 // Double-check bet is still pending before processing
                 const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
                 if (currentBet && currentBet.status === "pending") {
-                    const payout = bet.amount * payoutMultiplier;
+                    // Each winner gets equal share of 90% of winners' total
+                    const payout = payoutPerWinner;
                     currentBet.payout = payout;
                     currentBet.status = "won";
                     await currentBet.save();
@@ -532,7 +530,7 @@ async function POST(request) {
                 action: "completed",
                 winningIcon: leastBetIcon,
                 totalWinners: winningBets.length,
-                totalPayout: winningBets.reduce((sum, bet)=>sum + bet.payout, 0),
+                totalPayout: totalPayoutToWinners,
                 companyCommission
             });
         }

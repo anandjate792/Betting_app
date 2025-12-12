@@ -25,6 +25,11 @@ export default function ApprovalsPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [transactionsSkip, setTransactionsSkip] = useState(10);
   const [hasMore, setHasMore] = useState(true);
+  const [processingTransaction, setProcessingTransaction] = useState<{
+    id: string;
+    action: "approve" | "reject";
+  } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadTransactions(true);
@@ -67,6 +72,44 @@ export default function ApprovalsPage() {
     } finally {
       setTransactionsLoading(false);
       setLoadingMore(false);
+    }
+  };
+
+  const handleApprove = async (transactionId: string) => {
+    if (processingTransaction) return; // Prevent multiple clicks
+    
+    setProcessingTransaction({ id: transactionId, action: "approve" });
+    setErrorMessage(null);
+    
+    try {
+      await approveTransaction(transactionId, user!.id);
+      // Reload transactions to get updated status
+      await loadTransactions(true);
+    } catch (error: any) {
+      const errorMsg = error?.message || "Failed to approve transaction";
+      setErrorMessage(errorMsg);
+      console.error("Approve transaction error:", error);
+    } finally {
+      setProcessingTransaction(null);
+    }
+  };
+
+  const handleReject = async (transactionId: string) => {
+    if (processingTransaction) return; // Prevent multiple clicks
+    
+    setProcessingTransaction({ id: transactionId, action: "reject" });
+    setErrorMessage(null);
+    
+    try {
+      await rejectTransaction(transactionId);
+      // Reload transactions to get updated status
+      await loadTransactions(true);
+    } catch (error: any) {
+      const errorMsg = error?.message || "Failed to reject transaction";
+      setErrorMessage(errorMsg);
+      console.error("Reject transaction error:", error);
+    } finally {
+      setProcessingTransaction(null);
     }
   };
 
@@ -143,6 +186,19 @@ export default function ApprovalsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-900/30 border border-red-600 rounded-lg">
+              <p className="text-red-400 text-sm">{errorMessage}</p>
+              <Button
+                onClick={() => setErrorMessage(null)}
+                variant="ghost"
+                size="sm"
+                className="mt-2 text-red-400 hover:text-red-300"
+              >
+                Dismiss
+              </Button>
+            </div>
+          )}
           {transactionsLoading ? (
             <div className="flex items-center justify-center py-12">
               <Spinner className="w-6 h-6 text-blue-400" />
@@ -160,57 +216,89 @@ export default function ApprovalsPage() {
                     key={trans.id}
                     className="p-4 bg-slate-700 rounded-lg border border-slate-600"
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <p className="font-semibold text-white">
-                          {trans.userName}
+                    <div className="flex gap-4">
+                      {/* Left side: Transaction details */}
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <p className="font-semibold text-white text-lg">
+                              {trans.userName}
+                            </p>
+                            <p className="text-sm text-slate-400">
+                              {trans.description}
+                            </p>
+                          </div>
+                          <p className="text-xl font-bold text-green-400">
+                            ${trans.amount.toFixed(2)}
+                          </p>
+                        </div>
+                        <p className="text-xs text-slate-400 mb-3">
+                          {new Date(trans.createdAt).toLocaleString()}
                         </p>
-                        <p className="text-sm text-slate-400">
-                          {trans.description}
-                        </p>
-                      </div>
-                      <p className="text-lg font-bold text-green-400">
-                        ${trans.amount.toFixed(2)}
-                      </p>
-                    </div>
-                    <p className="text-xs text-slate-400 mb-3">
-                      {new Date(trans.createdAt).toLocaleString()}
-                    </p>
 
-                    {trans.screenshotImage && (
-                      <div className="mb-3">
-                        <img
-                          src={
-                            trans.screenshotImage || "/placeholder.svg"
-                          }
-                          alt="Transaction screenshot"
-                          className="w-full max-h-32 object-cover rounded-lg border border-slate-600 cursor-pointer hover:opacity-80 transition"
-                          onClick={() => setSelectedImageTransaction(trans.id)}
-                        />
-                        <p className="text-xs text-slate-400 mt-1">
-                          Click image to expand
-                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => handleApprove(trans.id)}
+                            disabled={
+                              processingTransaction?.id === trans.id ||
+                              processingTransaction !== null
+                            }
+                            className="flex-1 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            size="sm"
+                          >
+                            {processingTransaction?.id === trans.id &&
+                            processingTransaction?.action === "approve" ? (
+                              <>
+                                <Spinner className="w-4 h-4 mr-2" />
+                                Approving...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Approve
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            onClick={() => handleReject(trans.id)}
+                            disabled={
+                              processingTransaction?.id === trans.id ||
+                              processingTransaction !== null
+                            }
+                            variant="destructive"
+                            className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            size="sm"
+                          >
+                            {processingTransaction?.id === trans.id &&
+                            processingTransaction?.action === "reject" ? (
+                              <>
+                                <Spinner className="w-4 h-4 mr-2" />
+                                Rejecting...
+                              </>
+                            ) : (
+                              <>
+                                <XCircle className="w-4 h-4 mr-2" />
+                                Reject
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
-                    )}
 
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => approveTransaction(trans.id, user!.id)}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                        size="sm"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Approve
-                      </Button>
-                      <Button
-                        onClick={() => rejectTransaction(trans.id)}
-                        variant="destructive"
-                        className="flex-1"
-                        size="sm"
-                      >
-                        <XCircle className="w-4 h-4 mr-2" />
-                        Reject
-                      </Button>
+                      {/* Right side: Screenshot image */}
+                      {trans.screenshotImage && (
+                        <div className="flex-shrink-0">
+                          <img
+                            src={trans.screenshotImage}
+                            alt="Transaction screenshot"
+                            className="w-48 h-32 object-cover rounded-lg border-2 border-slate-500 cursor-pointer hover:opacity-80 transition hover:border-blue-400"
+                            onClick={() => setSelectedImageTransaction(trans.id)}
+                          />
+                          <p className="text-xs text-slate-400 mt-1 text-center">
+                            Click to expand
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

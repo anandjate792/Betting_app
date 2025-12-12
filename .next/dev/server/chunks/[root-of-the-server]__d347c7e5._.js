@@ -299,6 +299,18 @@ const betSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose
         default: Date.now
     }
 });
+// Add indexes for better query performance
+betSchema.index({
+    userId: 1,
+    createdAt: -1
+});
+betSchema.index({
+    slotId: 1,
+    userId: 1
+});
+betSchema.index({
+    createdAt: -1
+});
 if (__TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Bet) {
     delete __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Bet;
 }
@@ -356,6 +368,18 @@ const transactionSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$
         type: Date,
         default: Date.now
     }
+});
+// Add indexes for better query performance
+transactionSchema.index({
+    userId: 1,
+    createdAt: -1
+});
+transactionSchema.index({
+    status: 1,
+    createdAt: -1
+});
+transactionSchema.index({
+    createdAt: -1
 });
 const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].models.Transaction || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model("Transaction", transactionSchema);
 }),
@@ -442,30 +466,41 @@ async function POST(request, { params }) {
         });
         const uniqueUsers = new Set(allBets.map((bet)=>bet.userId.toString()));
         if (uniqueUsers.size < 2) {
+            // Update slot status first to prevent duplicate processing
             const totalRefundedAmount = slot.totalAmount;
-            for (const bet of allBets){
-                bet.status = "cancelled";
-                await bet.save();
-                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
-                    $inc: {
-                        walletBalance: bet.amount
-                    }
-                });
-                await createApprovedTransaction({
-                    userId: bet.userId.toString(),
-                    userName: bet.userName,
-                    amount: bet.amount,
-                    description: `Bet refund for Slot #${slot.slotNumber} (insufficient players)`
-                });
-            }
             slot.status = "closed";
             slot.winningIcon = null;
             slot.companyCommission = 0;
+            await slot.save();
+            // Only process bets that are still pending (not already cancelled)
+            const pendingBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
+                slotId: slot._id,
+                status: "pending"
+            });
+            for (const bet of pendingBets){
+                // Double-check bet is still pending before processing
+                const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
+                if (currentBet && currentBet.status === "pending") {
+                    currentBet.status = "cancelled";
+                    await currentBet.save();
+                    await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
+                        $inc: {
+                            walletBalance: bet.amount
+                        }
+                    });
+                    await createApprovedTransaction({
+                        userId: bet.userId.toString(),
+                        userName: bet.userName,
+                        amount: bet.amount,
+                        description: `Bet refund for Slot #${slot.slotNumber} (insufficient players)`
+                    });
+                }
+            }
             slot.totalAmount = 0;
             await slot.save();
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Minimum 2 users required. All bets have been refunded.",
-                refunded: allBets.length,
+                refunded: pendingBets.length,
                 totalRefunded: totalRefundedAmount
             }, {
                 status: 400
@@ -478,32 +513,34 @@ async function POST(request, { params }) {
             icon: winningIcon,
             status: "pending"
         });
-        const totalWinningAmount = winningBets.reduce((sum, bet)=>sum + bet.amount, 0);
-        const totalSlotAmount = slot.totalAmount;
-        const companyCommission = Math.max(10, totalSlotAmount * 0.05);
-        const availablePayout = totalSlotAmount - companyCommission;
+        const totalSlotAmount = slot.totalAmount; // Total pool from all bets
+        // New logic: Take 10% commission from total pool, distribute remaining 90% equally among winners
+        const companyCommission = totalSlotAmount * 0.10;
+        const totalPayoutToWinners = totalSlotAmount * 0.90;
+        const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
         slot.companyCommission = companyCommission;
         await slot.save();
-        let payoutMultiplier = 1;
-        if (totalWinningAmount > 0) {
-            payoutMultiplier = Math.min(availablePayout / totalWinningAmount, 2);
-        }
         for (const bet of winningBets){
-            const payout = bet.amount * payoutMultiplier;
-            bet.payout = payout;
-            bet.status = "won";
-            await bet.save();
-            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
-                $inc: {
-                    walletBalance: payout
-                }
-            });
-            await createApprovedTransaction({
-                userId: bet.userId.toString(),
-                userName: bet.userName,
-                amount: payout,
-                description: `Bet winning for Slot #${slot.slotNumber}`
-            });
+            // Double-check bet is still pending before processing
+            const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
+            if (currentBet && currentBet.status === "pending") {
+                // Each winner gets equal share of 90% of winners' total
+                const payout = payoutPerWinner;
+                currentBet.payout = payout;
+                currentBet.status = "won";
+                await currentBet.save();
+                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
+                    $inc: {
+                        walletBalance: payout
+                    }
+                });
+                await createApprovedTransaction({
+                    userId: bet.userId.toString(),
+                    userName: bet.userName,
+                    amount: payout,
+                    description: `Bet winning for Slot #${slot.slotNumber}`
+                });
+            }
         }
         const losingBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
             slotId: slot._id,
@@ -513,8 +550,11 @@ async function POST(request, { params }) {
             status: "pending"
         });
         for (const bet of losingBets){
-            bet.status = "lost";
-            await bet.save();
+            const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
+            if (currentBet && currentBet.status === "pending") {
+                currentBet.status = "lost";
+                await currentBet.save();
+            }
         }
         if (companyCommission > 0) {
             await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(admin._id, {
@@ -533,7 +573,7 @@ async function POST(request, { params }) {
             message: "Slot completed",
             winningIcon,
             totalWinners: winningBets.length,
-            totalPayout: winningBets.reduce((sum, bet)=>sum + bet.payout, 0),
+            totalPayout: totalPayoutToWinners,
             companyCommission
         });
     } catch (error) {

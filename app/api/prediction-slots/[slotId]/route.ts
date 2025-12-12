@@ -95,23 +95,22 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     slot.status = "completed";
 
     const winningBets = await Bet.find({ slotId: slot._id, icon: winningIcon, status: "pending" });
-    const totalWinningAmount = winningBets.reduce((sum, bet) => sum + bet.amount, 0);
-    const totalSlotAmount = slot.totalAmount;
-    const companyCommission = Math.max(10, totalSlotAmount * 0.05);
-    const availablePayout = totalSlotAmount - companyCommission;
+    const totalSlotAmount = slot.totalAmount; // Total pool from all bets
+    
+    // New logic: Take 10% commission from total pool, distribute remaining 90% equally among winners
+    const companyCommission = totalSlotAmount * 0.10;
+    const totalPayoutToWinners = totalSlotAmount * 0.90;
+    const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
+    
     slot.companyCommission = companyCommission;
     await slot.save();
-
-    let payoutMultiplier = 1;
-    if (totalWinningAmount > 0) {
-      payoutMultiplier = Math.min(availablePayout / totalWinningAmount, 2);
-    }
 
     for (const bet of winningBets) {
       // Double-check bet is still pending before processing
       const currentBet = await Bet.findById(bet._id);
       if (currentBet && currentBet.status === "pending") {
-        const payout = bet.amount * payoutMultiplier;
+        // Each winner gets equal share of 90% of winners' total
+        const payout = payoutPerWinner;
         currentBet.payout = payout;
         currentBet.status = "won";
         await currentBet.save();
@@ -149,7 +148,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       message: "Slot completed",
       winningIcon,
       totalWinners: winningBets.length,
-      totalPayout: winningBets.reduce((sum, bet) => sum + bet.payout, 0),
+      totalPayout: totalPayoutToWinners,
       companyCommission,
     });
   } catch (error) {

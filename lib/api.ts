@@ -54,6 +54,13 @@ export const authApi = {
     }),
 };
 
+export const referralApi = {
+  getMyReferrals: () =>
+    apiCall("/referrals", {
+      method: "GET",
+    }),
+};
+
 export const userApi = {
   getAllUsers: () => apiCall("/users", { method: "GET" }),
   createUser: (name: string, email: string, password: string) =>
@@ -177,4 +184,22 @@ export const withdrawalApi = {
     apiCall(`/withdrawals/${withdrawalId}?action=approve`, { method: "POST" }),
   rejectWithdrawal: (withdrawalId: string) =>
     apiCall(`/withdrawals/${withdrawalId}?action=reject`, { method: "POST" }),
+};
+
+export const bankApi = {
+  getBankDetails: () =>
+    apiCall("/bank-details", {
+      method: "GET",
+    }),
+  saveBankDetails: (details: {
+    accountHolderName?: string;
+    bankName?: string;
+    accountNumber?: string;
+    ifscCode?: string;
+    upiId?: string;
+  }) =>
+    apiCall("/bank-details", {
+      method: "POST",
+      body: JSON.stringify(details),
+    }),
 };

@@ -5,10 +5,14 @@ module.exports = [
 __turbopack_context__.s([
     "authApi",
     ()=>authApi,
+    "bankApi",
+    ()=>bankApi,
     "betApi",
     ()=>betApi,
     "predictionApi",
     ()=>predictionApi,
+    "referralApi",
+    ()=>referralApi,
     "transactionApi",
     ()=>transactionApi,
     "userApi",
@@ -58,6 +62,11 @@ const authApi = {
                 oldPassword,
                 newPassword
             })
+        })
+};
+const referralApi = {
+    getMyReferrals: ()=>apiCall("/referrals", {
+            method: "GET"
         })
 };
 const userApi = {
@@ -191,6 +200,15 @@ const withdrawalApi = {
         }),
     rejectWithdrawal: (withdrawalId)=>apiCall(`/withdrawals/${withdrawalId}?action=reject`, {
             method: "POST"
+        })
+};
+const bankApi = {
+    getBankDetails: ()=>apiCall("/bank-details", {
+            method: "GET"
+        }),
+    saveBankDetails: (details)=>apiCall("/bank-details", {
+            method: "POST",
+            body: JSON.stringify(details)
         })
 };
 }),

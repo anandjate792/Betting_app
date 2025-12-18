@@ -34,7 +34,7 @@ import {
   Gem,
   Fish,
 } from "lucide-react";
-import { betApi, predictionApi } from "@/lib/api";
+import { betApi, predictionApi, referralApi } from "@/lib/api";
 import { authApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -75,13 +75,36 @@ export default function DashboardPage() {
   const [betsSkip, setBetsSkip] = useState(10);
   const [betsHasMore, setBetsHasMore] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [referralInfo, setReferralInfo] = useState<{
+    referralCode?: string;
+    referralCount?: number;
+    referralEarnings?: number;
+  }>({});
 
   useEffect(() => {
     loadCurrentSlot();
     loadMyBets(true);
+    loadReferralInfo();
     const interval = setInterval(loadCurrentSlot, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, []);
+
+  const loadReferralInfo = async () => {
+    setReferralLoading(true);
+    try {
+      const data = await referralApi.getMyReferrals();
+      setReferralInfo({
+        referralCode: (data as any).referralCode,
+        referralCount: (data as any).referralCount,
+        referralEarnings: (data as any).referralEarnings,
+      });
+    } catch (error) {
+      console.error("Failed to load referral info:", error);
+    } finally {
+      setReferralLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (currentSlot) {
@@ -309,6 +332,44 @@ export default function DashboardPage() {
           <p className="text-slate-400 text-sm mt-2">
             Your current wallet balance
           </p>
+        </CardContent>
+      </Card>
+
+      {/* Refer & Earn */}
+      <Card className="border-slate-700 bg-slate-800">
+        <CardHeader>
+          <CardTitle className="text-white">Refer & Earn</CardTitle>
+          <CardDescription className="text-slate-400">
+            Share your referral code with friends. When they play and win, you can earn extra rewards. (Tracking enabled now; payout rules can be adjusted later.)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <p className="text-sm text-slate-400 mb-1">Your Referral Code</p>
+            <p className="text-2xl font-bold text-blue-400">
+              {referralLoading
+                ? "Loading..."
+                : referralInfo.referralCode || "N/A"}
+            </p>
+            <p className="text-xs text-slate-500 mt-1">
+              Ask new users to share this code with the admin when their account
+              is created, or during signup once enabled.
+            </p>
+          </div>
+          <div className="text-right space-y-1">
+            <p className="text-sm text-slate-400">
+              Total Referrals:{" "}
+              <span className="font-semibold text-white">
+                {referralInfo.referralCount ?? 0}
+              </span>
+            </p>
+            <p className="text-sm text-slate-400">
+              Referral Earnings:{" "}
+              <span className="font-semibold text-green-400">
+                ₹{(referralInfo.referralEarnings ?? 0).toFixed(2)}
+              </span>
+            </p>
+          </div>
         </CardContent>
       </Card>
 

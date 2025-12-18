@@ -34,15 +34,9 @@ export async function GET(request: NextRequest) {
       }).sort({ startTime: -1 });
 
       if (!slot && autoCreateEnabled) {
-        // create an on-demand slot so users aren't blocked when admin is offline
+        // create an on-demand 45-second slot so users aren't blocked when admin is offline
         const nextSlotStart = new Date(now);
-        nextSlotStart.setSeconds(0);
-        nextSlotStart.setMilliseconds(0);
-        if (nextSlotStart.getMinutes() % 10 !== 0) {
-          nextSlotStart.setMinutes(Math.floor(nextSlotStart.getMinutes() / 10) * 10);
-        }
-        const nextSlotEnd = new Date(nextSlotStart);
-        nextSlotEnd.setMinutes(nextSlotEnd.getMinutes() + 10);
+        const nextSlotEnd = new Date(nextSlotStart.getTime() + 45 * 1000);
 
         const lastSlot = await PredictionSlot.findOne().sort({ slotNumber: -1 });
         const slotNumber = lastSlot ? lastSlot.slotNumber + 1 : 1;

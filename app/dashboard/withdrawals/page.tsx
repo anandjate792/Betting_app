@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
-import { withdrawalApi } from "@/lib/api";
+import { withdrawalApi, bankApi } from "@/lib/api";
 
 export default function WithdrawalsPage() {
   const { user } = useAppStore();
@@ -24,10 +24,48 @@ export default function WithdrawalsPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [withdrawalsSkip, setWithdrawalsSkip] = useState(10);
   const [hasMore, setHasMore] = useState(true);
+  const [bankLoading, setBankLoading] = useState(false);
+  const [savingBank, setSavingBank] = useState(false);
+  const [bankDetails, setBankDetails] = useState({
+    accountHolderName: "",
+    bankName: "",
+    accountNumber: "",
+    ifscCode: "",
+    upiId: "",
+  });
 
   useEffect(() => {
     loadWithdrawals(true);
+    loadBankDetails();
   }, []);
+
+  const loadBankDetails = async () => {
+    setBankLoading(true);
+    try {
+      const details = await bankApi.getBankDetails();
+      setBankDetails((prev) => ({
+        ...prev,
+        ...(details || {}),
+      }));
+    } catch (error) {
+      console.error("Failed to load bank details:", error);
+    } finally {
+      setBankLoading(false);
+    }
+  };
+
+  const handleSaveBankDetails = async () => {
+    setSavingBank(true);
+    try {
+      await bankApi.saveBankDetails(bankDetails);
+      alert("Bank details saved");
+    } catch (error: any) {
+      console.error("Failed to save bank details:", error);
+      alert(error.message || "Failed to save bank details");
+    } finally {
+      setSavingBank(false);
+    }
+  };
 
   const loadWithdrawals = async (reset = false) => {
     if (reset) {
@@ -87,6 +125,125 @@ export default function WithdrawalsPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 space-y-6">
+      {/* Bank Details */}
+      <Card className="border-slate-700 bg-slate-800">
+        <CardHeader>
+          <CardTitle className="text-white">Bank Details</CardTitle>
+          <CardDescription className="text-slate-400">
+            These details will be used for processing your withdrawals
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {bankLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <Spinner className="w-4 h-4 text-blue-400 mr-2" />
+              <p className="text-slate-400 text-sm">Loading bank details...</p>
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">
+                  Account Holder Name
+                </label>
+                <Input
+                  value={bankDetails.accountHolderName}
+                  onChange={(e) =>
+                    setBankDetails((prev) => ({
+                      ...prev,
+                      accountHolderName: e.target.value,
+                    }))
+                  }
+                  className="bg-slate-700 border-slate-600 text-white"
+                  placeholder="Enter account holder name"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">
+                    Bank Name
+                  </label>
+                  <Input
+                    value={bankDetails.bankName}
+                    onChange={(e) =>
+                      setBankDetails((prev) => ({
+                        ...prev,
+                        bankName: e.target.value,
+                      }))
+                    }
+                    className="bg-slate-700 border-slate-600 text-white"
+                    placeholder="Enter bank name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">
+                    Account Number
+                  </label>
+                  <Input
+                    value={bankDetails.accountNumber}
+                    onChange={(e) =>
+                      setBankDetails((prev) => ({
+                        ...prev,
+                        accountNumber: e.target.value,
+                      }))
+                    }
+                    className="bg-slate-700 border-slate-600 text-white"
+                    placeholder="Enter account number"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">
+                    IFSC Code
+                  </label>
+                  <Input
+                    value={bankDetails.ifscCode}
+                    onChange={(e) =>
+                      setBankDetails((prev) => ({
+                        ...prev,
+                        ifscCode: e.target.value,
+                      }))
+                    }
+                    className="bg-slate-700 border-slate-600 text-white"
+                    placeholder="Enter IFSC code"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">
+                    UPI ID (optional)
+                  </label>
+                  <Input
+                    value={bankDetails.upiId}
+                    onChange={(e) =>
+                      setBankDetails((prev) => ({
+                        ...prev,
+                        upiId: e.target.value,
+                      }))
+                    }
+                    className="bg-slate-700 border-slate-600 text-white"
+                    placeholder="your-upi@bank"
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={handleSaveBankDetails}
+                disabled={savingBank}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                size="sm"
+              >
+                {savingBank ? (
+                  <>
+                    <Spinner className="w-4 h-4 mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Bank Details"
+                )}
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
       {/* Request Withdrawal */}
       <Card className="border-slate-700 bg-slate-800">
         <CardHeader>

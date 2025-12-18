@@ -20,19 +20,17 @@ export async function POST(request: NextRequest) {
       await Setting.findOneAndUpdate(
         { key: "autoCreateSlots" },
         { value: enabled },
-        { upsert: true, new: true },
+        { upsert: true, new: true }
       );
-      return NextResponse.json({ message: `Auto-create ${enabled ? "enabled" : "disabled"}` });
+      return NextResponse.json({
+        message: `Auto-create ${enabled ? "enabled" : "disabled"}`,
+      });
     }
 
     const now = new Date();
+    // Create a 45-second slot starting now
     const nextSlotStart = new Date(now);
-    nextSlotStart.setMinutes(Math.floor(now.getMinutes() / 10) * 10);
-    nextSlotStart.setSeconds(0);
-    nextSlotStart.setMilliseconds(0);
-
-    const nextSlotEnd = new Date(nextSlotStart);
-    nextSlotEnd.setMinutes(nextSlotEnd.getMinutes() + 10);
+    const nextSlotEnd = new Date(nextSlotStart.getTime() + 45 * 1000);
 
     const existingSlot = await PredictionSlot.findOne({
       startTime: nextSlotStart,
@@ -40,7 +38,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingSlot) {
-      return NextResponse.json({ message: "Slot already exists", slotId: existingSlot._id.toString() });
+      return NextResponse.json({
+        message: "Slot already exists",
+        slotId: existingSlot._id.toString(),
+      });
     }
 
     let slotNumber = 1;
@@ -79,7 +80,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (!newSlot) {
-      return NextResponse.json({ error: "Failed to create slot after multiple attempts" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to create slot after multiple attempts" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(
@@ -92,7 +96,9 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Server error" },
+      { status: 500 }
+    );
   }
 }
-

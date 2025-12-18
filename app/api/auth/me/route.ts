@@ -29,6 +29,10 @@ export async function GET(request: NextRequest) {
       role: user.role,
       walletBalance: user.walletBalance,
       createdAt: user.createdAt,
+      referralCode: user.referralCode,
+      referralCount: user.referralCount || 0,
+      referralEarnings: user.referralEarnings || 0,
+      bankDetails: user.bankDetails || null,
     })
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Server error" }, { status: 500 })

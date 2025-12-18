@@ -112,9 +112,9 @@ export async function POST(request: NextRequest) {
       const winningBets = await Bet.find({ slotId: currentSlot._id, icon: leastBetIcon, status: "pending" });
       const totalSlotAmount = currentSlot.totalAmount; // Total pool from all bets
       
-      // New logic: Take 10% commission from total pool, distribute remaining 90% equally among winners
-      const companyCommission = totalSlotAmount * 0.10;
-      const totalPayoutToWinners = totalSlotAmount * 0.90;
+      // Updated logic: Take 20% commission from total pool, distribute remaining 80% equally among winners
+      const companyCommission = totalSlotAmount * 0.20;
+      const totalPayoutToWinners = totalSlotAmount * 0.80;
       const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
       
       currentSlot.companyCommission = companyCommission;

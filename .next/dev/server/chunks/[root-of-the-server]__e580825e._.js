@@ -180,6 +180,43 @@ const userSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoos
         type: Number,
         default: 0
     },
+    // Referral & earnings
+    referralCode: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    referredBy: {
+        type: __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].Schema.Types.ObjectId,
+        ref: "User",
+        default: null
+    },
+    referralCount: {
+        type: Number,
+        default: 0
+    },
+    referralEarnings: {
+        type: Number,
+        default: 0
+    },
+    // Bank details for withdrawals
+    bankDetails: {
+        accountHolderName: {
+            type: String
+        },
+        bankName: {
+            type: String
+        },
+        accountNumber: {
+            type: String
+        },
+        ifscCode: {
+            type: String
+        },
+        upiId: {
+            type: String
+        }
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -187,9 +224,18 @@ const userSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoos
 });
 // Hash password before saving. Use promise style to avoid next-callback issues.
 userSchema.pre("save", async function() {
-    if (!this.isModified("password")) return;
-    const salt = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].genSalt(10);
-    this.password = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].hash(this.password, salt);
+    // Hash password if changed
+    if (this.isModified("password")) {
+        const salt = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].genSalt(10);
+        this.password = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].hash(this.password, salt);
+    }
+    // Ensure referral code exists
+    if (!this.referralCode) {
+        // Simple deterministic code based on ObjectId tail to avoid heavy random logic
+        const idPart = typeof this._id === "string" ? this._id.slice(-6) : this._id.toString().slice(-6);
+        const namePart = typeof this.name === "string" && this.name.length > 0 ? this.name.replace(/\s+/g, "").slice(0, 4).toUpperCase() : "USER";
+        this.referralCode = `${namePart}${idPart}`.toUpperCase();
+    }
 });
 userSchema.methods.comparePassword = async function(password) {
     return await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].compare(password, this.password);
@@ -469,9 +515,9 @@ async function POST(request) {
                 status: "pending"
             });
             const totalSlotAmount = currentSlot.totalAmount; // Total pool from all bets
-            // New logic: Take 10% commission from total pool, distribute remaining 90% equally among winners
-            const companyCommission = totalSlotAmount * 0.10;
-            const totalPayoutToWinners = totalSlotAmount * 0.90;
+            // Updated logic: Take 20% commission from total pool, distribute remaining 80% equally among winners
+            const companyCommission = totalSlotAmount * 0.20;
+            const totalPayoutToWinners = totalSlotAmount * 0.80;
             const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
             currentSlot.companyCommission = companyCommission;
             await currentSlot.save();

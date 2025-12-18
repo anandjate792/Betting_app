@@ -10,7 +10,11 @@ const getAdmin = async (request: NextRequest) => {
   const authHeader = request.headers.get("authorization");
   const token = authHeader?.split(" ")[1];
   const decoded = token ? verifyToken(token) : null;
-  if (!decoded || typeof decoded !== "object" || (decoded as any).role !== "admin") {
+  if (
+    !decoded ||
+    typeof decoded !== "object" ||
+    (decoded as any).role !== "admin"
+  ) {
     return null;
   }
   await connectDB();
@@ -19,7 +23,12 @@ const getAdmin = async (request: NextRequest) => {
   return admin;
 };
 
-const createApprovedTransaction = async (params: { userId: string; userName: string; amount: number; description: string }) => {
+const createApprovedTransaction = async (params: {
+  userId: string;
+  userName: string;
+  amount: number;
+  description: string;
+}) => {
   await Transaction.create({
     userId: params.userId,
     userName: params.userName,
@@ -29,17 +38,26 @@ const createApprovedTransaction = async (params: { userId: string; userName: str
   });
 };
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ slotId: string }> | { slotId: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ slotId: string }> | { slotId: string } }
+) {
   try {
     const { slotId } = await Promise.resolve(params);
     const admin = await getAdmin(request);
     if (!admin) {
-      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const { winningIcon } = await request.json();
     if (!winningIcon) {
-      return NextResponse.json({ error: "Winning icon required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Winning icon required" },
+        { status: 400 }
+      );
     }
 
     await connectDB();
@@ -55,7 +73,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const allBets = await Bet.find({ slotId: slot._id, status: "pending" });
     const uniqueUsers = new Set(allBets.map((bet) => bet.userId.toString()));
-    
+
     if (uniqueUsers.size < 2) {
       // Update slot status first to prevent duplicate processing
       const totalRefundedAmount = slot.totalAmount;
@@ -63,16 +81,21 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       slot.winningIcon = null;
       slot.companyCommission = 0;
       await slot.save();
-      
+
       // Only process bets that are still pending (not already cancelled)
-      const pendingBets = await Bet.find({ slotId: slot._id, status: "pending" });
+      const pendingBets = await Bet.find({
+        slotId: slot._id,
+        status: "pending",
+      });
       for (const bet of pendingBets) {
         // Double-check bet is still pending before processing
         const currentBet = await Bet.findById(bet._id);
         if (currentBet && currentBet.status === "pending") {
           currentBet.status = "cancelled";
           await currentBet.save();
-          await User.findByIdAndUpdate(bet.userId, { $inc: { walletBalance: bet.amount } });
+          await User.findByIdAndUpdate(bet.userId, {
+            $inc: { walletBalance: bet.amount },
+          });
           await createApprovedTransaction({
             userId: bet.userId.toString(),
             userName: bet.userName,
@@ -83,25 +106,33 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }
       slot.totalAmount = 0;
       await slot.save();
-      
-      return NextResponse.json({
-        error: "Minimum 2 users required. All bets have been refunded.",
-        refunded: pendingBets.length,
-        totalRefunded: totalRefundedAmount,
-      }, { status: 400 });
+
+      return NextResponse.json(
+        {
+          error: "Minimum 2 users required. All bets have been refunded.",
+          refunded: pendingBets.length,
+          totalRefunded: totalRefundedAmount,
+        },
+        { status: 400 }
+      );
     }
 
     slot.winningIcon = winningIcon;
     slot.status = "completed";
 
-    const winningBets = await Bet.find({ slotId: slot._id, icon: winningIcon, status: "pending" });
+    const winningBets = await Bet.find({
+      slotId: slot._id,
+      icon: winningIcon,
+      status: "pending",
+    });
     const totalSlotAmount = slot.totalAmount; // Total pool from all bets
-    
-    // New logic: Take 10% commission from total pool, distribute remaining 90% equally among winners
-    const companyCommission = totalSlotAmount * 0.10;
-    const totalPayoutToWinners = totalSlotAmount * 0.90;
-    const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
-    
+
+    // Updated logic: Take 20% commission from total pool, distribute remaining 80% equally among winners
+    const companyCommission = totalSlotAmount * 0.2;
+    const totalPayoutToWinners = totalSlotAmount * 0.8;
+    const payoutPerWinner =
+      winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
+
     slot.companyCommission = companyCommission;
     await slot.save();
 
@@ -115,7 +146,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         currentBet.status = "won";
         await currentBet.save();
 
-        await User.findByIdAndUpdate(bet.userId, { $inc: { walletBalance: payout } });
+        await User.findByIdAndUpdate(bet.userId, {
+          $inc: { walletBalance: payout },
+        });
         await createApprovedTransaction({
           userId: bet.userId.toString(),
           userName: bet.userName,
@@ -125,7 +158,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }
     }
 
-    const losingBets = await Bet.find({ slotId: slot._id, icon: { $ne: winningIcon }, status: "pending" });
+    const losingBets = await Bet.find({
+      slotId: slot._id,
+      icon: { $ne: winningIcon },
+      status: "pending",
+    });
     for (const bet of losingBets) {
       const currentBet = await Bet.findById(bet._id);
       if (currentBet && currentBet.status === "pending") {
@@ -135,7 +172,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     if (companyCommission > 0) {
-      await User.findByIdAndUpdate(admin._id, { $inc: { walletBalance: companyCommission } });
+      await User.findByIdAndUpdate(admin._id, {
+        $inc: { walletBalance: companyCommission },
+      });
       await createApprovedTransaction({
         userId: admin._id.toString(),
         userName: admin.name,
@@ -152,7 +191,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       companyCommission,
     });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Server error" },
+      { status: 500 }
+    );
   }
 }
-

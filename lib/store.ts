@@ -41,6 +41,7 @@ interface AppStore {
   totalTransactions: number
   isLoading: boolean
   login: (email: string, password: string) => Promise<boolean>
+  register: (name: string, email: string, password: string, referralCode?: string) => Promise<boolean>
   logout: () => void
   createUser: (name: string, email: string, password: string) => Promise<void>
   deleteUser: (userId: string) => Promise<void>
@@ -75,6 +76,23 @@ export const useAppStore = create<AppStore>((set, get) => ({
       return true
     } catch (error) {
       console.error("Login error:", error)
+      set({ isLoading: false })
+      return false
+    }
+  },
+
+  register: async (name: string, email: string, password: string, referralCode?: string) => {
+    try {
+      const response = await authApi.register(name, email, password, referralCode)
+      localStorage.setItem("authToken", response.token)
+      set({
+        user: response.user,
+        isLoading: false,
+      })
+      await get().fetchTransactions()
+      return true
+    } catch (error) {
+      console.error("Register error:", error)
       set({ isLoading: false })
       return false
     }

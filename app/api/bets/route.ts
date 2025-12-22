@@ -122,21 +122,6 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    const existingBet = await Bet.findOne({
-      userId: user._id,
-      slotId,
-      status: { $in: ["pending", "won", "lost", "cancelled"] },
-    });
-    if (existingBet) {
-      return NextResponse.json(
-        {
-          error:
-            "You already placed a bet on this slot. Please wait for the result.",
-        },
-        { status: 400 }
-      );
-    }
-
     const slot = await PredictionSlot.findById(slotId);
     if (!slot) {
       return NextResponse.json({ error: "Slot not found" }, { status: 404 });

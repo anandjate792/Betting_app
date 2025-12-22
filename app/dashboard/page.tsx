@@ -65,11 +65,9 @@ export default function DashboardPage() {
   >({});
   const [timeRemaining, setTimeRemaining] = useState<string>("");
   const [slotLoading, setSlotLoading] = useState(true);
-  const [hasBetCurrentSlot, setHasBetCurrentSlot] = useState(false);
-  const [currentSlotBet, setCurrentSlotBet] = useState<{
-    icon: string;
-    amount: number;
-  } | null>(null);
+  const [currentSlotBets, setCurrentSlotBets] = useState<
+    { icon: string; amount: number }[]
+  >([]);
   const [myBets, setMyBets] = useState<any[]>([]);
   const [betsLoading, setBetsLoading] = useState(false);
   const [betsSkip, setBetsSkip] = useState(10);
@@ -131,8 +129,7 @@ export default function DashboardPage() {
 
   const loadMyCurrentSlotBet = async (slotId?: string) => {
     if (!slotId) {
-      setHasBetCurrentSlot(false);
-      setCurrentSlotBet(null);
+      setCurrentSlotBets([]);
       return;
     }
     try {
@@ -140,13 +137,14 @@ export default function DashboardPage() {
       const betsArray = Array.isArray(response)
         ? response
         : response.data || [];
-      const selfBet = betsArray.find((b: any) => b.slotId === slotId);
-      setHasBetCurrentSlot(Boolean(selfBet));
-      setCurrentSlotBet(
-        selfBet ? { icon: selfBet.icon, amount: selfBet.amount } : null
-      );
+      const myBetsForSlot =
+        betsArray
+          ?.filter((b: any) => b.slotId === slotId)
+          .map((b: any) => ({ icon: b.icon, amount: b.amount })) || [];
+      setCurrentSlotBets(myBetsForSlot);
     } catch (error) {
       console.error("Failed to load current slot bet:", error);
+      setCurrentSlotBets([]);
     }
   };
 
@@ -237,7 +235,7 @@ export default function DashboardPage() {
     try {
       const amount = Number.parseFloat(betAmount);
       if (amount < 50) {
-        setError("Minimum bet amount is ₹50");
+        setError("Minimum bet amount is 50 coins");
         setLoading(false);
         return;
       }
@@ -250,14 +248,6 @@ export default function DashboardPage() {
 
       if (!currentSlot) {
         setError("No active slot found");
-        setLoading(false);
-        return;
-      }
-
-      if (hasBetCurrentSlot) {
-        setError(
-          "You have already placed a bet for this slot. Please wait for the result."
-        );
         setLoading(false);
         return;
       }
@@ -340,7 +330,9 @@ export default function DashboardPage() {
         <CardHeader>
           <CardTitle className="text-white">Refer & Earn</CardTitle>
           <CardDescription className="text-slate-400">
-            Share your referral code with friends. When they play and win, you can earn extra rewards. (Tracking enabled now; payout rules can be adjusted later.)
+            Share your referral code with friends. When they play and win, you
+            can earn extra rewards. (Tracking enabled now; payout rules can be
+            adjusted later.)
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -424,7 +416,14 @@ export default function DashboardPage() {
                       totalAmount: 0,
                     };
                     const isSelected = selectedIcon === id;
-                    const isMyBet = currentSlotBet?.icon === id;
+                    const myBetsForIcon = currentSlotBets.filter(
+                      (b) => b.icon === id
+                    );
+                    const hasMyBetOnIcon = myBetsForIcon.length > 0;
+                    const totalMyAmountForIcon = myBetsForIcon.reduce(
+                      (sum, b) => sum + b.amount,
+                      0
+                    );
                     return (
                       <button
                         key={id}
@@ -439,12 +438,12 @@ export default function DashboardPage() {
                         <Icon className={`w-6 h-6 mx-auto mb-1 ${color}`} />
                         <p className="text-xs text-slate-300">{name}</p>
                         <p className="text-xs text-slate-400 mt-1">
-                          {iconData.totalBets} bets • ₹
-                          {iconData.totalAmount.toFixed(0)}
+                          {iconData.totalBets} bets •{" "}
+                          {iconData.totalAmount.toFixed(0)} coins
                         </p>
-                        {isMyBet && (
+                        {hasMyBetOnIcon && (
                           <p className="text-[10px] text-amber-300 mt-1 font-semibold">
-                            Your bet
+                            Your bets: {totalMyAmountForIcon.toFixed(0)} coins
                           </p>
                         )}
                       </button>
@@ -455,7 +454,7 @@ export default function DashboardPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">
-                  Bet Amount (₹)
+                  Bet Amount (coins)
                 </label>
                 <Input
                   type="number"
@@ -466,23 +465,14 @@ export default function DashboardPage() {
                   onChange={(e) => setBetAmount(e.target.value)}
                   className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                 />
-                {hasBetCurrentSlot && (
-                  <p className="text-xs text-amber-400">
-                    You have already placed a bet for this slot. Please wait for
-                    the result.
-                  </p>
-                )}
-                {currentSlotBet && (
+                {currentSlotBets.length > 0 && (
                   <p className="text-xs text-slate-300">
-                    You placed{" "}
+                    You already have{" "}
                     <span className="text-white font-semibold">
-                      ₹{currentSlotBet.amount.toFixed(2)}
+                      {currentSlotBets.length}
                     </span>{" "}
-                    on{" "}
-                    <span className="font-semibold text-blue-200">
-                      {currentSlotBet.icon}
-                    </span>
-                    . Awaiting result.
+                    bets on this slot. You can place more bets on different
+                    icons.
                   </p>
                 )}
               </div>
@@ -492,10 +482,7 @@ export default function DashboardPage() {
               <Button
                 type="submit"
                 disabled={
-                  loading ||
-                  !selectedIcon ||
-                  Number.parseFloat(betAmount) < 50 ||
-                  hasBetCurrentSlot
+                  loading || !selectedIcon || Number.parseFloat(betAmount) < 50
                 }
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
               >

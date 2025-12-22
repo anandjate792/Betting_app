@@ -43,6 +43,16 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    referralCode?: string
+  ) =>
+    apiCall("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ name, email, password, referralCode }),
+    }),
   getProfile: () =>
     apiCall("/auth/me", {
       method: "GET",
@@ -79,7 +89,9 @@ export const userApi = {
 
 export const transactionApi = {
   getAllTransactions: (limit = 10, skip = 0) =>
-    apiCall(`/transactions?admin=true&limit=${limit}&skip=${skip}`, { method: "GET" }),
+    apiCall(`/transactions?admin=true&limit=${limit}&skip=${skip}`, {
+      method: "GET",
+    }),
   getUserTransactions: (limit = 10, skip = 0) =>
     apiCall(`/transactions?limit=${limit}&skip=${skip}`, { method: "GET" }),
   createTransaction: (

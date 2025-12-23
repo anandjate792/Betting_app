@@ -17,6 +17,7 @@ import {
   ArrowUpDown,
   CreditCard,
   RefreshCw,
+  XIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner";
@@ -44,7 +45,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X, Trophy } from "lucide-react";
 
 const ICONS = [
   { id: "umbrella", name: "Umbrella", Icon: Umbrella, color: "text-blue-500" },
@@ -820,7 +820,7 @@ export default function DashboardPage() {
                   onClick={() => setResultPopup({ show: false, type: null })}
                   className="text-slate-900 hover:text-slate-700 transition-colors"
                 >
-                  <X className="h-5 w-5" />
+                  <XIcon className="h-5 w-5" />
                 </button>
               </div>
               <div className="mb-6 flex justify-center">
@@ -854,12 +854,12 @@ export default function DashboardPage() {
                   onClick={() => setResultPopup({ show: false, type: null })}
                   className="text-slate-400 hover:text-white transition-colors"
                 >
-                  <X className="h-5 w-5" />
+                  <XIcon className="h-5 w-5" />
                 </button>
               </div>
               <div className="mb-6 flex justify-center">
                 <div className="bg-red-500/20 rounded-full p-6">
-                  <X className="h-20 w-20 text-red-500" />
+                  <XIcon className="h-20 w-20 text-red-500" />
                 </div>
               </div>
               <DialogTitle className="text-3xl font-black text-white mb-3 tracking-wider">

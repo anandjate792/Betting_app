@@ -435,47 +435,6 @@ async function POST(request) {
                 slotId: currentSlot._id,
                 status: "pending"
             });
-            const uniqueUsers = new Set(allBets.map((bet)=>bet.userId.toString()));
-            if (uniqueUsers.size < 2) {
-                // Update slot status first to prevent duplicate processing
-                currentSlot.status = "closed";
-                currentSlot.winningIcon = null;
-                currentSlot.companyCommission = 0;
-                await currentSlot.save();
-                // Re-fetch bets to ensure we only process pending ones
-                const pendingBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
-                    slotId: currentSlot._id,
-                    status: "pending"
-                });
-                for (const bet of pendingBets){
-                    // Double-check bet is still pending before processing
-                    const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
-                    if (currentBet && currentBet.status === "pending") {
-                        currentBet.status = "cancelled";
-                        await currentBet.save();
-                        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
-                            $inc: {
-                                walletBalance: bet.amount
-                            }
-                        });
-                        await createApprovedTransaction({
-                            userId: bet.userId.toString(),
-                            userName: bet.userName,
-                            amount: bet.amount,
-                            description: `Bet refund for Slot #${slot.slotNumber} (insufficient players)`
-                        });
-                    }
-                }
-                currentSlot.totalAmount = 0;
-                await currentSlot.save();
-                results.push({
-                    slotId: currentSlot._id.toString(),
-                    slotNumber: currentSlot.slotNumber,
-                    action: "refunded",
-                    reason: "Less than 2 users"
-                });
-                continue;
-            }
             const betsByIconMap = new Map();
             allBets.forEach((bet)=>{
                 const existing = betsByIconMap.get(bet.icon) || {
@@ -515,18 +474,24 @@ async function POST(request) {
                 status: "pending"
             });
             const totalSlotAmount = currentSlot.totalAmount; // Total pool from all bets
-            // Updated logic: Take 20% commission from total pool, distribute remaining 80% equally among winners
-            const companyCommission = totalSlotAmount * 0.20;
-            const totalPayoutToWinners = totalSlotAmount * 0.80;
-            const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
+            // Profit only when more than 1 unique user participated
+            const uniqueUsersCount = new Set(allBets.map((bet)=>bet.userId.toString())).size;
+            const commissionRate = uniqueUsersCount > 1 ? 0.20 : 0;
+            // Updated logic:
+            // - Take 20% commission only if >1 user
+            // - Distribute remaining (100% or 80%) to winners PROPORTIONAL to the coins they bet
+            const companyCommission = totalSlotAmount * commissionRate;
+            const totalPayoutToWinners = totalSlotAmount - companyCommission;
+            const totalWinningAmount = winningBets.reduce((sum, bet)=>sum + bet.amount, 0);
             currentSlot.companyCommission = companyCommission;
             await currentSlot.save();
             for (const bet of winningBets){
                 // Double-check bet is still pending before processing
                 const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
                 if (currentBet && currentBet.status === "pending") {
-                    // Each winner gets equal share of 90% of winners' total
-                    const payout = payoutPerWinner;
+                    // Each winner gets share of 80% pool based on their coins vs total winning coins
+                    const share = totalWinningAmount > 0 ? bet.amount / totalWinningAmount : 0;
+                    const payout = totalPayoutToWinners * share;
                     currentBet.payout = payout;
                     currentBet.status = "won";
                     await currentBet.save();

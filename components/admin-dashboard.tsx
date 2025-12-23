@@ -312,7 +312,7 @@ export default function AdminDashboard() {
                 onClick={() => {
                   setActiveTab("withdrawals");
                   if (withdrawals.length === 0) {
-                    loadWithdrawals();
+                  loadWithdrawals();
                   }
                 }}
               >
@@ -400,34 +400,34 @@ export default function AdminDashboard() {
                   ) : (
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3 pr-4">
-                        {regularUsers.map((u) => (
-                        <div
-                          key={u.id}
-                          className="flex justify-between items-center p-3 bg-slate-700 rounded-lg"
-                        >
-                          <div>
-                            <p className="font-semibold text-white">{u.name}</p>
-                            <p className="text-sm text-slate-400">{u.email}</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="text-right">
-                              <p className="font-semibold text-green-400">
-                                ${u.walletBalance.toFixed(2)}
-                              </p>
-                              <p className="text-xs text-slate-400">Balance</p>
-                            </div>
-                            <Button
-                              onClick={() => deleteUser(u.id)}
-                              variant="ghost"
-                              className="text-red-400 hover:text-red-600"
-                              size="sm"
-                            >
-                              Delete
-                            </Button>
-                          </div>
+                    {regularUsers.map((u) => (
+                      <div
+                        key={u.id}
+                        className="flex justify-between items-center p-3 bg-slate-700 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-semibold text-white">{u.name}</p>
+                          <p className="text-sm text-slate-400">{u.email}</p>
                         </div>
-                      ))}
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="font-semibold text-green-400">
+                              ${u.walletBalance.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-slate-400">Balance</p>
+                          </div>
+                          <Button
+                            onClick={() => deleteUser(u.id)}
+                            variant="ghost"
+                            className="text-red-400 hover:text-red-600"
+                            size="sm"
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </div>
+                    ))}
+                  </div>
                     </ScrollArea>
                   )}
                 </CardContent>
@@ -503,70 +503,70 @@ export default function AdminDashboard() {
                   ) : (
                     <ScrollArea className="h-[500px]">
                       <div className="space-y-3 pr-4">
-                        {pendingTransactions.map((trans) => (
-                          <div
-                            key={trans.id}
-                            className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                          >
-                            <div className="flex justify-between items-start mb-3">
-                              <div>
-                                <p className="font-semibold text-white">
-                                  {trans.userName}
-                                </p>
-                                <p className="text-sm text-slate-400">
-                                  {trans.description}
-                                </p>
-                              </div>
-                              <p className="text-lg font-bold text-green-400">
-                                ${trans.amount.toFixed(2)}
+                      {pendingTransactions.map((trans) => (
+                        <div
+                          key={trans.id}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <p className="font-semibold text-white">
+                                {trans.userName}
+                              </p>
+                              <p className="text-sm text-slate-400">
+                                {trans.description}
                               </p>
                             </div>
-                            <p className="text-xs text-slate-400 mb-3">
-                              {new Date(trans.createdAt).toLocaleString()}
+                            <p className="text-lg font-bold text-green-400">
+                              ${trans.amount.toFixed(2)}
                             </p>
-
-                            {trans.screenshotImage && (
-                              <div className="mb-3">
-                                <img
-                                  src={
-                                    trans.screenshotImage || "/placeholder.svg"
-                                  }
-                                  alt="Transaction screenshot"
-                                  className="w-full max-h-32 object-cover rounded-lg border border-slate-600 cursor-pointer hover:opacity-80 transition"
-                                  onClick={() =>
-                                    setSelectedImageTransaction(trans.id)
-                                  }
-                                />
-                                <p className="text-xs text-slate-400 mt-1">
-                                  Click image to expand
-                                </p>
-                              </div>
-                            )}
-
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={() =>
-                                  approveTransaction(trans.id, user!.id)
-                                }
-                                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                                size="sm"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Approve
-                              </Button>
-                              <Button
-                                onClick={() => rejectTransaction(trans.id)}
-                                variant="destructive"
-                                className="flex-1"
-                                size="sm"
-                              >
-                                <XCircle className="w-4 h-4 mr-2" />
-                                Reject
-                              </Button>
-                            </div>
                           </div>
-                        ))}
-                      </div>
+                          <p className="text-xs text-slate-400 mb-3">
+                            {new Date(trans.createdAt).toLocaleString()}
+                          </p>
+
+                          {trans.screenshotImage && (
+                            <div className="mb-3">
+                              <img
+                                src={
+                                  trans.screenshotImage || "/placeholder.svg"
+                                }
+                                alt="Transaction screenshot"
+                                className="w-full max-h-32 object-cover rounded-lg border border-slate-600 cursor-pointer hover:opacity-80 transition"
+                                onClick={() =>
+                                  setSelectedImageTransaction(trans.id)
+                                }
+                              />
+                              <p className="text-xs text-slate-400 mt-1">
+                                Click image to expand
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() =>
+                                approveTransaction(trans.id, user!.id)
+                              }
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                              size="sm"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Approve
+                            </Button>
+                            <Button
+                              onClick={() => rejectTransaction(trans.id)}
+                              variant="destructive"
+                              className="flex-1"
+                              size="sm"
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                     </ScrollArea>
                   )}
                 </CardContent>
@@ -650,57 +650,57 @@ export default function AdminDashboard() {
                   ) : (
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3 pr-4">
-                        {pendingWithdrawals.map((withdrawal) => (
-                          <div
-                            key={withdrawal.id}
-                            className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                          >
-                            <div className="flex justify-between items-start mb-3">
-                              <div>
-                                <p className="font-semibold text-white">
-                                  {withdrawal.userName}
-                                </p>
-                                <p className="text-sm text-slate-400">
-                                  Amount: ₹{withdrawal.amount.toFixed(2)}
-                                </p>
-                                <p className="text-xs text-slate-400 mt-1">
-                                  {new Date(
-                                    withdrawal.createdAt
-                                  ).toLocaleString()}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-lg font-bold text-purple-400">
-                                  ₹{withdrawal.amount.toFixed(2)}
-                                </p>
-                              </div>
+                      {pendingWithdrawals.map((withdrawal) => (
+                        <div
+                          key={withdrawal.id}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <p className="font-semibold text-white">
+                                {withdrawal.userName}
+                              </p>
+                              <p className="text-sm text-slate-400">
+                                Amount: ₹{withdrawal.amount.toFixed(2)}
+                              </p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {new Date(
+                                  withdrawal.createdAt
+                                ).toLocaleString()}
+                              </p>
                             </div>
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={() =>
-                                  handleApproveWithdrawal(withdrawal.id)
-                                }
-                                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                                size="sm"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Approve
-                              </Button>
-                              <Button
-                                onClick={() =>
-                                  handleRejectWithdrawal(withdrawal.id)
-                                }
-                                variant="destructive"
-                                className="flex-1"
-                                size="sm"
-                              >
-                                <XCircle className="w-4 h-4 mr-2" />
-                                Reject
-                              </Button>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-purple-400">
+                                ₹{withdrawal.amount.toFixed(2)}
+                              </p>
                             </div>
                           </div>
-                        ))}
-                      </div>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() =>
+                                handleApproveWithdrawal(withdrawal.id)
+                              }
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                              size="sm"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Approve
+                            </Button>
+                            <Button
+                              onClick={() =>
+                                handleRejectWithdrawal(withdrawal.id)
+                              }
+                              variant="destructive"
+                              className="flex-1"
+                              size="sm"
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                     </ScrollArea>
                   )}
                 </CardContent>
@@ -723,57 +723,57 @@ export default function AdminDashboard() {
                   ) : (
                     <ScrollArea className="h-[400px]">
                       <div className="pr-4">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-slate-600">
-                              <th className="text-left py-2 px-2 text-slate-300">
-                                User
-                              </th>
-                              <th className="text-left py-2 px-2 text-slate-300">
-                                Amount
-                              </th>
-                              <th className="text-left py-2 px-2 text-slate-300">
-                                Status
-                              </th>
-                              <th className="text-left py-2 px-2 text-slate-300">
-                                Date
-                              </th>
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-600">
+                            <th className="text-left py-2 px-2 text-slate-300">
+                              User
+                            </th>
+                            <th className="text-left py-2 px-2 text-slate-300">
+                              Amount
+                            </th>
+                            <th className="text-left py-2 px-2 text-slate-300">
+                              Status
+                            </th>
+                            <th className="text-left py-2 px-2 text-slate-300">
+                              Date
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {withdrawals.map((w) => (
+                            <tr
+                              key={w.id}
+                              className="border-b border-slate-700 hover:bg-slate-700/50"
+                            >
+                              <td className="py-3 px-2 text-white">
+                                {w.userName}
+                              </td>
+                              <td className="py-3 px-2 text-purple-400 font-semibold">
+                                ₹{w.amount.toFixed(2)}
+                              </td>
+                              <td className="py-3 px-2">
+                                <span
+                                  className={`text-xs px-2 py-1 rounded-full ${
+                                    w.status === "pending"
+                                      ? "bg-yellow-600 text-white"
+                                      : w.status === "approved"
+                                      ? "bg-green-600 text-white"
+                                      : "bg-red-600 text-white"
+                                  }`}
+                                >
+                                  {w.status.charAt(0).toUpperCase() +
+                                    w.status.slice(1)}
+                                </span>
+                              </td>
+                              <td className="py-3 px-2 text-slate-400">
+                                {new Date(w.createdAt).toLocaleDateString()}
+                              </td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {withdrawals.map((w) => (
-                              <tr
-                                key={w.id}
-                                className="border-b border-slate-700 hover:bg-slate-700/50"
-                              >
-                                <td className="py-3 px-2 text-white">
-                                  {w.userName}
-                                </td>
-                                <td className="py-3 px-2 text-purple-400 font-semibold">
-                                  ₹{w.amount.toFixed(2)}
-                                </td>
-                                <td className="py-3 px-2">
-                                  <span
-                                    className={`text-xs px-2 py-1 rounded-full ${
-                                      w.status === "pending"
-                                        ? "bg-yellow-600 text-white"
-                                        : w.status === "approved"
-                                        ? "bg-green-600 text-white"
-                                        : "bg-red-600 text-white"
-                                    }`}
-                                  >
-                                    {w.status.charAt(0).toUpperCase() +
-                                      w.status.slice(1)}
-                                  </span>
-                                </td>
-                                <td className="py-3 px-2 text-slate-400">
-                                  {new Date(w.createdAt).toLocaleDateString()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                     </ScrollArea>
                   )}
                 </CardContent>
@@ -804,57 +804,57 @@ export default function AdminDashboard() {
               ) : (
                 <ScrollArea className="h-[400px]">
                   <div className="pr-4">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-slate-600">
-                          <th className="text-left py-2 px-2 text-slate-300">
-                            User
-                          </th>
-                          <th className="text-left py-2 px-2 text-slate-300">
-                            Amount
-                          </th>
-                          <th className="text-left py-2 px-2 text-slate-300">
-                            Status
-                          </th>
-                          <th className="text-left py-2 px-2 text-slate-300">
-                            Date
-                          </th>
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-600">
+                        <th className="text-left py-2 px-2 text-slate-300">
+                          User
+                        </th>
+                        <th className="text-left py-2 px-2 text-slate-300">
+                          Amount
+                        </th>
+                        <th className="text-left py-2 px-2 text-slate-300">
+                          Status
+                        </th>
+                        <th className="text-left py-2 px-2 text-slate-300">
+                          Date
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transactions.map((trans) => (
+                        <tr
+                          key={trans.id}
+                          className="border-b border-slate-700 hover:bg-slate-700/50"
+                        >
+                          <td className="py-3 px-2 text-white">
+                            {trans.userName}
+                          </td>
+                          <td className="py-3 px-2 text-green-400 font-semibold">
+                            ${trans.amount.toFixed(2)}
+                          </td>
+                          <td className="py-3 px-2">
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full ${
+                                trans.status === "pending"
+                                  ? "bg-yellow-600 text-white"
+                                  : trans.status === "approved"
+                                  ? "bg-green-600 text-white"
+                                  : "bg-red-600 text-white"
+                              }`}
+                            >
+                              {trans.status.charAt(0).toUpperCase() +
+                                trans.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2 text-slate-400">
+                            {new Date(trans.createdAt).toLocaleDateString()}
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {transactions.map((trans) => (
-                          <tr
-                            key={trans.id}
-                            className="border-b border-slate-700 hover:bg-slate-700/50"
-                          >
-                            <td className="py-3 px-2 text-white">
-                              {trans.userName}
-                            </td>
-                            <td className="py-3 px-2 text-green-400 font-semibold">
-                              ${trans.amount.toFixed(2)}
-                            </td>
-                            <td className="py-3 px-2">
-                              <span
-                                className={`text-xs px-2 py-1 rounded-full ${
-                                  trans.status === "pending"
-                                    ? "bg-yellow-600 text-white"
-                                    : trans.status === "approved"
-                                    ? "bg-green-600 text-white"
-                                    : "bg-red-600 text-white"
-                                }`}
-                              >
-                                {trans.status.charAt(0).toUpperCase() +
-                                  trans.status.slice(1)}
-                              </span>
-                            </td>
-                            <td className="py-3 px-2 text-slate-400">
-                              {new Date(trans.createdAt).toLocaleDateString()}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 </ScrollArea>
               )}
             </CardContent>

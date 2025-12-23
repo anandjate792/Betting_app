@@ -20,8 +20,9 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const now = new Date();
+    // Only process slots where endTime has definitely passed (with 1 second buffer for safety)
     const expiredSlots = await PredictionSlot.find({
-      endTime: { $lt: now },
+      endTime: { $lt: new Date(now.getTime() - 1000) }, // 1 second buffer to ensure time has truly passed
       status: "open",
     });
 
@@ -30,49 +31,18 @@ export async function POST(request: NextRequest) {
     const adminUser = await User.findOne({ role: "admin" });
 
     for (const slot of expiredSlots) {
-      // Skip if slot is already processed (race condition protection)
-      const currentSlot = await PredictionSlot.findById(slot._id);
-      if (!currentSlot || currentSlot.status !== "open") {
-        continue;
+      // Atomically mark slot as processing to prevent race conditions
+      const currentSlot = await PredictionSlot.findOneAndUpdate(
+        { _id: slot._id, status: "open" },
+        { $set: { status: "processing" } },
+        { new: true }
+      );
+      
+      if (!currentSlot) {
+        continue; // Slot already processed or not found
       }
 
       const allBets = await Bet.find({ slotId: currentSlot._id, status: "pending" });
-      const uniqueUsers = new Set(allBets.map((bet) => bet.userId.toString()));
-
-      if (uniqueUsers.size < 2) {
-        // Update slot status first to prevent duplicate processing
-        currentSlot.status = "closed";
-        currentSlot.winningIcon = null;
-        currentSlot.companyCommission = 0;
-        await currentSlot.save();
-        
-        // Re-fetch bets to ensure we only process pending ones
-        const pendingBets = await Bet.find({ slotId: currentSlot._id, status: "pending" });
-        for (const bet of pendingBets) {
-          // Double-check bet is still pending before processing
-          const currentBet = await Bet.findById(bet._id);
-          if (currentBet && currentBet.status === "pending") {
-            currentBet.status = "cancelled";
-            await currentBet.save();
-            await User.findByIdAndUpdate(bet.userId, { $inc: { walletBalance: bet.amount } });
-            await createApprovedTransaction({
-              userId: bet.userId.toString(),
-              userName: bet.userName,
-              amount: bet.amount,
-              description: `Bet refund for Slot #${slot.slotNumber} (insufficient players)`,
-            });
-          }
-        }
-        currentSlot.totalAmount = 0;
-        await currentSlot.save();
-        results.push({
-          slotId: currentSlot._id.toString(),
-          slotNumber: currentSlot.slotNumber,
-          action: "refunded",
-          reason: "Less than 2 users",
-        });
-        continue;
-      }
 
       const betsByIconMap = new Map<string, { totalBets: number; totalAmount: number }>();
       allBets.forEach((bet) => {
@@ -106,29 +76,46 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      currentSlot.winningIcon = leastBetIcon;
-      currentSlot.status = "completed";
-
       const winningBets = await Bet.find({ slotId: currentSlot._id, icon: leastBetIcon, status: "pending" });
       const totalSlotAmount = currentSlot.totalAmount; // Total pool from all bets
+
+      // Profit only when more than 1 unique user participated
+      const uniqueUsersCount = new Set(allBets.map((bet) => bet.userId.toString())).size;
+      const commissionRate = uniqueUsersCount > 1 ? 0.20 : 0;
+
+      // Updated logic:
+      // - Take 20% commission only if >1 user
+      // - Distribute remaining (100% or 80%) to winners PROPORTIONAL to the coins they bet
+      const companyCommission = totalSlotAmount * commissionRate;
+      const totalPayoutToWinners = totalSlotAmount - companyCommission;
+      const totalWinningAmount = winningBets.reduce(
+        (sum, bet) => sum + bet.amount,
+        0
+      );
       
-      // Updated logic: Take 20% commission from total pool, distribute remaining 80% equally among winners
-      const companyCommission = totalSlotAmount * 0.20;
-      const totalPayoutToWinners = totalSlotAmount * 0.80;
-      const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
-      
+      // Atomically update slot to completed
+      currentSlot.winningIcon = leastBetIcon;
       currentSlot.companyCommission = companyCommission;
+      currentSlot.status = "completed";
       await currentSlot.save();
 
       for (const bet of winningBets) {
-        // Double-check bet is still pending before processing
-        const currentBet = await Bet.findById(bet._id);
-        if (currentBet && currentBet.status === "pending") {
-          // Each winner gets equal share of 90% of winners' total
-          const payout = payoutPerWinner;
-          currentBet.payout = payout;
-          currentBet.status = "won";
-          await currentBet.save();
+        // Use atomic update to prevent double-processing
+        const updatedBet = await Bet.findOneAndUpdate(
+          { _id: bet._id, status: "pending" },
+          {
+            $set: {
+              status: "won",
+              payout: totalWinningAmount > 0
+                ? (totalPayoutToWinners * bet.amount) / totalWinningAmount
+                : 0,
+            },
+          },
+          { new: true }
+        );
+
+        if (updatedBet) {
+          const payout = updatedBet.payout || 0;
           await User.findByIdAndUpdate(bet.userId, { $inc: { walletBalance: payout } });
           await createApprovedTransaction({
             userId: bet.userId.toString(),
@@ -139,14 +126,15 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const losingBets = await Bet.find({ slotId: currentSlot._id, icon: { $ne: leastBetIcon }, status: "pending" });
-      for (const bet of losingBets) {
-        const currentBet = await Bet.findById(bet._id);
-        if (currentBet && currentBet.status === "pending") {
-          currentBet.status = "lost";
-          await currentBet.save();
-        }
-      }
+      // Atomically update all losing bets
+      await Bet.updateMany(
+        {
+          slotId: currentSlot._id,
+          icon: { $ne: leastBetIcon },
+          status: "pending",
+        },
+        { $set: { status: "lost" } }
+      );
 
       if (companyCommission > 0 && adminUser) {
         await User.findByIdAndUpdate(adminUser._id, { $inc: { walletBalance: companyCommission } });

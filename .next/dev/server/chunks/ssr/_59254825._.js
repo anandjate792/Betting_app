@@ -634,7 +634,7 @@ function AdminPredictionPanel() {
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                 lineNumber: 235,
-                                columnNumber: 15
+                                columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 className: "text-slate-400",
@@ -650,13 +650,13 @@ function AdminPredictionPanel() {
                             }, void 0, true, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                 lineNumber: 236,
-                                columnNumber: 15
+                                columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin-prediction-panel.tsx",
                         lineNumber: 234,
-                        columnNumber: 13
+                        columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
                         className: "space-y-4",
@@ -669,7 +669,7 @@ function AdminPredictionPanel() {
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin-prediction-panel.tsx",
                                         lineNumber: 244,
-                                        columnNumber: 17
+                                        columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
                                         value: selectedWinningIcon,
@@ -682,12 +682,12 @@ function AdminPredictionPanel() {
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
                                                     lineNumber: 252,
-                                                    columnNumber: 21
+                                                    columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                                 lineNumber: 251,
-                                                columnNumber: 19
+                                                columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
                                                 className: "bg-slate-700 border-slate-600",
@@ -707,14 +707,14 @@ function AdminPredictionPanel() {
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
                                                                     lineNumber: 263,
-                                                                    columnNumber: 29
+                                                                    columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                     children: name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
                                                                     lineNumber: 264,
-                                                                    columnNumber: 29
+                                                                    columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                     className: "text-xs text-slate-400",
@@ -728,36 +728,36 @@ function AdminPredictionPanel() {
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
                                                                     lineNumber: 265,
-                                                                    columnNumber: 29
+                                                                    columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin-prediction-panel.tsx",
                                                             lineNumber: 262,
-                                                            columnNumber: 27
+                                                            columnNumber: 25
                                                         }, this)
                                                     }, id, false, {
                                                         fileName: "[project]/components/admin-prediction-panel.tsx",
                                                         lineNumber: 261,
-                                                        columnNumber: 25
+                                                        columnNumber: 23
                                                     }, this);
                                                 })
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                                 lineNumber: 254,
-                                                columnNumber: 19
+                                                columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/admin-prediction-panel.tsx",
                                         lineNumber: 247,
-                                        columnNumber: 17
+                                        columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                 lineNumber: 243,
-                                columnNumber: 15
+                                columnNumber: 13
                             }, this),
                             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "text-sm text-red-400",
@@ -765,7 +765,7 @@ function AdminPredictionPanel() {
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                 lineNumber: 277,
-                                columnNumber: 25
+                                columnNumber: 23
                             }, this),
                             message && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "text-sm text-green-400",
@@ -773,7 +773,7 @@ function AdminPredictionPanel() {
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                 lineNumber: 278,
-                                columnNumber: 27
+                                columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                 onClick: handleCompleteSlot,
@@ -783,19 +783,19 @@ function AdminPredictionPanel() {
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                 lineNumber: 280,
-                                columnNumber: 15
+                                columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin-prediction-panel.tsx",
                         lineNumber: 242,
-                        columnNumber: 13
+                        columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin-prediction-panel.tsx",
                 lineNumber: 233,
-                columnNumber: 11
+                columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
                 className: "border-slate-700 bg-slate-800",
@@ -861,7 +861,7 @@ function AdminPredictionPanel() {
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                                                 lineNumber: 319,
-                                                                columnNumber: 27
+                                                                columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                 className: "text-sm text-slate-400",
@@ -874,13 +874,13 @@ function AdminPredictionPanel() {
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                                                 lineNumber: 322,
-                                                                columnNumber: 27
+                                                                columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/admin-prediction-panel.tsx",
                                                         lineNumber: 318,
-                                                        columnNumber: 25
+                                                        columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "text-right",
@@ -894,7 +894,7 @@ function AdminPredictionPanel() {
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                                                 lineNumber: 328,
-                                                                columnNumber: 27
+                                                                columnNumber: 19
                                                             }, this),
                                                             slot.winningIcon && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                 className: "text-sm text-green-400",
@@ -905,7 +905,7 @@ function AdminPredictionPanel() {
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                                                 lineNumber: 332,
-                                                                columnNumber: 29
+                                                                columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                 className: "text-sm text-blue-400",
@@ -917,13 +917,13 @@ function AdminPredictionPanel() {
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
                                                                 lineNumber: 336,
-                                                                columnNumber: 27
+                                                                columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/admin-prediction-panel.tsx",
                                                         lineNumber: 327,
-                                                        columnNumber: 25
+                                                        columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, uniqueKey, true, {

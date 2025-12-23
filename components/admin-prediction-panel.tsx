@@ -230,64 +230,64 @@ export default function AdminPredictionPanel() {
         </Card>
       ) : (
         currentSlot && (
-          <Card className="border-slate-700 bg-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white">Current Active Slot</CardTitle>
-              <CardDescription className="text-slate-400">
-                Slot #{currentSlot.slotNumber} • Total Bets:{" "}
-                {currentSlot.totalBets} • Total Amount: ₹
-                {currentSlot.totalAmount.toFixed(2)}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-slate-300 mb-2 block">
-                  Select Winning Icon
-                </label>
-                <Select
-                  value={selectedWinningIcon}
-                  onValueChange={setSelectedWinningIcon}
-                >
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue placeholder="Choose winning icon" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-700 border-slate-600">
-                    {ICONS.map(({ id, name, Icon }) => {
-                      const iconData = currentSlot.betsByIcon?.[id] || {
-                        totalBets: 0,
-                        totalAmount: 0,
-                      };
-                      return (
-                        <SelectItem key={id} value={id} className="text-white">
-                          <div className="flex items-center gap-2">
-                            <Icon className="w-4 h-4" />
-                            <span>{name}</span>
-                            <span className="text-xs text-slate-400">
-                              ({iconData.totalBets} bets, ₹
-                              {iconData.totalAmount.toFixed(0)})
-                            </span>
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {error && <p className="text-sm text-red-400">{error}</p>}
-              {message && <p className="text-sm text-green-400">{message}</p>}
-
-              <Button
-                onClick={handleCompleteSlot}
-                disabled={loading || !selectedWinningIcon}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+        <Card className="border-slate-700 bg-slate-800">
+          <CardHeader>
+            <CardTitle className="text-white">Current Active Slot</CardTitle>
+            <CardDescription className="text-slate-400">
+              Slot #{currentSlot.slotNumber} • Total Bets:{" "}
+              {currentSlot.totalBets} • Total Amount: ₹
+              {currentSlot.totalAmount.toFixed(2)}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-slate-300 mb-2 block">
+                Select Winning Icon
+              </label>
+              <Select
+                value={selectedWinningIcon}
+                onValueChange={setSelectedWinningIcon}
               >
-                {loading
-                  ? "Completing..."
-                  : "Complete Slot & Distribute Winnings"}
-              </Button>
-            </CardContent>
-          </Card>
+                <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                  <SelectValue placeholder="Choose winning icon" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-700 border-slate-600">
+                  {ICONS.map(({ id, name, Icon }) => {
+                    const iconData = currentSlot.betsByIcon?.[id] || {
+                      totalBets: 0,
+                      totalAmount: 0,
+                    };
+                    return (
+                      <SelectItem key={id} value={id} className="text-white">
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-4 h-4" />
+                          <span>{name}</span>
+                          <span className="text-xs text-slate-400">
+                            ({iconData.totalBets} bets, ₹
+                            {iconData.totalAmount.toFixed(0)})
+                          </span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            {message && <p className="text-sm text-green-400">{message}</p>}
+
+            <Button
+              onClick={handleCompleteSlot}
+              disabled={loading || !selectedWinningIcon}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+            >
+              {loading
+                ? "Completing..."
+                : "Complete Slot & Distribute Winnings"}
+            </Button>
+          </CardContent>
+        </Card>
         )
       )}
 
@@ -313,32 +313,32 @@ export default function AdminPredictionPanel() {
                     return (
                       <div
                         key={uniqueKey}
-                        className="p-3 bg-slate-700 rounded-lg flex justify-between items-center"
-                      >
-                        <div>
-                          <p className="font-semibold text-white">
-                            Slot #{slot.slotNumber}
-                          </p>
-                          <p className="text-sm text-slate-400">
-                            {new Date(slot.startTime).toLocaleString()} -{" "}
-                            {new Date(slot.endTime).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-slate-400">
-                            Status: {slot.status}
-                          </p>
-                          {slot.winningIcon && (
-                            <p className="text-sm text-green-400">
-                              Winner: {slot.winningIcon}
-                            </p>
-                          )}
-                          <p className="text-sm text-blue-400">
+                className="p-3 bg-slate-700 rounded-lg flex justify-between items-center"
+              >
+                <div>
+                  <p className="font-semibold text-white">
+                    Slot #{slot.slotNumber}
+                  </p>
+                  <p className="text-sm text-slate-400">
+                    {new Date(slot.startTime).toLocaleString()} -{" "}
+                    {new Date(slot.endTime).toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-slate-400">
+                    Status: {slot.status}
+                  </p>
+                  {slot.winningIcon && (
+                    <p className="text-sm text-green-400">
+                      Winner: {slot.winningIcon}
+                    </p>
+                  )}
+                  <p className="text-sm text-blue-400">
                             {slot.totalBets} bets • ₹
                             {slot.totalAmount.toFixed(2)}
-                          </p>
-                        </div>
-                      </div>
+                  </p>
+                </div>
+              </div>
                     );
                   })}
                 </div>
@@ -360,7 +360,7 @@ export default function AdminPredictionPanel() {
                       "Load More (10 slots)"
                     )}
                   </Button>
-                </div>
+          </div>
               )}
             </>
           )}

@@ -503,13 +503,23 @@ async function POST(request) {
             });
         }
         const now = new Date();
-        if (now < slot.startTime || now > slot.endTime) {
+        // Strict time check: slot must be within its active window
+        // Allow betting up to the exact endTime (not before startTime, not after endTime)
+        if (now < slot.startTime) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Slot is not active"
+                error: "Slot has not started yet"
             }, {
                 status: 400
             });
         }
+        if (now >= slot.endTime) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Slot has expired. Betting is closed."
+            }, {
+                status: 400
+            });
+        }
+        // Slot must be open - never allow betting on closed/completed/processing slots
         if (slot.status !== "open") {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Slot is not open for betting"

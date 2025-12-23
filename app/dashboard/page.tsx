@@ -65,6 +65,7 @@ export default function DashboardPage() {
   >({});
   const [timeRemaining, setTimeRemaining] = useState<string>("");
   const [slotLoading, setSlotLoading] = useState(true);
+  const [lastWin, setLastWin] = useState<any | null>(null);
   const [currentSlotBets, setCurrentSlotBets] = useState<
     { icon: string; amount: number }[]
   >([]);
@@ -164,19 +165,31 @@ export default function DashboardPage() {
       )) as any;
       // Handle both old format (array) and new format (paginated)
       if (Array.isArray(response)) {
-        if (reset) {
-          setMyBets(response);
-        } else {
-          setMyBets((prev) => [...prev, ...response]);
-        }
+        const updatedBets = reset ? response : [...myBets, ...response];
+        setMyBets(updatedBets);
+        const latestWin =
+          updatedBets
+            .filter((b: any) => b.status === "won" && b.payout > 0)
+            .sort(
+              (a: any, b: any) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            )[0] || null;
+        setLastWin(latestWin);
         setBetsHasMore(false);
       } else {
         const newBets = response.data || [];
-        if (reset) {
-          setMyBets(newBets);
-        } else {
-          setMyBets((prev) => [...prev, ...newBets]);
-        }
+        const updatedBets = reset ? newBets : [...myBets, ...newBets];
+        setMyBets(updatedBets);
+        const latestWin =
+          updatedBets
+            .filter((b: any) => b.status === "won" && b.payout > 0)
+            .sort(
+              (a: any, b: any) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            )[0] || null;
+        setLastWin(latestWin);
         setBetsHasMore(response.pagination?.hasMore || false);
         setBetsSkip((prev) => (reset ? 10 : prev + 10));
       }
@@ -391,7 +404,33 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {slotLoading ? (
+        {/* Big Win Banner */}
+        {lastWin && (
+          <div className="mb-6">
+            <div className="relative overflow-hidden rounded-2xl border border-amber-400 bg-gradient-to-br from-amber-500 via-yellow-400 to-orange-500 shadow-[0_0_30px_rgba(251,191,36,0.7)] animate-pulse">
+              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
+              <div className="relative px-6 py-4 text-center text-slate-900">
+                <p className="text-xs font-semibold tracking-[0.25em] uppercase">
+                  You Win
+                </p>
+                <p className="mt-1 text-4xl md:text-5xl font-extrabold drop-shadow-sm">
+                  {lastWin.payout.toFixed(0)} coins
+                </p>
+                {lastWin.amount > 0 && (
+                  <p className="mt-1 text-sm font-semibold">
+                    {((lastWin.payout / lastWin.amount) || 0).toFixed(1)}x
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-slate-800">
+                  Slot #{lastWin.slotNumber ?? "-"} •{" "}
+                  {new Date(lastWin.createdAt).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {slotLoading ? (
             <div className="flex items-center justify-center py-12">
               <Spinner className="w-6 h-6 text-blue-400" />
               <p className="ml-3 text-slate-400">Loading slot...</p>

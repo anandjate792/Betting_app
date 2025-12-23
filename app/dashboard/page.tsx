@@ -37,6 +37,14 @@ import {
 import { betApi, predictionApi, referralApi } from "@/lib/api";
 import { authApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { X, Trophy } from "lucide-react";
 
 const ICONS = [
   { id: "umbrella", name: "Umbrella", Icon: Umbrella, color: "text-blue-500" },
@@ -80,6 +88,15 @@ export default function DashboardPage() {
     referralCount?: number;
     referralEarnings?: number;
   }>({});
+  const [resultPopup, setResultPopup] = useState<{
+    show: boolean;
+    type: "win" | "loss" | null;
+    slotNumber?: number;
+    winningIcon?: string;
+    payout?: number;
+    betAmount?: number;
+  }>({ show: false, type: null });
+  const [previousSlotId, setPreviousSlotId] = useState<string | null>(null);
 
   useEffect(() => {
     loadCurrentSlot();
@@ -116,6 +133,14 @@ export default function DashboardPage() {
   const loadCurrentSlot = async () => {
     try {
       const slot = await predictionApi.getCurrentSlot().catch(() => null);
+
+      // Detect slot completion: if previous slot ID exists and current slot has different ID (or is null)
+      if (previousSlotId && previousSlotId !== slot?.id) {
+        // Previous slot completed, check if user won or lost
+        await checkSlotResult(previousSlotId);
+      }
+
+      setPreviousSlotId(slot?.id || null);
       setCurrentSlot(slot);
       if (slot) {
         setBetsByIcon(slot.betsByIcon || {});
@@ -125,6 +150,90 @@ export default function DashboardPage() {
       console.error("Failed to load current slot:", error);
     } finally {
       setSlotLoading(false);
+    }
+  };
+
+  const checkSlotResult = async (completedSlotId: string) => {
+    try {
+      // Get all bets for this completed slot
+      const response = (await betApi.getBets(completedSlotId, 100, 0)) as any;
+      const betsArray = Array.isArray(response)
+        ? response
+        : response?.data || [];
+
+      const myBetsForSlot = betsArray.filter(
+        (bet: any) =>
+          bet.slotId && bet.slotId.toString() === completedSlotId.toString()
+      );
+
+      if (myBetsForSlot.length === 0) {
+        // User didn't bet on this slot
+        return;
+      }
+
+      // Get winning icon from slot data in bets
+      const winningIcon = myBetsForSlot[0]?.slot?.winningIcon || null;
+      const slotNumber =
+        myBetsForSlot[0]?.slot?.slotNumber ||
+        myBetsForSlot[0]?.slotNumber ||
+        null;
+
+      if (!winningIcon) {
+        // Slot might not be fully processed yet
+        return;
+      }
+
+      const wonBets = myBetsForSlot.filter(
+        (bet: any) => bet.icon === winningIcon && bet.status === "won"
+      );
+      const lostBets = myBetsForSlot.filter(
+        (bet: any) => bet.status === "lost"
+      );
+
+      if (wonBets.length > 0) {
+        // User won
+        const totalPayout = wonBets.reduce(
+          (sum: number, bet: any) => sum + (bet.payout || 0),
+          0
+        );
+        const totalBetAmount = wonBets.reduce(
+          (sum: number, bet: any) => sum + bet.amount,
+          0
+        );
+        setResultPopup({
+          show: true,
+          type: "win",
+          slotNumber: slotNumber,
+          winningIcon: winningIcon,
+          payout: totalPayout,
+          betAmount: totalBetAmount,
+        });
+
+        // Auto close after 5 seconds
+        setTimeout(() => {
+          setResultPopup({ show: false, type: null });
+        }, 5000);
+      } else if (lostBets.length > 0) {
+        // User lost
+        const totalBetAmount = lostBets.reduce(
+          (sum: number, bet: any) => sum + bet.amount,
+          0
+        );
+        setResultPopup({
+          show: true,
+          type: "loss",
+          slotNumber: slotNumber,
+          winningIcon: winningIcon,
+          betAmount: totalBetAmount,
+        });
+
+        // Auto close after 5 seconds
+        setTimeout(() => {
+          setResultPopup({ show: false, type: null });
+        }, 5000);
+      }
+    } catch (err) {
+      console.error("Failed to check slot result:", err);
     }
   };
 
@@ -173,7 +282,7 @@ export default function DashboardPage() {
             .sort(
               (a: any, b: any) =>
                 new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
+                new Date(a.createdAt).getTime()
             )[0] || null;
         setLastWin(latestWin);
         setBetsHasMore(false);
@@ -187,7 +296,7 @@ export default function DashboardPage() {
             .sort(
               (a: any, b: any) =>
                 new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
+                new Date(a.createdAt).getTime()
             )[0] || null;
         setLastWin(latestWin);
         setBetsHasMore(response.pagination?.hasMore || false);
@@ -404,33 +513,33 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent>
-        {/* Big Win Banner */}
-        {lastWin && (
-          <div className="mb-6">
-            <div className="relative overflow-hidden rounded-2xl border border-amber-400 bg-gradient-to-br from-amber-500 via-yellow-400 to-orange-500 shadow-[0_0_30px_rgba(251,191,36,0.7)] animate-pulse">
-              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
-              <div className="relative px-6 py-4 text-center text-slate-900">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase">
-                  You Win
-                </p>
-                <p className="mt-1 text-4xl md:text-5xl font-extrabold drop-shadow-sm">
-                  {lastWin.payout.toFixed(0)} coins
-                </p>
-                {lastWin.amount > 0 && (
-                  <p className="mt-1 text-sm font-semibold">
-                    {((lastWin.payout / lastWin.amount) || 0).toFixed(1)}x
+          {/* Big Win Banner */}
+          {lastWin && (
+            <div className="mb-6">
+              <div className="relative overflow-hidden rounded-2xl border border-amber-400 bg-gradient-to-br from-amber-500 via-yellow-400 to-orange-500 shadow-[0_0_30px_rgba(251,191,36,0.7)] animate-pulse">
+                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
+                <div className="relative px-6 py-4 text-center text-slate-900">
+                  <p className="text-xs font-semibold tracking-[0.25em] uppercase">
+                    You Win
                   </p>
-                )}
-                <p className="mt-2 text-xs text-slate-800">
-                  Slot #{lastWin.slotNumber ?? "-"} •{" "}
-                  {new Date(lastWin.createdAt).toLocaleString()}
-                </p>
+                  <p className="mt-1 text-4xl md:text-5xl font-extrabold drop-shadow-sm">
+                    {lastWin.payout.toFixed(0)} coins
+                  </p>
+                  {lastWin.amount > 0 && (
+                    <p className="mt-1 text-sm font-semibold">
+                      {(lastWin.payout / lastWin.amount || 0).toFixed(1)}x
+                    </p>
+                  )}
+                  <p className="mt-2 text-xs text-slate-800">
+                    Slot #{lastWin.slotNumber ?? "-"} •{" "}
+                    {new Date(lastWin.createdAt).toLocaleString()}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {slotLoading ? (
+          {slotLoading ? (
             <div className="flex items-center justify-center py-12">
               <Spinner className="w-6 h-6 text-blue-400" />
               <p className="ml-3 text-slate-400">Loading slot...</p>
@@ -693,6 +802,85 @@ export default function DashboardPage() {
           );
         })}
       </div>
+
+      {/* Result Popup Dialog */}
+      <Dialog
+        open={resultPopup.show}
+        onOpenChange={(open) => {
+          if (!open) {
+            setResultPopup({ show: false, type: null });
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md border-0 p-0 overflow-hidden">
+          {resultPopup.type === "win" ? (
+            <div className="relative bg-gradient-to-br from-amber-500 via-yellow-400 to-orange-500 p-8 text-center">
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={() => setResultPopup({ show: false, type: null })}
+                  className="text-slate-900 hover:text-slate-700 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="mb-6 flex justify-center">
+                <div className="bg-amber-400/30 rounded-full p-6">
+                  <Trophy className="h-20 w-20 text-amber-900" />
+                </div>
+              </div>
+              <DialogTitle className="text-3xl font-black text-slate-900 mb-3 tracking-wider">
+                🎉 YOU WIN! 🎉
+              </DialogTitle>
+              <div className="text-5xl font-black text-slate-900 mb-2">
+                +{resultPopup.payout?.toFixed(0) || 0} coins
+              </div>
+              {resultPopup.betAmount && resultPopup.payout && (
+                <div className="text-lg font-bold text-amber-900 mb-4">
+                  {(resultPopup.payout / resultPopup.betAmount).toFixed(1)}x
+                  Multiplier
+                </div>
+              )}
+              <DialogDescription className="text-slate-900 space-y-1 mt-4">
+                <p className="font-semibold">Slot #{resultPopup.slotNumber}</p>
+                <p className="font-semibold">
+                  Winning Icon: {resultPopup.winningIcon?.toUpperCase()}
+                </p>
+              </DialogDescription>
+            </div>
+          ) : resultPopup.type === "loss" ? (
+            <div className="relative bg-slate-800 p-8 text-center border-2 border-red-500">
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={() => setResultPopup({ show: false, type: null })}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="mb-6 flex justify-center">
+                <div className="bg-red-500/20 rounded-full p-6">
+                  <X className="h-20 w-20 text-red-500" />
+                </div>
+              </div>
+              <DialogTitle className="text-3xl font-black text-white mb-3 tracking-wider">
+                😔 YOU LOST
+              </DialogTitle>
+              <div className="text-5xl font-black text-red-500 mb-4">
+                -{resultPopup.betAmount?.toFixed(0) || 0} coins
+              </div>
+              <DialogDescription className="text-slate-300 space-y-1 mt-4">
+                <p className="font-semibold">Slot #{resultPopup.slotNumber}</p>
+                <p className="font-semibold">
+                  Winning Icon: {resultPopup.winningIcon?.toUpperCase()}
+                </p>
+                <p className="text-slate-400 italic mt-2">
+                  Better luck next time!
+                </p>
+              </DialogDescription>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

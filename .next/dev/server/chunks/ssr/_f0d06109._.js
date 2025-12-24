@@ -149,6 +149,31 @@ const predictionApi = {
             throw error;
         }
     },
+    // ADDED THIS METHOD
+    getSlot: async (slotId)=>{
+        try {
+            const response = await fetch(`${API_BASE_URL}/prediction-slots/${slotId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...getToken() ? {
+                        Authorization: `Bearer ${getToken()}`
+                    } : {}
+                }
+            });
+            if (response.status === 404) {
+                return null;
+            }
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || "Failed to fetch slot details");
+            }
+            return response.json();
+        } catch (error) {
+            console.error(`Failed to get slot ${slotId}:`, error);
+            return null;
+        }
+    },
     getAllSlots: ()=>apiCall("/prediction-slots", {
             method: "GET"
         }),

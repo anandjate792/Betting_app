@@ -14,14 +14,14 @@ async function apiCall<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...options.headers,
+    ...(options.headers as Record<string, string> | undefined),
   };
 
   const token = getToken();
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -136,6 +136,48 @@ export const predictionApi = {
       if (
         error?.message?.includes("No active slot found") ||
         error?.message?.includes("404")
+      ) {
+        return null;
+      }
+      throw error;
+    }
+  },
+  getSlot: async (slotId: string) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/prediction-slots/${slotId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+          },
+        }
+      );
+
+      if (response.status === 404) {
+        return null;
+      }
+
+      if (!response.ok) {
+        // Some error responses might not have JSON bodies; fall back to text
+        let errorMessage = "Failed to fetch slot details";
+        try {
+          const errJson = await response.json();
+          errorMessage = errJson.error || errorMessage;
+        } catch {
+          const errText = await response.text();
+          if (errText) errorMessage = errText;
+        }
+        throw new Error(errorMessage);
+      }
+
+      return response.json();
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        (error.message.includes("No active slot found") ||
+          error.message.includes("404"))
       ) {
         return null;
       }

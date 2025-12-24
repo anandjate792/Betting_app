@@ -177,3 +177,45 @@ export async function POST(
     );
   }
 }
+
+// Get a single prediction slot by id (public – no auth required)
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ slotId: string }> | { slotId: string } }
+) {
+  try {
+    const { slotId } = await Promise.resolve(params);
+    await connectDB();
+
+    const slot = await PredictionSlot.findById(slotId).lean();
+    if (!slot) {
+      return NextResponse.json({ error: "Slot not found" }, { status: 404 });
+    }
+
+    const betsByIconObj: Record<string, { totalBets: number; totalAmount: number }> = {};
+    if (slot.betsByIcon && slot.betsByIcon instanceof Map) {
+      slot.betsByIcon.forEach((value: any, key: string) => {
+        betsByIconObj[key] = value;
+      });
+    } else if (slot.betsByIcon && typeof slot.betsByIcon === "object") {
+      Object.assign(betsByIconObj, slot.betsByIcon);
+    }
+
+    return NextResponse.json({
+      id: slot._id.toString(),
+      slotNumber: slot.slotNumber,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      status: slot.status,
+      winningIcon: slot.winningIcon,
+      totalBets: slot.totalBets,
+      totalAmount: slot.totalAmount,
+      betsByIcon: betsByIconObj,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Server error" },
+      { status: 500 }
+    );
+  }
+}

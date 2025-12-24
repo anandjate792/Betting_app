@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import type React from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAppStore } from "@/lib/store";
 import {
   Card,
@@ -38,13 +39,7 @@ import {
 import { betApi, predictionApi, referralApi } from "@/lib/api";
 import { authApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const ICONS = [
   { id: "umbrella", name: "Umbrella", Icon: Umbrella, color: "text-blue-500" },
@@ -96,15 +91,188 @@ export default function DashboardPage() {
     payout?: number;
     betAmount?: number;
   }>({ show: false, type: null });
-  const [previousSlotId, setPreviousSlotId] = useState<string | null>(null);
+
+  const [seenSlotIds, setSeenSlotIds] = useState<Set<string>>(new Set());
+  const [processedSlots, setProcessedSlots] = useState<Set<string>>(new Set());
+  const slotEndTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load seen slots from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("wt_seen_slots");
+    if (stored) {
+      try {
+        setSeenSlotIds(new Set(JSON.parse(stored)));
+      } catch {}
+    }
+  }, []);
+
+  const markSlotSeen = (slotId: string) => {
+    setSeenSlotIds((prev) => {
+      const next = new Set(prev);
+      next.add(slotId);
+      localStorage.setItem("wt_seen_slots", JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  /* ---------------- SLOT TIMER (CRITICAL FIX) ---------------- */
+
+  useEffect(() => {
+    if (!currentSlot?.id || !currentSlot?.endTime) return;
+
+    if (slotEndTimerRef.current) {
+      clearTimeout(slotEndTimerRef.current);
+    }
+
+    const end = new Date(currentSlot.endTime).getTime();
+    const now = Date.now();
+    const delay = end - now;
+
+    if (delay <= 0) {
+      checkSlotResult(currentSlot.id);
+      return;
+    }
+
+    slotEndTimerRef.current = setTimeout(() => {
+      checkSlotResult(currentSlot.id);
+    }, delay + 1000);
+
+    return () => {
+      if (slotEndTimerRef.current) {
+        clearTimeout(slotEndTimerRef.current);
+      }
+    };
+  }, [currentSlot?.id]);
+
+  /* ---------------- LOAD CURRENT SLOT ---------------- */
+
+  const loadCurrentSlot = async () => {
+    try {
+      const slot = await predictionApi.getCurrentSlot().catch(() => null);
+      setCurrentSlot(slot);
+      setBetsByIcon(slot?.betsByIcon || {});
+
+      if (slot) {
+        await loadMyCurrentSlotBet(slot.id);
+      }
+    } finally {
+      setSlotLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadCurrentSlot();
     loadMyBets(true);
     loadReferralInfo();
-    const interval = setInterval(loadCurrentSlot, 30000); // Refresh every 30 seconds
-    return () => clearInterval(interval);
+
+    const i = setInterval(loadCurrentSlot, 30000);
+    return () => clearInterval(i);
   }, []);
+
+  /* ---------------- TIMER UI ---------------- */
+
+  useEffect(() => {
+    if (!currentSlot?.endTime) return;
+
+    const tick = () => {
+      const diff = new Date(currentSlot.endTime).getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeRemaining("Slot Closed");
+        return;
+      }
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTimeRemaining(`${m}:${s.toString().padStart(2, "0")}`);
+    };
+
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+  }, [currentSlot?.endTime]);
+
+  /* ---------------- CHECK SLOT RESULT ---------------- */
+
+  const checkSlotResult = async (slotId: string, retry = 0) => {
+    if (seenSlotIds.has(slotId) || processedSlots.has(slotId)) return;
+
+    try {
+      const slot = await predictionApi.getSlot(slotId);
+      if (!slot || slot.status !== "completed" || !slot.winningIcon) {
+        if (retry < 8) {
+          setTimeout(() => checkSlotResult(slotId, retry + 1), 2000);
+        }
+        return;
+      }
+
+      const res = await betApi.getBets(slotId, 100, 0);
+      const bets = (res.data || res).filter((b: any) => b.userId === user?.id);
+
+      if (!bets.length) {
+        markSlotSeen(slotId);
+        return;
+      }
+
+      const wins = bets.filter((b: any) => b.icon === slot.winningIcon);
+      const totalBet = bets.reduce((s: number, b: any) => s + b.amount, 0);
+      const payout = wins.length
+        ? wins.reduce(
+            (s: number, b: any) => s + (b.payout || b.amount * 1.5),
+            0
+          )
+        : 0;
+
+      setResultPopup({
+        show: true,
+        type: wins.length ? "win" : "loss",
+        slotNumber: slot.slotNumber,
+        winningIcon: slot.winningIcon,
+        payout,
+        betAmount: totalBet,
+      });
+
+      markSlotSeen(slotId);
+      setProcessedSlots((p) => new Set(p).add(slotId));
+
+      const profile = await authApi.getProfile();
+      useAppStore.setState({ user: profile });
+
+      // Reload betting history
+      await loadMyBets(true);
+
+      setTimeout(() => {
+        setResultPopup({ show: false, type: null });
+      }, 7000);
+    } catch {
+      if (retry < 5) {
+        setTimeout(() => checkSlotResult(slotId, retry + 1), 3000);
+      }
+    }
+  };
+
+  /* ---------------- LOAD USER'S BETS FOR CURRENT SLOT ---------------- */
+
+  const loadMyCurrentSlotBet = async (slotId?: string) => {
+    if (!slotId) {
+      setCurrentSlotBets([]);
+      return;
+    }
+    try {
+      const response = (await betApi.getBets(slotId, 10, 0)) as any;
+      const betsArray = Array.isArray(response)
+        ? response
+        : response.data || [];
+      const myBetsForSlot =
+        betsArray
+          ?.filter((b: any) => b.slotId === slotId && b.userId === user?.id)
+          .map((b: any) => ({ icon: b.icon, amount: b.amount })) || [];
+      setCurrentSlotBets(myBetsForSlot);
+    } catch (error) {
+      console.error("Failed to load current slot bet:", error);
+      setCurrentSlotBets([]);
+    }
+  };
+
+  /* ---------------- LOAD REFERRAL INFO ---------------- */
 
   const loadReferralInfo = async () => {
     setReferralLoading(true);
@@ -122,141 +290,7 @@ export default function DashboardPage() {
     }
   };
 
-  useEffect(() => {
-    if (currentSlot) {
-      updateTimeRemaining();
-      const timer = setInterval(updateTimeRemaining, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [currentSlot]);
-
-  const loadCurrentSlot = async () => {
-    try {
-      const slot = await predictionApi.getCurrentSlot().catch(() => null);
-
-      // Detect slot completion: if previous slot ID exists and current slot has different ID (or is null)
-      if (previousSlotId && previousSlotId !== slot?.id) {
-        // Previous slot completed, check if user won or lost
-        await checkSlotResult(previousSlotId);
-      }
-
-      setPreviousSlotId(slot?.id || null);
-      setCurrentSlot(slot);
-      if (slot) {
-        setBetsByIcon(slot.betsByIcon || {});
-        await loadMyCurrentSlotBet(slot.id);
-      }
-    } catch (error) {
-      console.error("Failed to load current slot:", error);
-    } finally {
-      setSlotLoading(false);
-    }
-  };
-
-  const checkSlotResult = async (completedSlotId: string) => {
-    try {
-      // Get all bets for this completed slot
-      const response = (await betApi.getBets(completedSlotId, 100, 0)) as any;
-      const betsArray = Array.isArray(response)
-        ? response
-        : response?.data || [];
-
-      const myBetsForSlot = betsArray.filter(
-        (bet: any) =>
-          bet.slotId && bet.slotId.toString() === completedSlotId.toString()
-      );
-
-      if (myBetsForSlot.length === 0) {
-        // User didn't bet on this slot
-        return;
-      }
-
-      // Get winning icon from slot data in bets
-      const winningIcon = myBetsForSlot[0]?.slot?.winningIcon || null;
-      const slotNumber =
-        myBetsForSlot[0]?.slot?.slotNumber ||
-        myBetsForSlot[0]?.slotNumber ||
-        null;
-
-      if (!winningIcon) {
-        // Slot might not be fully processed yet
-        return;
-      }
-
-      const wonBets = myBetsForSlot.filter(
-        (bet: any) => bet.icon === winningIcon && bet.status === "won"
-      );
-      const lostBets = myBetsForSlot.filter(
-        (bet: any) => bet.status === "lost"
-      );
-
-      if (wonBets.length > 0) {
-        // User won
-        const totalPayout = wonBets.reduce(
-          (sum: number, bet: any) => sum + (bet.payout || 0),
-          0
-        );
-        const totalBetAmount = wonBets.reduce(
-          (sum: number, bet: any) => sum + bet.amount,
-          0
-        );
-        setResultPopup({
-          show: true,
-          type: "win",
-          slotNumber: slotNumber,
-          winningIcon: winningIcon,
-          payout: totalPayout,
-          betAmount: totalBetAmount,
-        });
-
-        // Auto close after 5 seconds
-        setTimeout(() => {
-          setResultPopup({ show: false, type: null });
-        }, 5000);
-      } else if (lostBets.length > 0) {
-        // User lost
-        const totalBetAmount = lostBets.reduce(
-          (sum: number, bet: any) => sum + bet.amount,
-          0
-        );
-        setResultPopup({
-          show: true,
-          type: "loss",
-          slotNumber: slotNumber,
-          winningIcon: winningIcon,
-          betAmount: totalBetAmount,
-        });
-
-        // Auto close after 5 seconds
-        setTimeout(() => {
-          setResultPopup({ show: false, type: null });
-        }, 5000);
-      }
-    } catch (err) {
-      console.error("Failed to check slot result:", err);
-    }
-  };
-
-  const loadMyCurrentSlotBet = async (slotId?: string) => {
-    if (!slotId) {
-      setCurrentSlotBets([]);
-      return;
-    }
-    try {
-      const response = (await betApi.getBets(slotId, 10, 0)) as any;
-      const betsArray = Array.isArray(response)
-        ? response
-        : response.data || [];
-      const myBetsForSlot =
-        betsArray
-          ?.filter((b: any) => b.slotId === slotId)
-          .map((b: any) => ({ icon: b.icon, amount: b.amount })) || [];
-      setCurrentSlotBets(myBetsForSlot);
-    } catch (error) {
-      console.error("Failed to load current slot bet:", error);
-      setCurrentSlotBets([]);
-    }
-  };
+  /* ---------------- LOAD MY BETS ---------------- */
 
   const loadMyBets = async (reset = false) => {
     if (reset) {
@@ -272,7 +306,7 @@ export default function DashboardPage() {
         10,
         reset ? 0 : betsSkip
       )) as any;
-      // Handle both old format (array) and new format (paginated)
+
       if (Array.isArray(response)) {
         const updatedBets = reset ? response : [...myBets, ...response];
         setMyBets(updatedBets);
@@ -309,6 +343,27 @@ export default function DashboardPage() {
     }
   };
 
+  /* ---------------- REFRESH ---------------- */
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const profile = (await authApi.getProfile()) as any;
+      useAppStore.setState({ user: profile });
+
+      await loadCurrentSlot();
+      await loadMyBets(true);
+
+      if (currentSlot) {
+        updateTimeRemaining();
+      }
+    } catch (err) {
+      console.error("Refresh failed:", err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const updateTimeRemaining = () => {
     if (!currentSlot) return;
     const now = new Date();
@@ -325,29 +380,7 @@ export default function DashboardPage() {
     setTimeRemaining(`${minutes}:${seconds.toString().padStart(2, "0")}`);
   };
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      // Refresh user profile to update wallet balance
-      const profile = (await authApi.getProfile()) as any;
-      useAppStore.setState({ user: profile });
-
-      // Refresh current slot
-      await loadCurrentSlot();
-
-      // Refresh betting history
-      await loadMyBets(true);
-
-      // Update time remaining
-      if (currentSlot) {
-        updateTimeRemaining();
-      }
-    } catch (err) {
-      console.error("Refresh failed:", err);
-    } finally {
-      setRefreshing(false);
-    }
-  };
+  /* ---------------- PLACE BET ---------------- */
 
   const handlePlaceBet = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -414,9 +447,9 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-4 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-slate-800">
       {/* Wallet Balance Card */}
-      <Card className="border-slate-700 bg-slate-800">
+      <Card className="border-slate-700 bg-slate-800 mt-20">
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="flex items-center gap-2 text-white">
@@ -439,7 +472,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="text-4xl font-bold text-green-400">
-            ₹{user?.walletBalance.toFixed(2) || "0.00"}
+            ₹{user?.walletBalance?.toFixed(2) || "0.00"}
           </div>
           <p className="text-slate-400 text-sm mt-2">
             Your current wallet balance
@@ -513,7 +546,6 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {/* Big Win Banner */}
           {lastWin && (
             <div className="mb-6">
               <div className="relative overflow-hidden rounded-2xl border border-amber-400 bg-gradient-to-br from-amber-500 via-yellow-400 to-orange-500 shadow-[0_0_30px_rgba(251,191,36,0.7)] animate-pulse">
@@ -778,7 +810,7 @@ export default function DashboardPage() {
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         {quickActions.map((action) => {
           const Icon = action.icon;
           return (
@@ -804,79 +836,25 @@ export default function DashboardPage() {
       </div>
 
       {/* Result Popup Dialog */}
-      <Dialog
-        open={resultPopup.show}
-        onOpenChange={(open) => {
-          if (!open) {
-            setResultPopup({ show: false, type: null });
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md border-0 p-0 overflow-hidden">
+      <Dialog open={resultPopup.show}>
+        <DialogContent className="border-0 p-0">
           {resultPopup.type === "win" ? (
-            <div className="relative bg-gradient-to-br from-amber-500 via-yellow-400 to-orange-500 p-8 text-center">
-              <div className="absolute top-4 right-4">
-                <button
-                  onClick={() => setResultPopup({ show: false, type: null })}
-                  className="text-slate-900 hover:text-slate-700 transition-colors"
-                >
-                  <XIcon className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="mb-6 flex justify-center">
-                <div className="bg-amber-400/30 rounded-full p-6">
-                  <Trophy className="h-20 w-20 text-amber-900" />
-                </div>
-              </div>
-              <DialogTitle className="text-3xl font-black text-slate-900 mb-3 tracking-wider">
-                🎉 YOU WIN! 🎉
+            <div className="bg-yellow-400 text-center p-8">
+              <Trophy className="mx-auto h-16 w-16 text-black" />
+              <DialogTitle className="text-3xl font-black">
+                YOU WIN!
               </DialogTitle>
-              <div className="text-5xl font-black text-slate-900 mb-2">
-                +{resultPopup.payout?.toFixed(0) || 0} coins
-              </div>
-              {resultPopup.betAmount && resultPopup.payout && (
-                <div className="text-lg font-bold text-amber-900 mb-4">
-                  {(resultPopup.payout / resultPopup.betAmount).toFixed(1)}x
-                  Multiplier
-                </div>
-              )}
-              <DialogDescription className="text-slate-900 space-y-1 mt-4">
-                <p className="font-semibold">Slot #{resultPopup.slotNumber}</p>
-                <p className="font-semibold">
-                  Winning Icon: {resultPopup.winningIcon?.toUpperCase()}
-                </p>
-              </DialogDescription>
+              <p className="text-4xl font-black">+{resultPopup.payout} coins</p>
             </div>
           ) : resultPopup.type === "loss" ? (
-            <div className="relative bg-slate-800 p-8 text-center border-2 border-red-500">
-              <div className="absolute top-4 right-4">
-                <button
-                  onClick={() => setResultPopup({ show: false, type: null })}
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  <XIcon className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="mb-6 flex justify-center">
-                <div className="bg-red-500/20 rounded-full p-6">
-                  <XIcon className="h-20 w-20 text-red-500" />
-                </div>
-              </div>
-              <DialogTitle className="text-3xl font-black text-white mb-3 tracking-wider">
-                😔 YOU LOST
+            <div className="bg-slate-900 text-center p-8 text-white">
+              <XIcon className="mx-auto h-16 w-16 text-red-500" />
+              <DialogTitle className="text-3xl font-black">
+                YOU LOST
               </DialogTitle>
-              <div className="text-5xl font-black text-red-500 mb-4">
-                -{resultPopup.betAmount?.toFixed(0) || 0} coins
-              </div>
-              <DialogDescription className="text-slate-300 space-y-1 mt-4">
-                <p className="font-semibold">Slot #{resultPopup.slotNumber}</p>
-                <p className="font-semibold">
-                  Winning Icon: {resultPopup.winningIcon?.toUpperCase()}
-                </p>
-                <p className="text-slate-400 italic mt-2">
-                  Better luck next time!
-                </p>
-              </DialogDescription>
+              <p className="text-4xl font-black">
+                -{resultPopup.betAmount} coins
+              </p>
             </div>
           ) : null}
         </DialogContent>

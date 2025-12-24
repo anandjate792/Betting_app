@@ -226,6 +226,43 @@ const userSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoos
         type: Number,
         default: 0
     },
+    // Referral & earnings
+    referralCode: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    referredBy: {
+        type: __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].Schema.Types.ObjectId,
+        ref: "User",
+        default: null
+    },
+    referralCount: {
+        type: Number,
+        default: 0
+    },
+    referralEarnings: {
+        type: Number,
+        default: 0
+    },
+    // Bank details for withdrawals
+    bankDetails: {
+        accountHolderName: {
+            type: String
+        },
+        bankName: {
+            type: String
+        },
+        accountNumber: {
+            type: String
+        },
+        ifscCode: {
+            type: String
+        },
+        upiId: {
+            type: String
+        }
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -233,9 +270,18 @@ const userSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoos
 });
 // Hash password before saving. Use promise style to avoid next-callback issues.
 userSchema.pre("save", async function() {
-    if (!this.isModified("password")) return;
-    const salt = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].genSalt(10);
-    this.password = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].hash(this.password, salt);
+    // Hash password if changed
+    if (this.isModified("password")) {
+        const salt = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].genSalt(10);
+        this.password = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].hash(this.password, salt);
+    }
+    // Ensure referral code exists
+    if (!this.referralCode) {
+        // Simple deterministic code based on ObjectId tail to avoid heavy random logic
+        const idPart = typeof this._id === "string" ? this._id.slice(-6) : this._id.toString().slice(-6);
+        const namePart = typeof this.name === "string" && this.name.length > 0 ? this.name.replace(/\s+/g, "").slice(0, 4).toUpperCase() : "USER";
+        this.referralCode = `${namePart}${idPart}`.toUpperCase();
+    }
 });
 userSchema.methods.comparePassword = async function(password) {
     return await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].compare(password, this.password);
@@ -387,6 +433,8 @@ const __TURBOPACK__default__export__ = __TURBOPACK__imported__module__$5b$extern
 "use strict";
 
 __turbopack_context__.s([
+    "GET",
+    ()=>GET,
     "POST",
     ()=>POST
 ]);
@@ -445,90 +493,68 @@ async function POST(request, { params }) {
             });
         }
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
-        const slot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(slotId);
+        // Use findOneAndUpdate with atomic check to prevent race conditions
+        const slot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOneAndUpdate({
+            _id: slotId,
+            status: "open"
+        }, {
+            $set: {
+                status: "processing"
+            }
+        }, {
+            new: true
+        });
         if (!slot) {
+            // Check if slot exists but is already completed/processing
+            const existingSlot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(slotId);
+            if (existingSlot && existingSlot.status !== "open") {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: "Slot is already completed or being processed"
+                }, {
+                    status: 400
+                });
+            }
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Slot not found"
             }, {
                 status: 404
             });
         }
-        if (slot.status !== "open") {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Slot is not open"
-            }, {
-                status: 400
-            });
-        }
         const allBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
             slotId: slot._id,
             status: "pending"
         });
-        const uniqueUsers = new Set(allBets.map((bet)=>bet.userId.toString()));
-        if (uniqueUsers.size < 2) {
-            // Update slot status first to prevent duplicate processing
-            const totalRefundedAmount = slot.totalAmount;
-            slot.status = "closed";
-            slot.winningIcon = null;
-            slot.companyCommission = 0;
-            await slot.save();
-            // Only process bets that are still pending (not already cancelled)
-            const pendingBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
-                slotId: slot._id,
-                status: "pending"
-            });
-            for (const bet of pendingBets){
-                // Double-check bet is still pending before processing
-                const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
-                if (currentBet && currentBet.status === "pending") {
-                    currentBet.status = "cancelled";
-                    await currentBet.save();
-                    await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
-                        $inc: {
-                            walletBalance: bet.amount
-                        }
-                    });
-                    await createApprovedTransaction({
-                        userId: bet.userId.toString(),
-                        userName: bet.userName,
-                        amount: bet.amount,
-                        description: `Bet refund for Slot #${slot.slotNumber} (insufficient players)`
-                    });
-                }
-            }
-            slot.totalAmount = 0;
-            await slot.save();
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Minimum 2 users required. All bets have been refunded.",
-                refunded: pendingBets.length,
-                totalRefunded: totalRefundedAmount
-            }, {
-                status: 400
-            });
-        }
-        slot.winningIcon = winningIcon;
-        slot.status = "completed";
-        const winningBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
-            slotId: slot._id,
-            icon: winningIcon,
-            status: "pending"
-        });
+        const winningBets = allBets.filter((bet)=>bet.icon === winningIcon);
         const totalSlotAmount = slot.totalAmount; // Total pool from all bets
-        // New logic: Take 10% commission from total pool, distribute remaining 90% equally among winners
-        const companyCommission = totalSlotAmount * 0.10;
-        const totalPayoutToWinners = totalSlotAmount * 0.90;
-        const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
+        // Profit only when more than 1 unique user participated
+        const uniqueUsersCount = new Set(allBets.map((bet)=>bet.userId.toString())).size;
+        const commissionRate = uniqueUsersCount > 1 ? 0.2 : 0;
+        // Updated logic:
+        // - Take 20% commission only if >1 user
+        // - Distribute remaining (100% or 80%) to winners PROPORTIONAL to coins
+        const companyCommission = totalSlotAmount * commissionRate;
+        const totalPayoutToWinners = totalSlotAmount - companyCommission;
+        const totalWinningAmount = winningBets.reduce((sum, bet)=>sum + bet.amount, 0);
+        // Atomically update slot status to completed
+        slot.winningIcon = winningIcon;
         slot.companyCommission = companyCommission;
+        slot.status = "completed";
         await slot.save();
         for (const bet of winningBets){
-            // Double-check bet is still pending before processing
-            const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
-            if (currentBet && currentBet.status === "pending") {
-                // Each winner gets equal share of 90% of winners' total
-                const payout = payoutPerWinner;
-                currentBet.payout = payout;
-                currentBet.status = "won";
-                await currentBet.save();
+            // Use atomic update to prevent double-processing
+            const updatedBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOneAndUpdate({
+                _id: bet._id,
+                status: "pending"
+            }, {
+                $set: {
+                    status: "won",
+                    payout: totalWinningAmount > 0 ? totalPayoutToWinners * bet.amount / totalWinningAmount : 0
+                }
+            }, {
+                new: true
+            });
+            if (updatedBet) {
+                const payout = updatedBet.payout || 0;
                 await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
                     $inc: {
                         walletBalance: payout
@@ -542,20 +568,18 @@ async function POST(request, { params }) {
                 });
             }
         }
-        const losingBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
+        // Atomically update all losing bets
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
             slotId: slot._id,
             icon: {
                 $ne: winningIcon
             },
             status: "pending"
-        });
-        for (const bet of losingBets){
-            const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
-            if (currentBet && currentBet.status === "pending") {
-                currentBet.status = "lost";
-                await currentBet.save();
+        }, {
+            $set: {
+                status: "lost"
             }
-        }
+        });
         if (companyCommission > 0) {
             await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(admin._id, {
                 $inc: {
@@ -575,6 +599,45 @@ async function POST(request, { params }) {
             totalWinners: winningBets.length,
             totalPayout: totalPayoutToWinners,
             companyCommission
+        });
+    } catch (error) {
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: error instanceof Error ? error.message : "Server error"
+        }, {
+            status: 500
+        });
+    }
+}
+async function GET(request, { params }) {
+    try {
+        const { slotId } = await Promise.resolve(params);
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
+        const slot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(slotId).lean();
+        if (!slot) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Slot not found"
+            }, {
+                status: 404
+            });
+        }
+        const betsByIconObj = {};
+        if (slot.betsByIcon && slot.betsByIcon instanceof Map) {
+            slot.betsByIcon.forEach((value, key)=>{
+                betsByIconObj[key] = value;
+            });
+        } else if (slot.betsByIcon && typeof slot.betsByIcon === "object") {
+            Object.assign(betsByIconObj, slot.betsByIcon);
+        }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            id: slot._id.toString(),
+            slotNumber: slot.slotNumber,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            status: slot.status,
+            winningIcon: slot.winningIcon,
+            totalBets: slot.totalBets,
+            totalAmount: slot.totalAmount,
+            betsByIcon: betsByIconObj
         });
     } catch (error) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

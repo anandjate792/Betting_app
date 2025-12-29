@@ -57,6 +57,23 @@ export async function POST(
 
     await connectDB();
 
+    // First check if slot exists and get it
+    const existingSlot = await PredictionSlot.findById(slotId);
+    if (!existingSlot) {
+      return NextResponse.json({ error: "Slot not found" }, { status: 404 });
+    }
+
+    // CRITICAL: Prevent manual completion before endTime
+    const now = new Date();
+    if (existingSlot.status === "open" && now < existingSlot.endTime) {
+      return NextResponse.json(
+        { 
+          error: `Slot cannot be completed before end time. Slot ends at ${new Date(existingSlot.endTime).toLocaleString()}. Please wait for the full 45 seconds.` 
+        },
+        { status: 400 }
+      );
+    }
+
     // Use findOneAndUpdate with atomic check to prevent race conditions
     const slot = await PredictionSlot.findOneAndUpdate(
       { _id: slotId, status: "open" },
@@ -66,8 +83,7 @@ export async function POST(
     
     if (!slot) {
       // Check if slot exists but is already completed/processing
-      const existingSlot = await PredictionSlot.findById(slotId);
-      if (existingSlot && existingSlot.status !== "open") {
+      if (existingSlot.status !== "open") {
         return NextResponse.json(
           { error: "Slot is already completed or being processed" },
           { status: 400 }
@@ -163,12 +179,22 @@ export async function POST(
       }
     }
 
-    // Atomically update all losing bets
+    // Atomically update all losing bets (only update pending bets to avoid overwriting already processed bets)
     await Bet.updateMany(
       {
         slotId: slot._id,
         icon: { $ne: randomWinningIcon },
         status: "pending",
+      },
+      { $set: { status: "lost" } }
+    );
+    
+    // Also update any bets that might have been missed (safety check)
+    await Bet.updateMany(
+      {
+        slotId: slot._id,
+        icon: { $ne: randomWinningIcon },
+        status: { $nin: ["won", "lost", "cancelled"] },
       },
       { $set: { status: "lost" } }
     );

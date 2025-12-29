@@ -15,7 +15,7 @@ const predictionSlotSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["open", "closed", "completed", "cancelled"],
+    enum: ["open", "closed", "completed", "cancelled", "processing"],
     default: "open",
   },
   winningIcon: {

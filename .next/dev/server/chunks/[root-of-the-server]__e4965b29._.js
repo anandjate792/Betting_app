@@ -152,7 +152,8 @@ const predictionSlotSchema = new __TURBOPACK__imported__module__$5b$externals$5d
             "open",
             "closed",
             "completed",
-            "cancelled"
+            "cancelled",
+            "processing"
         ],
         default: "open"
     },
@@ -615,13 +616,31 @@ const finalizeExpiredOpenSlots = async ()=>{
                 });
             }
         }
-        // Atomically update all losing bets
+        // Atomically update all losing bets (only update pending bets to avoid overwriting already processed bets)
         await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
             slotId: currentSlot._id,
             icon: {
                 $ne: randomWinningIcon
             },
             status: "pending"
+        }, {
+            $set: {
+                status: "lost"
+            }
+        });
+        // Also update any bets that might have been missed (safety check)
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
+            slotId: currentSlot._id,
+            icon: {
+                $ne: randomWinningIcon
+            },
+            status: {
+                $nin: [
+                    "won",
+                    "lost",
+                    "cancelled"
+                ]
+            }
         }, {
             $set: {
                 status: "lost"
@@ -645,7 +664,9 @@ const finalizeExpiredOpenSlots = async ()=>{
 async function GET(request) {
     try {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
-        await finalizeExpiredOpenSlots(); // failsafe: auto-complete any overdue open slots
+        // Only finalize slots that have truly expired (endTime has passed)
+        // This ensures slots stay open for the full 45 seconds regardless of bet count
+        await finalizeExpiredOpenSlots();
         const url = new URL(request.url);
         const current = url.searchParams.get("current") === "true";
         if (current) {

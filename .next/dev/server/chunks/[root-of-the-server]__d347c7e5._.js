@@ -152,7 +152,8 @@ const predictionSlotSchema = new __TURBOPACK__imported__module__$5b$externals$5d
             "open",
             "closed",
             "completed",
-            "cancelled"
+            "cancelled",
+            "processing"
         ],
         default: "open"
     },
@@ -488,6 +489,24 @@ async function POST(request, { params }) {
         // Winning icon is now randomly selected, but we still accept it for manual override
         const { winningIcon } = await request.json();
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
+        // First check if slot exists and get it
+        const existingSlot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(slotId);
+        if (!existingSlot) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Slot not found"
+            }, {
+                status: 404
+            });
+        }
+        // CRITICAL: Prevent manual completion before endTime
+        const now = new Date();
+        if (existingSlot.status === "open" && now < existingSlot.endTime) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: `Slot cannot be completed before end time. Slot ends at ${new Date(existingSlot.endTime).toLocaleString()}. Please wait for the full 45 seconds.`
+            }, {
+                status: 400
+            });
+        }
         // Use findOneAndUpdate with atomic check to prevent race conditions
         const slot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOneAndUpdate({
             _id: slotId,
@@ -501,8 +520,7 @@ async function POST(request, { params }) {
         });
         if (!slot) {
             // Check if slot exists but is already completed/processing
-            const existingSlot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(slotId);
-            if (existingSlot && existingSlot.status !== "open") {
+            if (existingSlot.status !== "open") {
                 return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                     error: "Slot is already completed or being processed"
                 }, {
@@ -595,13 +613,31 @@ async function POST(request, { params }) {
                 });
             }
         }
-        // Atomically update all losing bets
+        // Atomically update all losing bets (only update pending bets to avoid overwriting already processed bets)
         await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
             slotId: slot._id,
             icon: {
                 $ne: randomWinningIcon
             },
             status: "pending"
+        }, {
+            $set: {
+                status: "lost"
+            }
+        });
+        // Also update any bets that might have been missed (safety check)
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
+            slotId: slot._id,
+            icon: {
+                $ne: randomWinningIcon
+            },
+            status: {
+                $nin: [
+                    "won",
+                    "lost",
+                    "cancelled"
+                ]
+            }
         }, {
             $set: {
                 status: "lost"

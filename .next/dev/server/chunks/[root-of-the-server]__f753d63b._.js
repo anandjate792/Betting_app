@@ -221,7 +221,8 @@ const predictionSlotSchema = new __TURBOPACK__imported__module__$5b$externals$5d
             "open",
             "closed",
             "completed",
-            "cancelled"
+            "cancelled",
+            "processing"
         ],
         default: "open"
     },

@@ -158,6 +158,15 @@ export default function AdminPredictionPanel() {
       return;
     }
 
+    // Prevent manual completion before endTime
+    const now = new Date();
+    const endTime = new Date(currentSlot.endTime);
+    if (now < endTime) {
+      const secondsRemaining = Math.ceil((endTime.getTime() - now.getTime()) / 1000);
+      setError(`Slot cannot be completed yet. Please wait ${secondsRemaining} more second(s). Slots must remain open for the full 45 seconds.`);
+      return;
+    }
+
     setLoading(true);
     setError("");
     setMessage("");
@@ -277,15 +286,39 @@ export default function AdminPredictionPanel() {
             {error && <p className="text-sm text-red-400">{error}</p>}
             {message && <p className="text-sm text-green-400">{message}</p>}
 
-            <Button
-              onClick={handleCompleteSlot}
-              disabled={loading || !selectedWinningIcon}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-            >
-              {loading
-                ? "Completing..."
-                : "Complete Slot & Distribute Winnings"}
-            </Button>
+            {/* Check if slot has expired */}
+            {(() => {
+              const now = new Date();
+              const endTime = new Date(currentSlot.endTime);
+              const isExpired = now >= endTime;
+              const secondsRemaining = isExpired ? 0 : Math.ceil((endTime.getTime() - now.getTime()) / 1000);
+              
+              return (
+                <>
+                  {!isExpired && (
+                    <div className="bg-yellow-900/50 border-2 border-yellow-600 rounded-lg p-3 mb-4">
+                      <p className="text-sm text-yellow-300 font-semibold">
+                        ⏱️ Slot is still active - {secondsRemaining} second(s) remaining
+                      </p>
+                      <p className="text-xs text-yellow-400 mt-1">
+                        Slots must remain open for the full 45 seconds. Please wait for the slot to expire automatically.
+                      </p>
+                    </div>
+                  )}
+                  <Button
+                    onClick={handleCompleteSlot}
+                    disabled={loading || !selectedWinningIcon || !isExpired}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                  >
+                    {loading
+                      ? "Completing..."
+                      : isExpired
+                      ? "Complete Slot & Distribute Winnings"
+                      : `Wait ${secondsRemaining}s to Complete`}
+                  </Button>
+                </>
+              );
+            })()}
           </CardContent>
         </Card>
         )

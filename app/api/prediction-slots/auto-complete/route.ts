@@ -137,12 +137,22 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Atomically update all losing bets
+      // Atomically update all losing bets (only update pending bets to avoid overwriting already processed bets)
       await Bet.updateMany(
         {
           slotId: currentSlot._id,
           icon: { $ne: randomWinningIcon },
           status: "pending",
+        },
+        { $set: { status: "lost" } }
+      );
+      
+      // Also update any bets that might have been missed (safety check)
+      await Bet.updateMany(
+        {
+          slotId: currentSlot._id,
+          icon: { $ne: randomWinningIcon },
+          status: { $nin: ["won", "lost", "cancelled"] },
         },
         { $set: { status: "lost" } }
       );

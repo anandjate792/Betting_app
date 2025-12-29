@@ -5,6 +5,5 @@
   "/api/prediction-slots/route": "app/api/prediction-slots/route.js",
   "/api/referrals/route": "app/api/referrals/route.js",
   "/api/transactions/route": "app/api/transactions/route.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/page": "app/page.js"
+  "/dashboard/page": "app/dashboard/page.js"
 }

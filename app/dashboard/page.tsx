@@ -23,37 +23,65 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner";
+import { Trophy } from "lucide-react";
+
+import { FaUmbrella, FaFootballBall } from "react-icons/fa";
 import {
-  Umbrella,
-  Egg,
-  Coins,
-  Star,
-  Heart,
-  Diamond,
-  Spade,
-  Club,
-  Trophy,
-  Crown,
-  Gem,
-  Fish,
-} from "lucide-react";
+  GiButterfly,
+  GiCow,
+  GiEmptyMetalBucketHandle,
+  GiKite,
+} from "react-icons/gi";
+import { WiDaySunny } from "react-icons/wi";
+import { MdLight } from "react-icons/md";
+import { GiSpinningTop } from "react-icons/gi";
+import { GiRose } from "react-icons/gi";
+import { GiSparrow } from "react-icons/gi";
+import { GiRabbit } from "react-icons/gi";
+
 import { betApi, predictionApi, referralApi } from "@/lib/api";
 import { authApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Toaster, toast } from "sonner";
 
 const ICONS = [
-  { id: "umbrella", name: "Umbrella", Icon: Umbrella, color: "text-blue-500" },
-  { id: "fish", name: "Fish", Icon: Fish, color: "text-yellow-500" },
-  { id: "hen", name: "Hen", Icon: Egg, color: "text-orange-500" },
-  { id: "coin", name: "Coin", Icon: Coins, color: "text-amber-500" },
-  { id: "star", name: "Star", Icon: Star, color: "text-yellow-400" },
-  { id: "heart", name: "Heart", Icon: Heart, color: "text-red-500" },
-  { id: "diamond", name: "Diamond", Icon: Diamond, color: "text-cyan-500" },
-  { id: "spade", name: "Spade", Icon: Spade, color: "text-slate-700" },
-  { id: "club", name: "Club", Icon: Club, color: "text-green-600" },
-  { id: "trophy", name: "Trophy", Icon: Trophy, color: "text-yellow-600" },
-  { id: "crown", name: "Crown", Icon: Crown, color: "text-purple-500" },
-  { id: "gem", name: "Gem", Icon: Gem, color: "text-pink-500" },
+  {
+    id: "umbrella",
+    name: "Umbrella",
+    Icon: FaUmbrella,
+    color: "text-blue-500",
+  },
+  {
+    id: "football",
+    name: "Football",
+    Icon: FaFootballBall,
+    color: "text-orange-600",
+  },
+  { id: "sun", name: "Sun", Icon: WiDaySunny, color: "text-yellow-400" },
+  { id: "lamp", name: "Lamp", Icon: MdLight, color: "text-amber-500" },
+  { id: "cow", name: "Cow", Icon: GiCow, color: "text-stone-600" },
+  {
+    id: "bucket",
+    name: "Bucket",
+    Icon: GiEmptyMetalBucketHandle,
+    color: "text-cyan-500",
+  },
+  { id: "kite", name: "Kite", Icon: GiKite, color: "text-red-500" },
+  {
+    id: "spinning-top",
+    name: "Spinning Top",
+    Icon: GiSpinningTop,
+    color: "text-indigo-500",
+  },
+  { id: "rose", name: "Rose", Icon: GiRose, color: "text-pink-500" },
+  {
+    id: "butterfly",
+    name: "Butterfly",
+    Icon: GiButterfly,
+    color: "text-purple-500",
+  },
+  { id: "sparrow", name: "Sparrow", Icon: GiSparrow, color: "text-sky-600" },
+  { id: "rabbit", name: "Rabbit", Icon: GiRabbit, color: "text-emerald-500" },
 ];
 
 const CHIP_VALUES = [10, 20, 50, 100, 200, 500];
@@ -101,10 +129,6 @@ export default function DashboardPage() {
     betAmount?: number;
   }>({ show: false, type: null });
   const [showResultBanner, setShowResultBanner] = useState(false);
-
-  const [seenSlotIds, setSeenSlotIds] = useState<Set<string>>(new Set());
-  const [processedSlots, setProcessedSlots] = useState<Set<string>>(new Set());
-  const slotEndTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [winningHistory, setWinningHistory] = useState<
     Array<{ slotNumber: number; winningIcon: string }>
   >([]);
@@ -116,60 +140,120 @@ export default function DashboardPage() {
     }>
   >([]);
 
-  // Load seen slots from localStorage
+  // Refs for tracking
+  const checkingResultRef = useRef<boolean>(false);
+  const lastCheckedSlotIdRef = useRef<string | null>(null);
+  const resultPollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load initial data
   useEffect(() => {
-    const stored = localStorage.getItem("wt_seen_slots");
-    if (stored) {
-      try {
-        setSeenSlotIds(new Set(JSON.parse(stored)));
-      } catch {}
-    }
+    loadCurrentSlot();
+    loadMyBets(true);
+    loadReferralInfo();
+    loadWinningHistory();
+    loadPreviousSlotsHistory();
+
+    // Setup polling for slot changes
+    const slotPollInterval = setInterval(loadCurrentSlot, 15000);
+
+    return () => {
+      clearInterval(slotPollInterval);
+      if (resultPollingIntervalRef.current) {
+        clearInterval(resultPollingIntervalRef.current);
+      }
+    };
   }, []);
 
-  const markSlotSeen = (slotId: string) => {
-    setSeenSlotIds((prev) => {
-      const next = new Set(prev);
-      next.add(slotId);
-      localStorage.setItem("wt_seen_slots", JSON.stringify([...next]));
-      return next;
-    });
-  };
-
+  // Update time remaining and check for slot end
   useEffect(() => {
-    if (!currentSlot?.id || !currentSlot?.endTime) return;
+    if (!currentSlot?.endTime) return;
 
-    if (slotEndTimerRef.current) {
-      clearTimeout(slotEndTimerRef.current);
-    }
+    const updateTimer = () => {
+      const now = Date.now();
+      const end = new Date(currentSlot.endTime).getTime();
+      const diff = end - now;
 
-    const end = new Date(currentSlot.endTime).getTime();
-    const now = Date.now();
-    const delay = end - now;
+      if (diff <= 0) {
+        setTimeRemaining("Slot Closed");
+        // Start checking for results when slot ends
+        if (!checkingResultRef.current) {
+          startResultPolling(currentSlot.id);
+        }
+        return;
+      }
 
-    if (delay <= 0) {
-      checkSlotResult(currentSlot.id);
+      const minutes = Math.floor(diff / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      setTimeRemaining(`${minutes}:${seconds.toString().padStart(2, "0")}`);
+    };
+
+    updateTimer();
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    return () => {
+      clearInterval(timerInterval);
+    };
+  }, [currentSlot?.endTime]);
+
+  // Function to start polling for results
+  const startResultPolling = (slotId: string) => {
+    if (checkingResultRef.current || lastCheckedSlotIdRef.current === slotId) {
       return;
     }
 
-    slotEndTimerRef.current = setTimeout(() => {
-      checkSlotResult(currentSlot.id);
-    }, delay + 1000);
+    checkingResultRef.current = true;
+    lastCheckedSlotIdRef.current = slotId;
 
-    return () => {
-      if (slotEndTimerRef.current) {
-        clearTimeout(slotEndTimerRef.current);
+    // Check immediately
+    checkSlotResult(slotId);
+
+    // Then poll every 3 seconds for up to 30 seconds
+    let pollCount = 0;
+    const maxPolls = 10; // 10 polls * 3 seconds = 30 seconds total
+
+    resultPollingIntervalRef.current = setInterval(async () => {
+      pollCount++;
+      if (pollCount >= maxPolls) {
+        stopResultPolling();
+        return;
       }
-    };
-  }, [currentSlot?.id]);
 
+      await checkSlotResult(slotId);
+    }, 3000);
+  };
+
+  const stopResultPolling = () => {
+    if (resultPollingIntervalRef.current) {
+      clearInterval(resultPollingIntervalRef.current);
+      resultPollingIntervalRef.current = null;
+    }
+    checkingResultRef.current = false;
+  };
+
+  // Load current slot
   const loadCurrentSlot = async () => {
     try {
       const slot = await predictionApi.getCurrentSlot().catch(() => null);
+
+      // Check if slot has changed
+      if (slot?.id !== currentSlot?.id) {
+        // Stop previous polling if any
+        stopResultPolling();
+        lastCheckedSlotIdRef.current = null;
+        // Clear placed bets when new slot starts
+        setPlacedBets([]);
+      }
+
       setCurrentSlot(slot);
       setBetsByIcon(slot?.betsByIcon || {});
 
       if (slot) {
         await loadMyCurrentSlotBet(slot.id);
+
+        // If slot is completed, check results immediately
+        if (slot.status === "completed" && !checkingResultRef.current) {
+          await checkSlotResult(slot.id);
+        }
       } else {
         setAllCurrentSlotBets([]);
       }
@@ -178,16 +262,144 @@ export default function DashboardPage() {
     }
   };
 
-  useEffect(() => {
-    loadCurrentSlot();
-    loadMyBets(true);
-    loadReferralInfo();
-    loadWinningHistory();
-    loadPreviousSlotsHistory();
+  // Check slot result - optimized
+  const checkSlotResult = async (slotId: string) => {
+    try {
+      const slot = await predictionApi.getSlot(slotId);
 
-    const i = setInterval(loadCurrentSlot, 30000);
-    return () => clearInterval(i);
-  }, []);
+      if (!slot || slot.status !== "completed" || !slot.winningIcon) {
+        return;
+      }
+
+      // Check if we have bets for this slot
+      const response = (await betApi.getBets(slotId, 100, 0)) as any;
+      const bets = Array.isArray(response) ? response : response?.data || [];
+      const userBets = bets.filter((b: any) => b.userId === user?.id);
+
+      if (userBets.length === 0) {
+        stopResultPolling();
+        return;
+      }
+
+      // Calculate results
+      const winningBets = userBets.filter(
+        (b: any) => b.icon === slot.winningIcon
+      );
+      const totalBet = userBets.reduce(
+        (sum: number, b: any) => sum + b.amount,
+        0
+      );
+      const payout = winningBets.reduce(
+        (sum: number, b: any) => sum + (b.payout || b.amount * 1.5),
+        0
+      );
+
+      // Show result if we haven't shown it yet for this slot
+      const resultKey = `${slotId}_${user?.id}`;
+      const hasShownResult = localStorage.getItem(resultKey);
+
+      if (!hasShownResult) {
+        setResultPopup({
+          show: true,
+          type: winningBets.length > 0 ? "win" : "loss",
+          slotNumber: slot.slotNumber,
+          winningIcon: slot.winningIcon,
+          payout,
+          betAmount: totalBet,
+        });
+        setShowResultBanner(true);
+
+        // Mark as shown
+        localStorage.setItem(resultKey, "true");
+
+        // Auto-hide banner after 5 seconds
+        setTimeout(() => {
+          setShowResultBanner(false);
+        }, 5000);
+
+        // Show toast notification
+        if (winningBets.length > 0) {
+          toast.success(`You won ₹${payout} on Slot #${slot.slotNumber}!`, {
+            duration: 5000,
+          });
+        } else {
+          toast.error(
+            `Slot #${slot.slotNumber} completed. Better luck next time!`,
+            {
+              duration: 5000,
+            }
+          );
+        }
+      }
+
+      // Update user data
+      try {
+        const profile = (await authApi.getProfile()) as any;
+        useAppStore.setState({ user: profile });
+      } catch (err) {
+        console.error("Failed to update user profile:", err);
+      }
+
+      // Refresh data
+      await loadMyBets(true);
+      await loadWinningHistory();
+      await loadPreviousSlotsHistory();
+
+      // Stop polling since we got the result
+      stopResultPolling();
+    } catch (error) {
+      console.error("Error checking slot result:", error);
+    }
+  };
+
+  const loadMyCurrentSlotBet = async (slotId?: string) => {
+    if (!slotId) {
+      setCurrentSlotBets([]);
+      setAllCurrentSlotBets([]);
+      return;
+    }
+    try {
+      const response = (await betApi.getBets(slotId, 100, 0)) as any;
+      const betsArray = Array.isArray(response)
+        ? response
+        : response.data || [];
+      const allBetsForSlot =
+        betsArray
+          ?.filter((b: any) => b.slotId === slotId)
+          .map((b: any) => ({
+            icon: b.icon,
+            amount: b.amount,
+            userId: b.userId,
+          })) || [];
+      setAllCurrentSlotBets(allBetsForSlot);
+
+      const myBetsForSlot =
+        allBetsForSlot
+          ?.filter((b: any) => b.userId === user?.id)
+          .map((b: any) => ({ icon: b.icon, amount: b.amount })) || [];
+      setCurrentSlotBets(myBetsForSlot);
+    } catch (error) {
+      console.error("Failed to load current slot bet:", error);
+      setCurrentSlotBets([]);
+      setAllCurrentSlotBets([]);
+    }
+  };
+
+  const loadReferralInfo = async () => {
+    setReferralLoading(true);
+    try {
+      const data = await referralApi.getMyReferrals();
+      setReferralInfo({
+        referralCode: (data as any).referralCode,
+        referralCount: (data as any).referralCount,
+        referralEarnings: (data as any).referralEarnings,
+      });
+    } catch (error) {
+      console.error("Failed to load referral info:", error);
+    } finally {
+      setReferralLoading(false);
+    }
+  };
 
   const loadWinningHistory = async () => {
     try {
@@ -242,131 +454,6 @@ export default function DashboardPage() {
     }
   };
 
-  useEffect(() => {
-    if (!currentSlot?.endTime) return;
-
-    const tick = () => {
-      const diff = new Date(currentSlot.endTime).getTime() - Date.now();
-      if (diff <= 0) {
-        setTimeRemaining("Slot Closed");
-        return;
-      }
-      const m = Math.floor(diff / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      setTimeRemaining(`${m}:${s.toString().padStart(2, "0")}`);
-    };
-
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => clearInterval(t);
-  }, [currentSlot?.endTime]);
-
-  const checkSlotResult = async (slotId: string, retry = 0) => {
-    if (seenSlotIds.has(slotId) || processedSlots.has(slotId)) return;
-
-    try {
-      const slot = await predictionApi.getSlot(slotId);
-      if (!slot || slot.status !== "completed" || !slot.winningIcon) {
-        if (retry < 8) {
-          setTimeout(() => checkSlotResult(slotId, retry + 1), 2000);
-        }
-        return;
-      }
-
-      const res = (await betApi.getBets(slotId, 100, 0)) as any;
-      const bets = (res.data || res).filter((b: any) => b.userId === user?.id);
-
-      if (!bets.length) {
-        markSlotSeen(slotId);
-        return;
-      }
-
-      const wins = bets.filter((b: any) => b.icon === slot.winningIcon);
-      const totalBet = bets.reduce((s: number, b: any) => s + b.amount, 0);
-      const payout = wins.length
-        ? wins.reduce(
-            (s: number, b: any) => s + (b.payout || b.amount * 1.5),
-            0
-          )
-        : 0;
-
-      setResultPopup({
-        show: true,
-        type: wins.length ? "win" : "loss",
-        slotNumber: slot.slotNumber,
-        winningIcon: slot.winningIcon,
-        payout,
-        betAmount: totalBet,
-      });
-      setShowResultBanner(true);
-
-      markSlotSeen(slotId);
-      setProcessedSlots((p) => new Set(p).add(slotId));
-
-      const profile = (await authApi.getProfile()) as any;
-      useAppStore.setState({ user: profile });
-
-      await loadMyBets(true);
-
-      setTimeout(() => {
-        setShowResultBanner(false);
-      }, 5000);
-    } catch {
-      if (retry < 5) {
-        setTimeout(() => checkSlotResult(slotId, retry + 1), 3000);
-      }
-    }
-  };
-
-  const loadMyCurrentSlotBet = async (slotId?: string) => {
-    if (!slotId) {
-      setCurrentSlotBets([]);
-      setAllCurrentSlotBets([]);
-      return;
-    }
-    try {
-      const response = (await betApi.getBets(slotId, 100, 0)) as any;
-      const betsArray = Array.isArray(response)
-        ? response
-        : response.data || [];
-      const allBetsForSlot =
-        betsArray
-          ?.filter((b: any) => b.slotId === slotId)
-          .map((b: any) => ({
-            icon: b.icon,
-            amount: b.amount,
-            userId: b.userId,
-          })) || [];
-      setAllCurrentSlotBets(allBetsForSlot);
-
-      const myBetsForSlot =
-        allBetsForSlot
-          ?.filter((b: any) => b.userId === user?.id)
-          .map((b: any) => ({ icon: b.icon, amount: b.amount })) || [];
-      setCurrentSlotBets(myBetsForSlot);
-    } catch (error) {
-      console.error("Failed to load current slot bet:", error);
-      setCurrentSlotBets([]);
-      setAllCurrentSlotBets([]);
-    }
-  };
-
-  const loadReferralInfo = async () => {
-    setReferralLoading(true);
-    try {
-      const data = await referralApi.getMyReferrals();
-      setReferralInfo({
-        referralCode: (data as any).referralCode,
-        referralCount: (data as any).referralCount,
-        referralEarnings: (data as any).referralEarnings,
-      });
-    } catch (error) {
-      console.error("Failed to load referral info:", error);
-    } finally {
-      setReferralLoading(false);
-    }
-  };
-
   const loadMyBets = async (reset = false) => {
     if (reset) {
       setBetsSkip(10);
@@ -395,7 +482,6 @@ export default function DashboardPage() {
             )[0] || null;
         setLastWin(latestWin);
 
-        // Get last result (win or loss) - most recent completed bet
         const lastCompletedBet =
           updatedBets
             .filter((b: any) => b.status === "won" || b.status === "lost")
@@ -421,7 +507,6 @@ export default function DashboardPage() {
             )[0] || null;
         setLastWin(latestWin);
 
-        // Get last result (win or loss) - most recent completed bet
         const lastCompletedBet =
           updatedBets
             .filter((b: any) => b.status === "won" || b.status === "lost")
@@ -452,31 +537,11 @@ export default function DashboardPage() {
       await loadMyBets(true);
       await loadWinningHistory();
       await loadPreviousSlotsHistory();
-
-      if (currentSlot) {
-        updateTimeRemaining();
-      }
     } catch (err) {
       console.error("Refresh failed:", err);
     } finally {
       setRefreshing(false);
     }
-  };
-
-  const updateTimeRemaining = () => {
-    if (!currentSlot) return;
-    const now = new Date();
-    const end = new Date(currentSlot.endTime);
-    const diff = end.getTime() - now.getTime();
-
-    if (diff <= 0) {
-      setTimeRemaining("Slot Closed");
-      return;
-    }
-
-    const minutes = Math.floor(diff / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
-    setTimeRemaining(`${minutes}:${seconds.toString().padStart(2, "0")}`);
   };
 
   // Handle icon click - place bet with selected chip
@@ -551,8 +616,12 @@ export default function DashboardPage() {
       if (currentSlot?.id) {
         await loadMyCurrentSlotBet(currentSlot.id);
       }
+
+      toast.success("Bets placed successfully!");
     } catch (err: any) {
-      setError(err.message || "Failed to place bets");
+      const errorMessage = err.message || "Failed to place bets";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -596,6 +665,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-slate-800 pb-8">
+      <Toaster position="top-right" richColors />
+
       {/* Top Stats Bar */}
       <div className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 px-4 py-3">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
@@ -631,7 +702,7 @@ export default function DashboardPage() {
 
       {/* Win/Loss Banner */}
       {showResultBanner && resultPopup.type && (
-        <div className="mx-4 mt-4">
+        <div className="mx-4 mt-4 animate-in slide-in-from-top duration-500">
           {resultPopup.type === "win" ? (
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 p-6 text-center shadow-lg animate-pulse">
               <div className="relative z-10">
@@ -641,7 +712,7 @@ export default function DashboardPage() {
                   +₹{resultPopup.payout?.toFixed(2)}
                 </p>
                 <p className="text-sm text-white/80 mt-2">
-                  Slot #{resultPopup.slotNumber}
+                  Slot #{resultPopup.slotNumber} • {resultPopup.winningIcon}
                 </p>
               </div>
               <div className="absolute inset-0 bg-white/20 backdrop-blur-sm" />
@@ -655,7 +726,8 @@ export default function DashboardPage() {
                   -₹{resultPopup.betAmount?.toFixed(2)}
                 </p>
                 <p className="text-sm text-slate-400 mt-2">
-                  Slot #{resultPopup.slotNumber}
+                  Slot #{resultPopup.slotNumber} • Winning Icon:{" "}
+                  {resultPopup.winningIcon}
                 </p>
               </div>
             </div>
@@ -723,51 +795,78 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {lastResult && (
-            <div className="mb-6">
-              {lastResult.status === "won" ? (
-                <div className="relative overflow-hidden rounded-xl border-2 border-yellow-500 bg-gradient-to-br from-yellow-500 via-orange-400 to-orange-500 shadow-xl">
-                  <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
-                  <div className="relative px-6 py-4 text-center text-slate-900">
-                    <Trophy className="w-8 h-8 mx-auto mb-2 text-white" />
-                    <p className="text-sm font-bold tracking-wider uppercase text-white drop-shadow-md">
-                      Latest Result: Won
-                    </p>
-                    <p className="mt-1 text-4xl font-black text-white drop-shadow-lg">
-                      +₹{lastResult.payout?.toFixed(2) || "0.00"}
-                    </p>
-                    {lastResult.amount > 0 && lastResult.payout > 0 && (
-                      <p className="mt-1 text-base font-bold text-white/90">
-                        {(lastResult.payout / lastResult.amount || 0).toFixed(
-                          1
-                        )}
-                        x
-                      </p>
-                    )}
-                    <p className="mt-2 text-xs text-white/80">
-                      Slot #{lastResult.slotNumber ?? "-"}
-                    </p>
-                  </div>
+          {lastResult &&
+            (() => {
+              // Calculate overall slot result
+              const slotId = lastResult.slot?.id || lastResult.slotId;
+              const slotNumber =
+                lastResult.slot?.slotNumber || lastResult.slotNumber;
+
+              // Get all bets for this slot
+              const slotBets = myBets.filter((bet: any) => {
+                const betSlotId = bet.slot?.id || bet.slotId;
+                const betSlotNumber = bet.slot?.slotNumber || bet.slotNumber;
+                return betSlotId === slotId || betSlotNumber === slotNumber;
+              });
+
+              // Calculate net result for the slot
+              let totalBetAmount = 0;
+              let totalPayout = 0;
+              let hasWins = false;
+              let hasLosses = false;
+
+              slotBets.forEach((bet: any) => {
+                totalBetAmount += bet.amount || 0;
+                totalPayout += bet.payout || 0;
+                if (bet.status === "won") hasWins = true;
+                if (bet.status === "lost") hasLosses = true;
+              });
+
+              const netResult = totalPayout - totalBetAmount;
+              const isOverallWin = netResult > 0;
+              const hasBothWinsAndLosses = hasWins && hasLosses;
+
+              // Show "Won" only if there are both wins and losses AND net result is positive
+              const showWin = hasBothWinsAndLosses || isOverallWin;
+
+              return (
+                <div className="mb-6">
+                  {showWin ? (
+                    <div className="relative overflow-hidden rounded-xl border-2 border-yellow-500 bg-gradient-to-br from-yellow-500 via-orange-400 to-orange-500 shadow-xl">
+                      <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
+                      <div className="relative px-6 py-4 text-center text-slate-900">
+                        <Trophy className="w-8 h-8 mx-auto mb-2 text-white" />
+                        <p className="text-sm font-bold tracking-wider uppercase text-white drop-shadow-md">
+                          Latest Result: Won
+                        </p>
+                        <p className="mt-1 text-4xl font-black text-white drop-shadow-lg">
+                          +₹{netResult.toFixed(2)}
+                        </p>
+                        <p className="mt-2 text-xs text-white/80">
+                          Slot #{slotNumber ?? "-"}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative overflow-hidden rounded-xl border-2 border-red-500 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 shadow-xl">
+                      <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
+                      <div className="relative px-6 py-4 text-center">
+                        <XIcon className="w-8 h-8 mx-auto mb-2 text-red-400" />
+                        <p className="text-sm font-bold tracking-wider uppercase text-red-400 drop-shadow-md">
+                          Latest Result: Lost
+                        </p>
+                        <p className="mt-1 text-4xl font-black text-red-400 drop-shadow-lg">
+                          -₹{Math.abs(netResult).toFixed(2)}
+                        </p>
+                        <p className="mt-2 text-xs text-slate-400">
+                          Slot #{slotNumber ?? "-"}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="relative overflow-hidden rounded-xl border-2 border-red-500 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 shadow-xl">
-                  <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
-                  <div className="relative px-6 py-4 text-center">
-                    <XIcon className="w-8 h-8 mx-auto mb-2 text-red-400" />
-                    <p className="text-sm font-bold tracking-wider uppercase text-red-400 drop-shadow-md">
-                      Latest Result: Lost
-                    </p>
-                    <p className="mt-1 text-4xl font-black text-red-400 drop-shadow-lg">
-                      -₹{lastResult.amount?.toFixed(2) || "0.00"}
-                    </p>
-                    <p className="mt-2 text-xs text-slate-400">
-                      Slot #{lastResult.slotNumber ?? "-"}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+              );
+            })()}
 
           {slotLoading ? (
             <div className="flex items-center justify-center py-12">
@@ -789,7 +888,7 @@ export default function DashboardPage() {
                 <div className="flex-1">
                   <div className="mb-4">
                     <label className="text-sm font-bold text-yellow-300 uppercase tracking-wider flex items-center gap-2">
-                      <Star className="w-4 h-4" />
+                      <Trophy className="w-4 h-4" />
                       Click on Icon to Place Bet
                       {placedBets.length > 0 && (
                         <span className="ml-2 text-sm text-yellow-400 bg-yellow-900/50 px-2 py-1 rounded-full border border-yellow-600">
@@ -889,8 +988,6 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="relative w-16 h-16 flex items-center justify-center my-1">
-                      {/* Background chips for stack effect */}
-
                       {/* Top Active Chip */}
                       <div className="relative z-10 w-[54px] h-[54px] rounded-full border-[3px] border-dashed border-white bg-[#4caf50] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
                         <div className="w-[38px] h-[38px] rounded-full border-2 border-white/20 flex items-center justify-center bg-black/10">
@@ -1091,113 +1188,201 @@ export default function DashboardPage() {
             <>
               <ScrollArea className="h-[500px]">
                 <div className="space-y-3 pr-4">
-                  {myBets.map((bet) => {
-                    const slot = bet.slot;
-                    const slotNumber = slot?.slotNumber || bet.slotNumber;
-                    const isWinner = slot?.winningIcon === bet.icon;
-                    const isCompleted =
-                      slot?.status === "completed" ||
-                      slot?.status === "cancelled";
-                    const isCancelled = slot?.status === "cancelled";
+                  {(() => {
+                    // Group bets by slot
+                    const betsBySlot = new Map();
+                    myBets.forEach((bet) => {
+                      const slot = bet.slot;
+                      const slotId =
+                        slot?.id || bet.slotId || `slot-${bet.slotNumber}`;
+                      const slotNumber = slot?.slotNumber || bet.slotNumber;
 
-                    // Determine bet status: prioritize bet.status, then slot status
-                    let betStatus = bet.status || "pending";
-                    if (!bet.status && isCompleted && !isCancelled) {
-                      betStatus = isWinner ? "won" : "lost";
-                    }
+                      if (!betsBySlot.has(slotId)) {
+                        betsBySlot.set(slotId, {
+                          slotId,
+                          slotNumber,
+                          slot,
+                          bets: [],
+                          totalBetAmount: 0,
+                          totalPayout: 0,
+                          netResult: 0,
+                        });
+                      }
 
-                    return (
-                      <div
-                        key={bet.id}
-                        className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-sm font-semibold text-blue-300">
-                                {bet.icon}
-                              </span>
-                              <span className="text-sm text-slate-400">•</span>
-                              <p className="text-sm font-semibold text-white">
-                                Slot #{slotNumber || "N/A"}
+                      const slotGroup = betsBySlot.get(slotId);
+                      slotGroup.bets.push(bet);
+                      slotGroup.totalBetAmount += bet.amount || 0;
+                      slotGroup.totalPayout += bet.payout || 0;
+                    });
+
+                    // Calculate net result for each slot
+                    betsBySlot.forEach((slotGroup) => {
+                      slotGroup.netResult =
+                        slotGroup.totalPayout - slotGroup.totalBetAmount;
+                    });
+
+                    // Convert to array and sort by slot number (newest first)
+                    const slotGroups = Array.from(betsBySlot.values()).sort(
+                      (a, b) => (b.slotNumber || 0) - (a.slotNumber || 0)
+                    );
+
+                    return slotGroups.map((slotGroup) => {
+                      const {
+                        slot,
+                        slotNumber,
+                        bets,
+                        totalBetAmount,
+                        totalPayout,
+                        netResult,
+                      } = slotGroup;
+                      const isCompleted =
+                        slot?.status === "completed" ||
+                        slot?.status === "cancelled";
+                      const isCancelled = slot?.status === "cancelled";
+                      const hasPending = bets.some(
+                        (b: any) => !b.status || b.status === "pending"
+                      );
+
+                      // Determine overall slot status
+                      let overallStatus = "pending";
+                      if (isCancelled) {
+                        overallStatus = "cancelled";
+                      } else if (isCompleted && !hasPending) {
+                        overallStatus =
+                          netResult > 0
+                            ? "won"
+                            : netResult < 0
+                            ? "lost"
+                            : "draw";
+                      }
+
+                      return (
+                        <div
+                          key={slotGroup.slotId}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                        >
+                          {/* Slot Header with Overall Result */}
+                          <div className="flex justify-between items-start mb-3 pb-3 border-b border-slate-600">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-base font-bold text-white">
+                                  Slot #{slotNumber || "N/A"}
+                                </p>
+                                {isCompleted &&
+                                  slot?.winningIcon &&
+                                  !isCancelled && (
+                                    <>
+                                      <span className="text-sm text-slate-400">
+                                        •
+                                      </span>
+                                      <span className="text-xs text-slate-400">
+                                        Winner:{" "}
+                                        <span className="font-semibold text-green-300">
+                                          {slot.winningIcon}
+                                        </span>
+                                      </span>
+                                    </>
+                                  )}
+                              </div>
+                              <p className="text-xs text-slate-400">
+                                {slot?.startTime
+                                  ? new Date(slot.startTime).toLocaleString()
+                                  : bets[0]?.createdAt
+                                  ? new Date(bets[0].createdAt).toLocaleString()
+                                  : "Unknown date"}
                               </p>
                             </div>
-                            <p className="text-xs text-slate-400">
-                              {slot?.startTime
-                                ? new Date(slot.startTime).toLocaleString()
-                                : bet.createdAt
-                                ? new Date(bet.createdAt).toLocaleString()
-                                : "Unknown date"}
-                            </p>
-                            <p className="text-xs text-slate-500 mt-1">
-                              Bet: ₹{bet.amount.toFixed(2)}
-                            </p>
+                            <div className="text-right ml-4">
+                              {overallStatus === "won" && (
+                                <>
+                                  <p className="text-lg font-bold text-green-400">
+                                    +₹{netResult.toFixed(2)}
+                                  </p>
+                                  <span className="text-xs px-2 py-1 rounded-full bg-green-600 text-white inline-block mt-1">
+                                    Won
+                                  </span>
+                                </>
+                              )}
+                              {overallStatus === "lost" && (
+                                <>
+                                  <p className="text-lg font-bold text-red-400">
+                                    -₹{Math.abs(netResult).toFixed(2)}
+                                  </p>
+                                  <span className="text-xs px-2 py-1 rounded-full bg-red-600 text-white inline-block mt-1">
+                                    Lost
+                                  </span>
+                                </>
+                              )}
+                              {overallStatus === "cancelled" && (
+                                <>
+                                  <p className="text-sm text-slate-400">
+                                    Refunded
+                                  </p>
+                                  <span className="text-xs px-2 py-1 rounded-full bg-gray-600 text-white inline-block mt-1">
+                                    Cancelled
+                                  </span>
+                                </>
+                              )}
+                              {overallStatus === "pending" && (
+                                <>
+                                  <p className="text-sm text-slate-400">
+                                    Pending
+                                  </p>
+                                  <span className="text-xs px-2 py-1 rounded-full bg-yellow-600 text-white inline-block mt-1">
+                                    Pending
+                                  </span>
+                                </>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-right ml-4">
-                            {betStatus === "won" && (
-                              <>
-                                <p className="text-lg font-bold text-green-400">
-                                  {bet.payout > 0
-                                    ? `+₹${bet.payout.toFixed(2)}`
-                                    : "Won"}
-                                </p>
-                                <span className="text-xs px-2 py-1 rounded-full bg-green-600 text-white inline-block mt-1">
-                                  Won
-                                </span>
-                              </>
-                            )}
-                            {betStatus === "lost" && (
-                              <>
-                                <p className="text-lg font-bold text-red-400">
-                                  -₹{bet.amount.toFixed(2)}
-                                </p>
-                                <span className="text-xs px-2 py-1 rounded-full bg-red-600 text-white inline-block mt-1">
-                                  Lost
-                                </span>
-                              </>
-                            )}
-                            {betStatus === "cancelled" && (
-                              <>
-                                <p className="text-sm text-slate-400">
-                                  Refunded
-                                </p>
-                                <span className="text-xs px-2 py-1 rounded-full bg-gray-600 text-white inline-block mt-1">
-                                  Cancelled
-                                </span>
-                              </>
-                            )}
-                            {betStatus === "pending" && (
-                              <>
-                                <p className="text-sm text-slate-400">
-                                  Pending
-                                </p>
-                                <span className="text-xs px-2 py-1 rounded-full bg-yellow-600 text-white inline-block mt-1">
-                                  Pending
-                                </span>
-                              </>
-                            )}
+
+                          {/* Individual Bets */}
+                          <div className="space-y-2">
+                            {bets.map((bet: any) => {
+                              const isWinner = slot?.winningIcon === bet.icon;
+                              let betStatus = bet.status || "pending";
+                              if (!bet.status && isCompleted && !isCancelled) {
+                                betStatus = isWinner ? "won" : "lost";
+                              }
+
+                              return (
+                                <div
+                                  key={bet.id}
+                                  className="flex justify-between items-center p-2 bg-slate-800 rounded border border-slate-600"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-semibold text-blue-300">
+                                      {bet.icon}
+                                    </span>
+                                    <span className="text-xs text-slate-400">
+                                      Bet: ₹{bet.amount.toFixed(2)}
+                                    </span>
+                                  </div>
+                                  <div className="text-right">
+                                    {betStatus === "won" && (
+                                      <span className="text-sm font-semibold text-green-400">
+                                        +₹{(bet.payout || 0).toFixed(2)}
+                                      </span>
+                                    )}
+                                    {betStatus === "lost" && (
+                                      <span className="text-sm font-semibold text-red-400">
+                                        -₹{bet.amount.toFixed(2)}
+                                      </span>
+                                    )}
+                                    {betStatus === "pending" && (
+                                      <span className="text-xs text-slate-400">
+                                        Pending
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
-                        {isCompleted && slot?.winningIcon && !isCancelled && (
-                          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-600">
-                            <span className="text-xs text-slate-400">
-                              Winning Icon:
-                            </span>
-                            <span className="text-xs font-semibold text-green-300">
-                              {slot.winningIcon}
-                            </span>
-                          </div>
-                        )}
-                        {isCancelled && (
-                          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-600">
-                            <span className="text-xs text-slate-400">
-                              Slot was cancelled (only one user participated)
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                      );
+                    });
+                  })()}
                 </div>
               </ScrollArea>
               {betsHasMore && (

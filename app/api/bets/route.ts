@@ -154,17 +154,17 @@ export async function POST(request: NextRequest) {
 
     const validIcons = [
       "umbrella",
-      "fish",
-      "hen",
-      "coin",
-      "star",
-      "heart",
-      "diamond",
-      "spade",
-      "club",
-      "trophy",
-      "crown",
-      "gem",
+      "football",
+      "sun",
+      "lamp",
+      "cow",
+      "bucket",
+      "kite",
+      "spinning-top",
+      "rose",
+      "butterfly",
+      "sparrow",
+      "rabbit",
     ];
     if (!validIcons.includes(icon)) {
       return NextResponse.json({ error: "Invalid icon" }, { status: 400 });

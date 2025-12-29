@@ -17,37 +17,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FaUmbrella, FaFootballBall } from "react-icons/fa";
 import {
-  Umbrella,
-  Fish,
-  Egg,
-  Coins,
-  Star,
-  Heart,
-  Diamond,
-  Spade,
-  Club,
-  Trophy,
-  Crown,
-  Gem,
-} from "lucide-react";
+  GiButterfly,
+  GiCow,
+  GiEmptyMetalBucketHandle,
+  GiKite,
+} from "react-icons/gi";
+import { WiDaySunny } from "react-icons/wi";
+import { MdLight } from "react-icons/md";
+import { GiSpinningTop } from "react-icons/gi";
+import { GiRose } from "react-icons/gi";
+import { GiSparrow } from "react-icons/gi";
+import { GiRabbit } from "react-icons/gi";
 import { predictionApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 
 const ICONS = [
-  { id: "umbrella", name: "Umbrella", Icon: Umbrella },
-  { id: "fish", name: "Fish", Icon: Fish },
-  { id: "hen", name: "Hen", Icon: Egg },
-  { id: "coin", name: "Coin", Icon: Coins },
-  { id: "star", name: "Star", Icon: Star },
-  { id: "heart", name: "Heart", Icon: Heart },
-  { id: "diamond", name: "Diamond", Icon: Diamond },
-  { id: "spade", name: "Spade", Icon: Spade },
-  { id: "club", name: "Club", Icon: Club },
-  { id: "trophy", name: "Trophy", Icon: Trophy },
-  { id: "crown", name: "Crown", Icon: Crown },
-  { id: "gem", name: "Gem", Icon: Gem },
+  {
+    id: "umbrella",
+    name: "Umbrella",
+    Icon: FaUmbrella,
+  },
+  {
+    id: "football",
+    name: "Football",
+    Icon: FaFootballBall,
+  },
+  { id: "sun", name: "Sun", Icon: WiDaySunny },
+  { id: "lamp", name: "Lamp", Icon: MdLight },
+  { id: "cow", name: "Cow", Icon: GiCow },
+  {
+    id: "bucket",
+    name: "Bucket",
+    Icon: GiEmptyMetalBucketHandle,
+  },
+  { id: "kite", name: "Kite", Icon: GiKite },
+  {
+    id: "spinning-top",
+    name: "Spinning Top",
+    Icon: GiSpinningTop,
+  },
+  { id: "rose", name: "Rose", Icon: GiRose },
+  {
+    id: "butterfly",
+    name: "Butterfly",
+    Icon: GiButterfly,
+  },
+  { id: "sparrow", name: "Sparrow", Icon: GiSparrow },
+  { id: "rabbit", name: "Rabbit", Icon: GiRabbit },
 ];
 
 export default function AdminPredictionPanel() {

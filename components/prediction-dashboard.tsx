@@ -16,21 +16,20 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
+import { Upload } from "lucide-react";
+import { FaUmbrella, FaFootballBall } from "react-icons/fa";
 import {
-  Umbrella,
-  Egg,
-  Coins,
-  Star,
-  Heart,
-  Diamond,
-  Spade,
-  Club,
-  Trophy,
-  Crown,
-  Gem,
-  Fish,
-  Upload,
-} from "lucide-react";
+  GiButterfly,
+  GiCow,
+  GiEmptyMetalBucketHandle,
+  GiKite,
+} from "react-icons/gi";
+import { WiDaySunny } from "react-icons/wi";
+import { MdLight } from "react-icons/md";
+import { GiSpinningTop } from "react-icons/gi";
+import { GiRose } from "react-icons/gi";
+import { GiSparrow } from "react-icons/gi";
+import { GiRabbit } from "react-icons/gi";
 import {
   betApi,
   predictionApi,
@@ -39,18 +38,43 @@ import {
 } from "@/lib/api";
 
 const ICONS = [
-  { id: "umbrella", name: "Umbrella", Icon: Umbrella, color: "text-blue-500" },
-  { id: "fish", name: "Fish", Icon: Fish, color: "text-yellow-500" },
-  { id: "hen", name: "Hen", Icon: Egg, color: "text-orange-500" },
-  { id: "coin", name: "Coin", Icon: Coins, color: "text-amber-500" },
-  { id: "star", name: "Star", Icon: Star, color: "text-yellow-400" },
-  { id: "heart", name: "Heart", Icon: Heart, color: "text-red-500" },
-  { id: "diamond", name: "Diamond", Icon: Diamond, color: "text-cyan-500" },
-  { id: "spade", name: "Spade", Icon: Spade, color: "text-white-700" },
-  { id: "club", name: "Club", Icon: Club, color: "text-green-600" },
-  { id: "trophy", name: "Trophy", Icon: Trophy, color: "text-yellow-600" },
-  { id: "crown", name: "Crown", Icon: Crown, color: "text-purple-500" },
-  { id: "gem", name: "Gem", Icon: Gem, color: "text-pink-500" },
+  {
+    id: "umbrella",
+    name: "Umbrella",
+    Icon: FaUmbrella,
+    color: "text-blue-500",
+  },
+  {
+    id: "football",
+    name: "Football",
+    Icon: FaFootballBall,
+    color: "text-orange-600",
+  },
+  { id: "sun", name: "Sun", Icon: WiDaySunny, color: "text-yellow-400" },
+  { id: "lamp", name: "Lamp", Icon: MdLight, color: "text-amber-500" },
+  { id: "cow", name: "Cow", Icon: GiCow, color: "text-stone-600" },
+  {
+    id: "bucket",
+    name: "Bucket",
+    Icon: GiEmptyMetalBucketHandle,
+    color: "text-cyan-500",
+  },
+  { id: "kite", name: "Kite", Icon: GiKite, color: "text-red-500" },
+  {
+    id: "spinning-top",
+    name: "Spinning Top",
+    Icon: GiSpinningTop,
+    color: "text-indigo-500",
+  },
+  { id: "rose", name: "Rose", Icon: GiRose, color: "text-pink-500" },
+  {
+    id: "butterfly",
+    name: "Butterfly",
+    Icon: GiButterfly,
+    color: "text-purple-500",
+  },
+  { id: "sparrow", name: "Sparrow", Icon: GiSparrow, color: "text-sky-600" },
+  { id: "rabbit", name: "Rabbit", Icon: GiRabbit, color: "text-emerald-500" },
 ];
 
 export default function PredictionDashboard() {

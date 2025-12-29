@@ -106,9 +106,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (amount < 50) {
+    if (amount < 10 || amount > 500) {
       return NextResponse.json(
-        { error: "Minimum bet amount is 50 rupees" },
+        { error: "Bet amount must be between 10 and 500 rupees" },
         { status: 400 }
       );
     }

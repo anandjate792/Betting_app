@@ -444,7 +444,7 @@ export default function PredictionDashboard() {
     <div className="max-w-7xl mx-auto p-4 space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-slate-700">
-          <TabsTrigger value="prediction">Prediction Game</TabsTrigger>
+          <TabsTrigger value="prediction">Pop The Picture</TabsTrigger>
           <TabsTrigger value="dashboard">My Dashboard</TabsTrigger>
         </TabsList>
 

@@ -1,9 +1,9 @@
 {
   "/api/auth/me/route": "app/api/auth/me/route.js",
   "/api/bets/route": "app/api/bets/route.js",
-  "/api/prediction-slots/[slotId]/route": "app/api/prediction-slots/[slotId]/route.js",
   "/api/prediction-slots/route": "app/api/prediction-slots/route.js",
   "/api/referrals/route": "app/api/referrals/route.js",
   "/api/transactions/route": "app/api/transactions/route.js",
-  "/dashboard/page": "app/dashboard/page.js"
+  "/dashboard/page": "app/dashboard/page.js",
+  "/page": "app/page.js"
 }

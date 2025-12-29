@@ -4,7 +4,6 @@ import { useAppStore, useLoadStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import UserNavbar from "@/components/user-navbar";
-import LoginPage from "@/components/login-page";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function DashboardLayout({
@@ -17,10 +16,16 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    if (user && user.role === "admin") {
-      router.push("/admin/users");
+    if (!isLoading) {
+      if (!user) {
+        router.push("/");
+        return;
+      }
+      if (user.role === "admin") {
+        router.push("/admin/users");
+      }
     }
-  }, [user, router]);
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -33,11 +38,7 @@ export default function DashboardLayout({
     );
   }
 
-  if (!user) {
-    return <LoginPage />;
-  }
-
-  if (user.role === "admin") {
+  if (!user || user.role === "admin") {
     return null;
   }
 

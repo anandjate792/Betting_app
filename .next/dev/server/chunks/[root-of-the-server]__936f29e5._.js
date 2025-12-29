@@ -99,7 +99,8 @@ const predictionSlotSchema = new __TURBOPACK__imported__module__$5b$externals$5d
         enum: [
             "open",
             "closed",
-            "completed"
+            "completed",
+            "cancelled"
         ],
         default: "open"
     },

@@ -220,7 +220,8 @@ const predictionSlotSchema = new __TURBOPACK__imported__module__$5b$externals$5d
         enum: [
             "open",
             "closed",
-            "completed"
+            "completed",
+            "cancelled"
         ],
         default: "open"
     },
@@ -479,9 +480,9 @@ async function POST(request) {
                 status: 400
             });
         }
-        if (amount < 50) {
+        if (amount < 10 || amount > 500) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Minimum bet amount is 50 rupees"
+                error: "Bet amount must be between 10 and 500 rupees"
             }, {
                 status: 400
             });

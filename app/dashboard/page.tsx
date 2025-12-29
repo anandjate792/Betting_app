@@ -39,7 +39,6 @@ import {
 import { betApi, predictionApi, referralApi } from "@/lib/api";
 import { authApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const ICONS = [
   { id: "umbrella", name: "Umbrella", Icon: Umbrella, color: "text-blue-500" },
@@ -91,10 +90,21 @@ export default function DashboardPage() {
     payout?: number;
     betAmount?: number;
   }>({ show: false, type: null });
+  const [showResultBanner, setShowResultBanner] = useState(false);
 
   const [seenSlotIds, setSeenSlotIds] = useState<Set<string>>(new Set());
   const [processedSlots, setProcessedSlots] = useState<Set<string>>(new Set());
   const slotEndTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [winningHistory, setWinningHistory] = useState<
+    Array<{ slotNumber: number; winningIcon: string }>
+  >([]);
+  const [previousSlotsHistory, setPreviousSlotsHistory] = useState<
+    Array<{
+      slot: any;
+      userBets: any[];
+      participated: boolean;
+    }>
+  >([]);
 
   // Load seen slots from localStorage
   useEffect(() => {
@@ -164,10 +174,65 @@ export default function DashboardPage() {
     loadCurrentSlot();
     loadMyBets(true);
     loadReferralInfo();
+    loadWinningHistory();
+    loadPreviousSlotsHistory();
 
     const i = setInterval(loadCurrentSlot, 30000);
     return () => clearInterval(i);
   }, []);
+
+  const loadWinningHistory = async () => {
+    try {
+      const slots = await predictionApi.getAllSlots();
+      const completed = (slots as any[])
+        .filter((s: any) => s.status === "completed" && s.winningIcon)
+        .sort((a: any, b: any) => (b.slotNumber || 0) - (a.slotNumber || 0))
+        .slice(0, 10)
+        .map((s: any) => ({
+          slotNumber: s.slotNumber,
+          winningIcon: s.winningIcon,
+        }));
+      setWinningHistory(completed);
+    } catch (error) {
+      console.error("Failed to load winning history:", error);
+    }
+  };
+
+  const loadPreviousSlotsHistory = async () => {
+    try {
+      const slots = await predictionApi.getAllSlots();
+      const completedSlots = (slots as any[])
+        .filter((s: any) => s.status === "completed" && s.winningIcon)
+        .sort((a: any, b: any) => (b.slotNumber || 0) - (a.slotNumber || 0))
+        .slice(0, 10);
+
+      const historyWithBets = await Promise.all(
+        completedSlots.map(async (slot) => {
+          try {
+            const res = (await betApi.getBets(slot.id, 100, 0)) as any;
+            const allBets = Array.isArray(res) ? res : res?.data || [];
+            const userBets = allBets.filter((b: any) => b.userId === user?.id);
+            return {
+              slot,
+              userBets,
+              participated: userBets.length > 0,
+            };
+          } catch (error) {
+            console.error(`Failed to load bets for slot ${slot.id}:`, error);
+            return {
+              slot,
+              userBets: [],
+              participated: false,
+            };
+          }
+        })
+      );
+
+      setPreviousSlotsHistory(historyWithBets);
+    } catch (error) {
+      console.error("Failed to load previous slots history:", error);
+    }
+  };
 
   /* ---------------- TIMER UI ---------------- */
 
@@ -204,7 +269,7 @@ export default function DashboardPage() {
         return;
       }
 
-      const res = await betApi.getBets(slotId, 100, 0);
+      const res = (await betApi.getBets(slotId, 100, 0)) as any;
       const bets = (res.data || res).filter((b: any) => b.userId === user?.id);
 
       if (!bets.length) {
@@ -229,19 +294,20 @@ export default function DashboardPage() {
         payout,
         betAmount: totalBet,
       });
+      setShowResultBanner(true);
 
       markSlotSeen(slotId);
       setProcessedSlots((p) => new Set(p).add(slotId));
 
-      const profile = await authApi.getProfile();
+      const profile = (await authApi.getProfile()) as any;
       useAppStore.setState({ user: profile });
 
       // Reload betting history
       await loadMyBets(true);
 
       setTimeout(() => {
-        setResultPopup({ show: false, type: null });
-      }, 7000);
+        setShowResultBanner(false);
+      }, 5000);
     } catch {
       if (retry < 5) {
         setTimeout(() => checkSlotResult(slotId, retry + 1), 3000);
@@ -353,6 +419,8 @@ export default function DashboardPage() {
 
       await loadCurrentSlot();
       await loadMyBets(true);
+      await loadWinningHistory();
+      await loadPreviousSlotsHistory();
 
       if (currentSlot) {
         updateTimeRemaining();
@@ -389,8 +457,8 @@ export default function DashboardPage() {
 
     try {
       const amount = Number.parseFloat(betAmount);
-      if (amount < 50) {
-        setError("Minimum bet amount is 50 coins");
+      if (amount < 10 || amount > 500) {
+        setError("Bet amount must be between 10 and 500 coins");
         setLoading(false);
         return;
       }
@@ -408,7 +476,7 @@ export default function DashboardPage() {
       }
 
       await betApi.placeBet(currentSlot.id, selectedIcon, amount);
-      setBetAmount("50");
+      setBetAmount("10");
       setSelectedIcon("");
 
       const profile = (await authApi.getProfile()) as any;
@@ -447,87 +515,116 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-slate-800">
-      {/* Wallet Balance Card */}
-      <Card className="border-slate-700 bg-slate-800 mt-20">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Wallet className="w-5 h-5" />
-              Wallet Balance
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-slate-800 pb-8">
+      {/* Top Stats Bar - Similar to Lightning Roulette */}
+      <div className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 px-4 py-3">
+        <div className="flex justify-between items-center max-w-7xl mx-auto">
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-xs text-slate-400">Balance</p>
+              <p className="text-lg font-bold text-green-400">
+                ₹{user?.walletBalance?.toFixed(2) || "0.00"}
+              </p>
+            </div>
+            {lastWin && (
+              <div className="border-l border-slate-600 pl-4">
+                <p className="text-xs text-slate-400">Last Win</p>
+                <p className="text-lg font-bold text-yellow-400">
+                  ₹{lastWin.payout?.toFixed(2) || "0.00"}
+                </p>
+              </div>
+            )}
+          </div>
+          <Button
+            onClick={onRefresh}
+            disabled={refreshing}
+            size="sm"
+            variant="outline"
+            className="border-slate-600 text-slate-300 hover:bg-slate-700"
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+          </Button>
+        </div>
+      </div>
+
+      {/* Win/Loss Banner - Quick Display */}
+      {showResultBanner && resultPopup.type && (
+        <div className="mx-4 mt-4">
+          {resultPopup.type === "win" ? (
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 p-6 text-center shadow-lg animate-pulse">
+              <div className="relative z-10">
+                <Trophy className="w-12 h-12 mx-auto mb-2 text-white" />
+                <p className="text-3xl font-black text-white mb-1">YOU WIN!</p>
+                <p className="text-4xl font-black text-white">
+                  +₹{resultPopup.payout?.toFixed(2)}
+                </p>
+                <p className="text-sm text-white/80 mt-2">
+                  Slot #{resultPopup.slotNumber}
+                </p>
+              </div>
+              <div className="absolute inset-0 bg-white/20 backdrop-blur-sm" />
+            </div>
+          ) : (
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-center shadow-lg border-2 border-red-500">
+              <div className="relative z-10">
+                <XIcon className="w-12 h-12 mx-auto mb-2 text-red-400" />
+                <p className="text-2xl font-black text-white mb-1">LOST</p>
+                <p className="text-3xl font-black text-red-400">
+                  -₹{resultPopup.betAmount?.toFixed(2)}
+                </p>
+                <p className="text-sm text-slate-400 mt-2">
+                  Slot #{resultPopup.slotNumber}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Previous Winner History (Last 10 Slots) - Horizontal Scroll */}
+      {winningHistory.length > 0 && (
+        <Card className="border-slate-700 bg-slate-800 mt-4 mx-4">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white text-base">
+              Last 10 Results
             </CardTitle>
-            <Button
-              onClick={onRefresh}
-              disabled={refreshing}
-              variant="ghost"
-              size="sm"
-              className="text-blue-400 hover:text-blue-300 hover:bg-slate-700"
-            >
-              <RefreshCw
-                className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
-              />
-              Refresh
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-4xl font-bold text-green-400">
-            ₹{user?.walletBalance?.toFixed(2) || "0.00"}
-          </div>
-          <p className="text-slate-400 text-sm mt-2">
-            Your current wallet balance
-          </p>
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {winningHistory.map((item, idx) => {
+                const iconData = ICONS.find((i) => i.id === item.winningIcon);
+                const IconComponent = iconData?.Icon || Trophy;
+                return (
+                  <div
+                    key={idx}
+                    className="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 bg-slate-700 rounded-lg border-2 border-slate-600 hover:border-blue-400 transition-colors"
+                  >
+                    <IconComponent
+                      className={`w-6 h-6 ${
+                        iconData?.color || "text-yellow-500"
+                      }`}
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1">
+                      #{item.slotNumber}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Refer & Earn */}
-      <Card className="border-slate-700 bg-slate-800">
-        <CardHeader>
-          <CardTitle className="text-white">Refer & Earn</CardTitle>
-          <CardDescription className="text-slate-400">
-            Share your referral code with friends. When they play and win, you
-            can earn extra rewards. (Tracking enabled now; payout rules can be
-            adjusted later.)
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <p className="text-sm text-slate-400 mb-1">Your Referral Code</p>
-            <p className="text-2xl font-bold text-blue-400">
-              {referralLoading
-                ? "Loading..."
-                : referralInfo.referralCode || "N/A"}
-            </p>
-            <p className="text-xs text-slate-500 mt-1">
-              Ask new users to share this code with the admin when their account
-              is created, or during signup once enabled.
-            </p>
-          </div>
-          <div className="text-right space-y-1">
-            <p className="text-sm text-slate-400">
-              Total Referrals:{" "}
-              <span className="font-semibold text-white">
-                {referralInfo.referralCount ?? 0}
-              </span>
-            </p>
-            <p className="text-sm text-slate-400">
-              Referral Earnings:{" "}
-              <span className="font-semibold text-green-400">
-                ₹{(referralInfo.referralEarnings ?? 0).toFixed(2)}
-              </span>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Prediction Game Betting */}
-      <Card className="border-slate-700 bg-slate-800">
+      {/* Prediction Game */}
+      <Card className="border-slate-700 bg-slate-800 mx-4 mt-4">
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-white flex items-center gap-2">
                 <Gamepad2 className="w-5 h-5" />
-                Prediction Game
+                Pop The Picture
               </CardTitle>
               <CardDescription className="text-slate-400">
                 {currentSlot
@@ -548,23 +645,23 @@ export default function DashboardPage() {
         <CardContent>
           {lastWin && (
             <div className="mb-6">
-              <div className="relative overflow-hidden rounded-2xl border border-amber-400 bg-gradient-to-br from-amber-500 via-yellow-400 to-orange-500 shadow-[0_0_30px_rgba(251,191,36,0.7)] animate-pulse">
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
+              <div className="relative overflow-hidden rounded-xl border-2 border-yellow-500 bg-gradient-to-br from-yellow-500 via-orange-400 to-orange-500 shadow-xl">
+                <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
                 <div className="relative px-6 py-4 text-center text-slate-900">
-                  <p className="text-xs font-semibold tracking-[0.25em] uppercase">
-                    You Win
+                  <Trophy className="w-8 h-8 mx-auto mb-2 text-white" />
+                  <p className="text-sm font-bold tracking-wider uppercase text-white drop-shadow-md">
+                    Latest Win
                   </p>
-                  <p className="mt-1 text-4xl md:text-5xl font-extrabold drop-shadow-sm">
-                    {lastWin.payout.toFixed(0)} coins
+                  <p className="mt-1 text-4xl font-black text-white drop-shadow-lg">
+                    ₹{lastWin.payout.toFixed(2)}
                   </p>
                   {lastWin.amount > 0 && (
-                    <p className="mt-1 text-sm font-semibold">
+                    <p className="mt-1 text-base font-bold text-white/90">
                       {(lastWin.payout / lastWin.amount || 0).toFixed(1)}x
                     </p>
                   )}
-                  <p className="mt-2 text-xs text-slate-800">
-                    Slot #{lastWin.slotNumber ?? "-"} •{" "}
-                    {new Date(lastWin.createdAt).toLocaleString()}
+                  <p className="mt-2 text-xs text-white/80">
+                    Slot #{lastWin.slotNumber ?? "-"}
                   </p>
                 </div>
               </div>
@@ -638,13 +735,17 @@ export default function DashboardPage() {
                 </label>
                 <Input
                   type="number"
-                  min="50"
+                  min="10"
+                  max="500"
                   step="10"
-                  placeholder="50"
+                  placeholder="10"
                   value={betAmount}
                   onChange={(e) => setBetAmount(e.target.value)}
                   className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                 />
+                <p className="text-xs text-slate-400 mt-1">
+                  Minimum: 10 coins • Maximum: 500 coins
+                </p>
                 {currentSlotBets.length > 0 && (
                   <p className="text-xs text-slate-300">
                     You already have{" "}
@@ -662,7 +763,10 @@ export default function DashboardPage() {
               <Button
                 type="submit"
                 disabled={
-                  loading || !selectedIcon || Number.parseFloat(betAmount) < 50
+                  loading ||
+                  !selectedIcon ||
+                  Number.parseFloat(betAmount) < 10 ||
+                  Number.parseFloat(betAmount) > 500
                 }
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
               >
@@ -678,10 +782,42 @@ export default function DashboardPage() {
             </form>
           )}
         </CardContent>
+
+        {/* Refer & Earn - Below Prediction Table */}
+        <CardContent className="border-t border-slate-700 pt-6 mt-6">
+          <CardTitle className="text-white mb-4">Refer & Earn</CardTitle>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <p className="text-sm text-slate-400 mb-1">Your Referral Code</p>
+              <p className="text-2xl font-bold text-blue-400">
+                {referralLoading
+                  ? "Loading..."
+                  : referralInfo.referralCode || "N/A"}
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                Share this code with friends to earn rewards
+              </p>
+            </div>
+            <div className="text-right space-y-1">
+              <p className="text-sm text-slate-400">
+                Total Referrals:{" "}
+                <span className="font-semibold text-white">
+                  {referralInfo.referralCount ?? 0}
+                </span>
+              </p>
+              <p className="text-sm text-slate-400">
+                Referral Earnings:{" "}
+                <span className="font-semibold text-green-400">
+                  ₹{(referralInfo.referralEarnings ?? 0).toFixed(2)}
+                </span>
+              </p>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
-      {/* Betting History */}
-      <Card className="border-slate-700 bg-slate-800">
+      {/* My Betting History */}
+      <Card className="border-slate-700 bg-slate-800 mx-4 mt-4">
         <CardHeader>
           <CardTitle className="text-white">My Betting History</CardTitle>
           <CardDescription className="text-slate-400">
@@ -809,8 +945,99 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+      {/* Previous 10 Slots History */}
+      {previousSlotsHistory.length > 0 && (
+        <Card className="border-slate-700 bg-slate-800 mx-4 mt-4">
+          <CardHeader>
+            <CardTitle className="text-white">
+              Previous 10 Slots History
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              View results of the last 10 completed slots, whether you
+              participated or not
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {previousSlotsHistory.map((item, idx) => {
+                const slot = item.slot;
+                const iconData = ICONS.find((i) => i.id === slot.winningIcon);
+                const IconComponent = iconData?.Icon || Trophy;
+                const totalUserBetAmount = item.userBets.reduce(
+                  (sum, b) => sum + b.amount,
+                  0
+                );
+                const winningBets = item.userBets.filter(
+                  (b: any) => b.icon === slot.winningIcon
+                );
+                const totalPayout = winningBets.reduce(
+                  (sum: number, b: any) => sum + (b.payout || 0),
+                  0
+                );
+
+                return (
+                  <div
+                    key={slot.id || idx}
+                    className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg font-semibold text-white">
+                          Slot #{slot.slotNumber}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <IconComponent
+                            className={`w-5 h-5 ${
+                              iconData?.color || "text-yellow-500"
+                            }`}
+                          />
+                          <span className="text-sm text-slate-400">Winner</span>
+                        </div>
+                      </div>
+                      {item.participated ? (
+                        <span className="px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-full">
+                          Participated
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 bg-slate-600 text-white text-xs font-semibold rounded-full">
+                          Not Participated
+                        </span>
+                      )}
+                    </div>
+
+                    {item.participated && (
+                      <div className="mt-3 pt-3 border-t border-slate-600">
+                        <p className="text-sm text-slate-400 mb-2">
+                          Your Bets: {item.userBets.length} bet(s) • ₹
+                          {totalUserBetAmount.toFixed(2)}
+                        </p>
+                        {winningBets.length > 0 ? (
+                          <p className="text-sm font-semibold text-green-400">
+                            ✓ Won: +₹{totalPayout.toFixed(2)}
+                          </p>
+                        ) : (
+                          <p className="text-sm font-semibold text-red-400">
+                            ✗ Lost: -₹{totalUserBetAmount.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    <p className="text-xs text-slate-500 mt-2">
+                      {slot.endTime
+                        ? new Date(slot.endTime).toLocaleString()
+                        : "Unknown date"}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Wallet, Transactions, Withdrawal Shortcuts */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 mx-4 mb-4">
         {quickActions.map((action) => {
           const Icon = action.icon;
           return (
@@ -834,31 +1061,6 @@ export default function DashboardPage() {
           );
         })}
       </div>
-
-      {/* Result Popup Dialog */}
-      <Dialog open={resultPopup.show}>
-        <DialogContent className="border-0 p-0">
-          {resultPopup.type === "win" ? (
-            <div className="bg-yellow-400 text-center p-8">
-              <Trophy className="mx-auto h-16 w-16 text-black" />
-              <DialogTitle className="text-3xl font-black">
-                YOU WIN!
-              </DialogTitle>
-              <p className="text-4xl font-black">+{resultPopup.payout} coins</p>
-            </div>
-          ) : resultPopup.type === "loss" ? (
-            <div className="bg-slate-900 text-center p-8 text-white">
-              <XIcon className="mx-auto h-16 w-16 text-red-500" />
-              <DialogTitle className="text-3xl font-black">
-                YOU LOST
-              </DialogTitle>
-              <p className="text-4xl font-black">
-                -{resultPopup.betAmount} coins
-              </p>
-            </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

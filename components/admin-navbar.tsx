@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
@@ -38,8 +39,15 @@ export default function AdminNavbar() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4 md:gap-8">
-              <Link href="/admin/users" className="text-xl md:text-2xl font-bold text-white">
-                Admin Dashboard
+              <Link href="/admin/users" className="flex items-center gap-2">
+                <Image
+                  src="/logo.png"
+                  alt="Pop The Picture"
+                  width={120}
+                  height={40}
+                  className="h-8 w-auto"
+                  priority
+                />
               </Link>
               {/* Desktop Navigation */}
               <div className="hidden lg:flex items-center gap-1">

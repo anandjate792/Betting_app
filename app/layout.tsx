@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Wallet Management System",
-  description: "Admin and user wallet management with transaction approvals",
+  title: "Pop The Picture",
+  description: "Pop The Picture - Prediction Game & Wallet Management",
   generator: "v0.app",
   icons: {
     icon: [

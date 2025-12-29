@@ -44,27 +44,7 @@ export async function POST(request: NextRequest) {
 
       const allBets = await Bet.find({ slotId: currentSlot._id, status: "pending" });
 
-      const betsByIconMap = new Map<string, { totalBets: number; totalAmount: number }>();
-      allBets.forEach((bet) => {
-        const existing = betsByIconMap.get(bet.icon) || { totalBets: 0, totalAmount: 0 };
-        existing.totalBets += 1;
-        existing.totalAmount += bet.amount;
-        betsByIconMap.set(bet.icon, existing);
-      });
-
-      let leastBetIcon = "";
-      let leastBetAmount = Infinity;
-      let leastBetCount = Infinity;
-
-      betsByIconMap.forEach((data, icon) => {
-        if (data.totalAmount < leastBetAmount || (data.totalAmount === leastBetAmount && data.totalBets < leastBetCount)) {
-          leastBetAmount = data.totalAmount;
-          leastBetCount = data.totalBets;
-          leastBetIcon = icon;
-        }
-      });
-
-      if (!leastBetIcon) {
+      if (!allBets.length) {
         currentSlot.status = "closed";
         await currentSlot.save();
         results.push({
@@ -76,25 +56,59 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      const winningBets = await Bet.find({ slotId: currentSlot._id, icon: leastBetIcon, status: "pending" });
-      const totalSlotAmount = currentSlot.totalAmount; // Total pool from all bets
-
-      // Profit only when more than 1 unique user participated
+      // Check if only single user bet - cancel and refund
       const uniqueUsersCount = new Set(allBets.map((bet) => bet.userId.toString())).size;
-      const commissionRate = uniqueUsersCount > 1 ? 0.20 : 0;
 
-      // Updated logic:
-      // - Take 20% commission only if >1 user
-      // - Distribute remaining (100% or 80%) to winners PROPORTIONAL to the coins they bet
-      const companyCommission = totalSlotAmount * commissionRate;
+      if (uniqueUsersCount === 1) {
+        // Only one user bet - cancel all bets and refund
+        const userId = allBets[0].userId;
+        const totalRefund = allBets.reduce((sum, bet) => sum + bet.amount, 0);
+        
+        // Refund to user
+        await User.findByIdAndUpdate(userId, {
+          $inc: { walletBalance: totalRefund },
+        });
+        
+        // Mark all bets as cancelled
+        await Bet.updateMany(
+          { slotId: currentSlot._id, status: "pending" },
+          { $set: { status: "cancelled" } }
+        );
+        
+        // Mark slot as cancelled
+        currentSlot.status = "cancelled";
+        currentSlot.winningIcon = null;
+        currentSlot.companyCommission = 0;
+        await currentSlot.save();
+
+        results.push({
+          slotId: currentSlot._id.toString(),
+          slotNumber: currentSlot.slotNumber,
+          action: "cancelled",
+          reason: "Only one user participated",
+          refunded: totalRefund,
+        });
+        continue;
+      }
+
+      // Multiple users - select random winning icon
+      const iconsWithBets = [...new Set(allBets.map((bet) => bet.icon))];
+      const randomWinningIcon = iconsWithBets[Math.floor(Math.random() * iconsWithBets.length)];
+
+      const winningBets = await Bet.find({ slotId: currentSlot._id, icon: randomWinningIcon, status: "pending" });
+      const totalSlotAmount = currentSlot.totalAmount;
+
+      // Always take 20% commission
+      const companyCommission = totalSlotAmount * 0.2;
       const totalPayoutToWinners = totalSlotAmount - companyCommission;
-      const totalWinningAmount = winningBets.reduce(
-        (sum, bet) => sum + bet.amount,
-        0
-      );
+
+      // Equal distribution: divide equally among all winners
+      const payoutPerWinner = winningBets.length > 0 
+        ? totalPayoutToWinners / winningBets.length 
+        : 0;
       
       // Atomically update slot to completed
-      currentSlot.winningIcon = leastBetIcon;
+      currentSlot.winningIcon = randomWinningIcon;
       currentSlot.companyCommission = companyCommission;
       currentSlot.status = "completed";
       await currentSlot.save();
@@ -106,21 +120,18 @@ export async function POST(request: NextRequest) {
           {
             $set: {
               status: "won",
-              payout: totalWinningAmount > 0
-                ? (totalPayoutToWinners * bet.amount) / totalWinningAmount
-                : 0,
+              payout: payoutPerWinner,
             },
           },
           { new: true }
         );
 
         if (updatedBet) {
-          const payout = updatedBet.payout || 0;
-          await User.findByIdAndUpdate(bet.userId, { $inc: { walletBalance: payout } });
+          await User.findByIdAndUpdate(bet.userId, { $inc: { walletBalance: payoutPerWinner } });
           await createApprovedTransaction({
             userId: bet.userId.toString(),
             userName: bet.userName,
-            amount: payout,
+            amount: payoutPerWinner,
             description: `Bet winning for Slot #${currentSlot.slotNumber}`,
           });
         }
@@ -130,13 +141,13 @@ export async function POST(request: NextRequest) {
       await Bet.updateMany(
         {
           slotId: currentSlot._id,
-          icon: { $ne: leastBetIcon },
+          icon: { $ne: randomWinningIcon },
           status: "pending",
         },
         { $set: { status: "lost" } }
       );
 
-      if (companyCommission > 0 && adminUser) {
+      if (adminUser) {
         await User.findByIdAndUpdate(adminUser._id, { $inc: { walletBalance: companyCommission } });
         await createApprovedTransaction({
           userId: adminUser._id.toString(),
@@ -150,7 +161,7 @@ export async function POST(request: NextRequest) {
         slotId: currentSlot._id.toString(),
         slotNumber: currentSlot.slotNumber,
         action: "completed",
-        winningIcon: leastBetIcon,
+        winningIcon: randomWinningIcon,
         totalWinners: winningBets.length,
         totalPayout: totalPayoutToWinners,
         companyCommission,

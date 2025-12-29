@@ -151,7 +151,8 @@ const predictionSlotSchema = new __TURBOPACK__imported__module__$5b$externals$5d
         enum: [
             "open",
             "closed",
-            "completed"
+            "completed",
+            "cancelled"
         ],
         default: "open"
     },
@@ -484,14 +485,8 @@ async function POST(request, { params }) {
                 status: 403
             });
         }
+        // Winning icon is now randomly selected, but we still accept it for manual override
         const { winningIcon } = await request.json();
-        if (!winningIcon) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Winning icon required"
-            }, {
-                status: 400
-            });
-        }
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
         // Use findOneAndUpdate with atomic check to prevent race conditions
         const slot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOneAndUpdate({
@@ -524,19 +519,52 @@ async function POST(request, { params }) {
             slotId: slot._id,
             status: "pending"
         });
-        const winningBets = allBets.filter((bet)=>bet.icon === winningIcon);
-        const totalSlotAmount = slot.totalAmount; // Total pool from all bets
-        // Profit only when more than 1 unique user participated
+        // Check if only single user bet - cancel and refund
         const uniqueUsersCount = new Set(allBets.map((bet)=>bet.userId.toString())).size;
-        const commissionRate = uniqueUsersCount > 1 ? 0.2 : 0;
-        // Updated logic:
-        // - Take 20% commission only if >1 user
-        // - Distribute remaining (100% or 80%) to winners PROPORTIONAL to coins
-        const companyCommission = totalSlotAmount * commissionRate;
+        if (uniqueUsersCount === 1) {
+            // Only one user bet - cancel all bets and refund
+            const userId = allBets[0].userId;
+            const totalRefund = allBets.reduce((sum, bet)=>sum + bet.amount, 0);
+            // Refund to user
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(userId, {
+                $inc: {
+                    walletBalance: totalRefund
+                }
+            });
+            // Mark all bets as cancelled
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
+                slotId: slot._id,
+                status: "pending"
+            }, {
+                $set: {
+                    status: "cancelled"
+                }
+            });
+            // Mark slot as cancelled
+            slot.status = "cancelled";
+            slot.winningIcon = null;
+            slot.companyCommission = 0;
+            await slot.save();
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                message: "Slot cancelled - only one user participated",
+                refunded: totalRefund
+            });
+        }
+        // Multiple users - proceed with normal flow
+        // Select random winning icon from all icons that have bets
+        const iconsWithBets = [
+            ...new Set(allBets.map((bet)=>bet.icon))
+        ];
+        const randomWinningIcon = iconsWithBets[Math.floor(Math.random() * iconsWithBets.length)];
+        const winningBets = allBets.filter((bet)=>bet.icon === randomWinningIcon);
+        const totalSlotAmount = slot.totalAmount;
+        // Always take 20% commission
+        const companyCommission = totalSlotAmount * 0.2;
         const totalPayoutToWinners = totalSlotAmount - companyCommission;
-        const totalWinningAmount = winningBets.reduce((sum, bet)=>sum + bet.amount, 0);
+        // Equal distribution: divide equally among all winners
+        const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
         // Atomically update slot status to completed
-        slot.winningIcon = winningIcon;
+        slot.winningIcon = randomWinningIcon;
         slot.companyCommission = companyCommission;
         slot.status = "completed";
         await slot.save();
@@ -548,22 +576,21 @@ async function POST(request, { params }) {
             }, {
                 $set: {
                     status: "won",
-                    payout: totalWinningAmount > 0 ? totalPayoutToWinners * bet.amount / totalWinningAmount : 0
+                    payout: payoutPerWinner
                 }
             }, {
                 new: true
             });
             if (updatedBet) {
-                const payout = updatedBet.payout || 0;
                 await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
                     $inc: {
-                        walletBalance: payout
+                        walletBalance: payoutPerWinner
                     }
                 });
                 await createApprovedTransaction({
                     userId: bet.userId.toString(),
                     userName: bet.userName,
-                    amount: payout,
+                    amount: payoutPerWinner,
                     description: `Bet winning for Slot #${slot.slotNumber}`
                 });
             }
@@ -572,7 +599,7 @@ async function POST(request, { params }) {
         await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
             slotId: slot._id,
             icon: {
-                $ne: winningIcon
+                $ne: randomWinningIcon
             },
             status: "pending"
         }, {
@@ -580,22 +607,21 @@ async function POST(request, { params }) {
                 status: "lost"
             }
         });
-        if (companyCommission > 0) {
-            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(admin._id, {
-                $inc: {
-                    walletBalance: companyCommission
-                }
-            });
-            await createApprovedTransaction({
-                userId: admin._id.toString(),
-                userName: admin.name,
-                amount: companyCommission,
-                description: `Commission earned from Slot #${slot.slotNumber}`
-            });
-        }
+        // Add commission to admin
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(admin._id, {
+            $inc: {
+                walletBalance: companyCommission
+            }
+        });
+        await createApprovedTransaction({
+            userId: admin._id.toString(),
+            userName: admin.name,
+            amount: companyCommission,
+            description: `Commission earned from Slot #${slot.slotNumber}`
+        });
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             message: "Slot completed",
-            winningIcon,
+            winningIcon: randomWinningIcon,
             totalWinners: winningBets.length,
             totalPayout: totalPayoutToWinners,
             companyCommission

@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
+import Image from "next/image"
 import { useAppStore } from "@/lib/store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -69,8 +70,17 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card className="border-slate-700 bg-slate-800">
-          <CardHeader className="space-y-2 text-center">
-            <CardTitle className="text-3xl font-bold text-white">Wallet Management</CardTitle>
+          <CardHeader className="space-y-4 text-center">
+            <div className="flex justify-center">
+              <Image
+                src="/logo.png"
+                alt="Pop The Picture"
+                width={180}
+                height={60}
+                className="h-16 w-auto"
+                priority
+              />
+            </div>
             <CardDescription className="text-slate-400">
               {isSignup ? "Create a new account" : "Admin & User Portal"}
             </CardDescription>

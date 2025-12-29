@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Wallet,
   Gamepad2,
@@ -19,6 +18,8 @@ import {
   CreditCard,
   RefreshCw,
   XIcon,
+  RotateCcw,
+  Undo2,
 } from "lucide-react";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner";
@@ -55,11 +56,16 @@ const ICONS = [
   { id: "gem", name: "Gem", Icon: Gem, color: "text-pink-500" },
 ];
 
+const CHIP_VALUES = [10, 20, 50, 100, 200, 500];
+
 export default function DashboardPage() {
   const { user } = useAppStore();
   const [currentSlot, setCurrentSlot] = useState<any>(null);
   const [selectedIcon, setSelectedIcon] = useState<string>("");
-  const [betAmount, setBetAmount] = useState<string>("50");
+  const [selectedChip, setSelectedChip] = useState<number>(20);
+  const [placedBets, setPlacedBets] = useState<
+    { icon: string; amount: number }[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [betsByIcon, setBetsByIcon] = useState<
@@ -125,8 +131,6 @@ export default function DashboardPage() {
     });
   };
 
-  /* ---------------- SLOT TIMER (CRITICAL FIX) ---------------- */
-
   useEffect(() => {
     if (!currentSlot?.id || !currentSlot?.endTime) return;
 
@@ -153,8 +157,6 @@ export default function DashboardPage() {
       }
     };
   }, [currentSlot?.id]);
-
-  /* ---------------- LOAD CURRENT SLOT ---------------- */
 
   const loadCurrentSlot = async () => {
     try {
@@ -234,8 +236,6 @@ export default function DashboardPage() {
     }
   };
 
-  /* ---------------- TIMER UI ---------------- */
-
   useEffect(() => {
     if (!currentSlot?.endTime) return;
 
@@ -254,8 +254,6 @@ export default function DashboardPage() {
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
   }, [currentSlot?.endTime]);
-
-  /* ---------------- CHECK SLOT RESULT ---------------- */
 
   const checkSlotResult = async (slotId: string, retry = 0) => {
     if (seenSlotIds.has(slotId) || processedSlots.has(slotId)) return;
@@ -302,7 +300,6 @@ export default function DashboardPage() {
       const profile = (await authApi.getProfile()) as any;
       useAppStore.setState({ user: profile });
 
-      // Reload betting history
       await loadMyBets(true);
 
       setTimeout(() => {
@@ -314,8 +311,6 @@ export default function DashboardPage() {
       }
     }
   };
-
-  /* ---------------- LOAD USER'S BETS FOR CURRENT SLOT ---------------- */
 
   const loadMyCurrentSlotBet = async (slotId?: string) => {
     if (!slotId) {
@@ -338,8 +333,6 @@ export default function DashboardPage() {
     }
   };
 
-  /* ---------------- LOAD REFERRAL INFO ---------------- */
-
   const loadReferralInfo = async () => {
     setReferralLoading(true);
     try {
@@ -355,8 +348,6 @@ export default function DashboardPage() {
       setReferralLoading(false);
     }
   };
-
-  /* ---------------- LOAD MY BETS ---------------- */
 
   const loadMyBets = async (reset = false) => {
     if (reset) {
@@ -409,8 +400,6 @@ export default function DashboardPage() {
     }
   };
 
-  /* ---------------- REFRESH ---------------- */
-
   const onRefresh = async () => {
     setRefreshing(true);
     try {
@@ -448,46 +437,91 @@ export default function DashboardPage() {
     setTimeRemaining(`${minutes}:${seconds.toString().padStart(2, "0")}`);
   };
 
-  /* ---------------- PLACE BET ---------------- */
+  // Handle icon click - place bet with selected chip
+  const handleIconClick = (iconId: string) => {
+    if (!currentSlot) {
+      setError("No active slot found");
+      return;
+    }
 
-  const handlePlaceBet = async (e: React.FormEvent) => {
-    e.preventDefault();
+    if (selectedChip < 10 || selectedChip > 500) {
+      setError("Invalid chip value");
+      return;
+    }
+
+    // Add bet to placed bets array
+    setPlacedBets([...placedBets, { icon: iconId, amount: selectedChip }]);
     setError("");
+  };
+
+  // Undo last bet
+  const handleUndo = () => {
+    if (placedBets.length > 0) {
+      setPlacedBets(placedBets.slice(0, -1));
+    }
+  };
+
+  // Repeat last bet pattern
+  const handleRepeat = () => {
+    if (placedBets.length > 0) {
+      setPlacedBets([...placedBets, ...placedBets]);
+    } else if (currentSlotBets.length > 0) {
+      // Repeat bets from the current slot if no local bets are placed yet
+      setPlacedBets([...currentSlotBets]);
+    }
+  };
+
+  // Clear all bets
+  const handleClear = () => {
+    setPlacedBets([]);
+  };
+
+  // Submit all bets to server
+  const handleSubmitBets = async () => {
+    if (placedBets.length === 0) {
+      setError("Please place at least one bet");
+      return;
+    }
+
+    if (!currentSlot) {
+      setError("No active slot found");
+      return;
+    }
+
     setLoading(true);
+    setError("");
 
     try {
-      const amount = Number.parseFloat(betAmount);
-      if (amount < 10 || amount > 500) {
-        setError("Bet amount must be between 10 and 500 coins");
-        setLoading(false);
-        return;
+      // Place each bet
+      for (const bet of placedBets) {
+        await betApi.placeBet(currentSlot.id, bet.icon, bet.amount);
       }
 
-      if (!selectedIcon) {
-        setError("Please select an icon");
-        setLoading(false);
-        return;
-      }
+      // Clear placed bets
+      setPlacedBets([]);
 
-      if (!currentSlot) {
-        setError("No active slot found");
-        setLoading(false);
-        return;
-      }
-
-      await betApi.placeBet(currentSlot.id, selectedIcon, amount);
-      setBetAmount("10");
-      setSelectedIcon("");
-
+      // Refresh user profile and current slot
       const profile = (await authApi.getProfile()) as any;
       useAppStore.setState({ user: profile });
 
       await loadCurrentSlot();
     } catch (err: any) {
-      setError(err.message || "Failed to place bet");
+      setError(err.message || "Failed to place bets");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Calculate total bet amount from placed bets
+  const getTotalBetAmount = () => {
+    return placedBets.reduce((sum, bet) => sum + bet.amount, 0);
+  };
+
+  // Get bet amount for specific icon
+  const getBetAmountForIcon = (iconId: string) => {
+    return placedBets
+      .filter((bet) => bet.icon === iconId)
+      .reduce((sum, bet) => sum + bet.amount, 0);
   };
 
   const quickActions = [
@@ -516,7 +550,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-slate-800 pb-8">
-      {/* Top Stats Bar - Similar to Lightning Roulette */}
+      {/* Top Stats Bar */}
       <div className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 px-4 py-3">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
@@ -549,7 +583,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Win/Loss Banner - Quick Display */}
+      {/* Win/Loss Banner */}
       {showResultBanner && resultPopup.type && (
         <div className="mx-4 mt-4">
           {resultPopup.type === "win" ? (
@@ -583,7 +617,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Previous Winner History (Last 10 Slots) - Horizontal Scroll */}
+      {/* Previous Winner History */}
       {winningHistory.length > 0 && (
         <Card className="border-slate-700 bg-slate-800 mt-4 mx-4">
           <CardHeader className="pb-3">
@@ -617,7 +651,7 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {/* Prediction Game */}
+      {/* Main Prediction Game */}
       <Card className="border-slate-700 bg-slate-800 mx-4 mt-4">
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -681,109 +715,236 @@ export default function DashboardPage() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handlePlaceBet} className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-slate-300 mb-2 block">
-                  Choose Icon
-                </label>
-                <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                  {ICONS.map(({ id, name, Icon, color }) => {
-                    const iconData = betsByIcon[id] || {
-                      totalBets: 0,
-                      totalAmount: 0,
-                    };
-                    const isSelected = selectedIcon === id;
-                    const myBetsForIcon = currentSlotBets.filter(
-                      (b) => b.icon === id
-                    );
-                    const hasMyBetOnIcon = myBetsForIcon.length > 0;
-                    const totalMyAmountForIcon = myBetsForIcon.reduce(
-                      (sum, b) => sum + b.amount,
-                      0
-                    );
-                    return (
+            <div className="space-y-6">
+              {/* Main Betting Interface */}
+              <div className="flex flex-col lg:flex-row gap-6">
+                {/* Left Icon Grid */}
+                <div className="flex-1">
+                  <div className="mb-4">
+                    <label className="text-sm font-bold text-yellow-300 uppercase tracking-wider flex items-center gap-2">
+                      <Star className="w-4 h-4" />
+                      Click on Icon to Place Bet
+                      {placedBets.length > 0 && (
+                        <span className="ml-2 text-sm text-yellow-400 bg-yellow-900/50 px-2 py-1 rounded-full border border-yellow-600">
+                          {placedBets.length} bet(s) placed
+                        </span>
+                      )}
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {ICONS.map(({ id, name, Icon, color }) => {
+                      const iconData = betsByIcon[id] || {
+                        totalBets: 0,
+                        totalAmount: 0,
+                      };
+                      const myBetAmount = getBetAmountForIcon(id);
+                      const hasMyBet = myBetAmount > 0;
+
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          onClick={() => handleIconClick(id)}
+                          className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 aspect-square ${
+                            selectedIcon === id
+                              ? "bg-slate-700 border-blue-500 shadow-lg shadow-blue-500/20"
+                              : "bg-slate-800/50 border-slate-700 hover:border-slate-600"
+                          }`}
+                        >
+                          {hasMyBet && (
+                            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold rounded-full min-w-[24px] h-6 flex items-center justify-center px-1 border-2 border-white shadow-lg">
+                              ₹{myBetAmount}
+                            </div>
+                          )}
+                          <Icon
+                            className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${color}`}
+                          />
+                          <span className="text-xs font-medium text-slate-300">
+                            {name}
+                          </span>
+                          <div className="text-[10px] mt-1 text-slate-500 flex flex-col gap-0.5">
+                            <div>{iconData.totalBets} bets</div>
+                            <div>{iconData.totalAmount.toFixed(0)} coins</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Middle Betting Controls */}
+                <div className="flex flex-col items-center justify-center">
+                  <div className="flex flex-col items-center justify-center gap-4 py-6 px-3 bg-[#3d0a1a]/40 rounded-full backdrop-blur-md border border-white/10 shadow-2xl min-h-[240px]">
+                    <div className="flex flex-col items-center gap-1.5">
+                      <span className="text-[11px] font-bold text-gray-400 tracking-tighter uppercase opacity-80">
+                        UNDO
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleUndo}
+                        disabled={placedBets.length === 0}
+                        className="w-[52px] h-[52px] rounded-full border border-white/20 bg-black/40 hover:bg-black/60 transition-colors group"
+                      >
+                        <Undo2
+                          className="w-7 h-7 text-gray-300 group-hover:text-white transition-colors"
+                          strokeWidth={1.5}
+                        />
+                      </Button>
+                    </div>
+
+                    <div className="relative w-16 h-16 flex items-center justify-center my-1">
+                      {/* Background chips for stack effect */}
+                      <div className="absolute top-[2px] left-[4px] w-[54px] h-[54px] rounded-full border-[3px] border-dashed border-orange-500/80 bg-orange-950/20 rotate-12 shadow-inner" />
+                      <div className="absolute top-[-1px] left-[-3px] w-[54px] h-[54px] rounded-full border-[3px] border-dashed border-green-500/80 bg-green-950/20 -rotate-6 shadow-inner" />
+
+                      {/* Top Active Chip */}
+                      <div className="relative z-10 w-[54px] h-[54px] rounded-full border-[3px] border-dashed border-white bg-[#4caf50] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
+                        <div className="w-[38px] h-[38px] rounded-full border-2 border-white/20 flex items-center justify-center bg-black/10">
+                          <span className="text-white font-black text-lg tracking-tight drop-shadow-md">
+                            {selectedChip}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-1.5">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleRepeat}
+                        className="w-[52px] h-[52px] rounded-full border border-white/20 bg-black/40 hover:bg-black/60 transition-colors group"
+                      >
+                        <RotateCcw
+                          className="w-7 h-7 text-gray-300 group-hover:text-white transition-colors"
+                          strokeWidth={1.5}
+                        />
+                      </Button>
+                      <span className="text-[11px] font-bold text-gray-400 tracking-tighter uppercase opacity-80">
+                        REPEAT
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Chip Selection - Only visible on larger screens */}
+                <div className="hidden lg:block flex-shrink-0">
+                  <label className="text-sm font-bold text-yellow-300 uppercase tracking-wider mb-4 block text-center">
+                    Select Chip
+                  </label>
+                  <div className="flex flex-col gap-3">
+                    {CHIP_VALUES.map((value) => (
                       <button
-                        key={id}
+                        key={value}
                         type="button"
-                        onClick={() => setSelectedIcon(id)}
-                        className={`p-3 rounded-lg border-2 transition-all ${
-                          isSelected
-                            ? "border-blue-500 bg-blue-500 bg-opacity-20"
-                            : "border-slate-600 bg-slate-700 hover:border-slate-500"
+                        onClick={() => setSelectedChip(value)}
+                        className={`relative w-16 h-16 rounded-full font-black text-base transition-all transform hover:scale-110 shadow-2xl ${
+                          selectedChip === value
+                            ? "bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 text-slate-900 scale-110 shadow-yellow-500/80 border-4 border-yellow-200"
+                            : "bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white hover:from-green-500 hover:to-green-700 border-4 border-white"
                         }`}
                       >
-                        <Icon className={`w-6 h-6 mx-auto mb-1 ${color}`} />
-                        <p className="text-xs text-slate-300">{name}</p>
-                        <p className="text-xs text-slate-400 mt-1">
-                          {iconData.totalBets} bets •{" "}
-                          {iconData.totalAmount.toFixed(0)} coins
-                        </p>
-                        {hasMyBetOnIcon && (
-                          <p className="text-[10px] text-amber-300 mt-1 font-semibold">
-                            Your bets: {totalMyAmountForIcon.toFixed(0)} coins
-                          </p>
-                        )}
+                        <div className="absolute inset-0 rounded-full border-4 border-white/20"></div>
+                        <div className="absolute inset-2 rounded-full border-2 border-white/30"></div>
+                        <span className="relative z-10 text-xs">₹{value}</span>
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
-                  Bet Amount (coins)
+              {/* Mobile Chip Selection - Visible only on mobile */}
+              <div className="lg:hidden">
+                <label className="text-sm font-bold text-yellow-300 uppercase tracking-wider mb-4 block text-center">
+                  Select Chip Value
                 </label>
-                <Input
-                  type="number"
-                  min="10"
-                  max="500"
-                  step="10"
-                  placeholder="10"
-                  value={betAmount}
-                  onChange={(e) => setBetAmount(e.target.value)}
-                  className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                />
-                <p className="text-xs text-slate-400 mt-1">
-                  Minimum: 10 coins • Maximum: 500 coins
-                </p>
-                {currentSlotBets.length > 0 && (
-                  <p className="text-xs text-slate-300">
-                    You already have{" "}
-                    <span className="text-white font-semibold">
-                      {currentSlotBets.length}
-                    </span>{" "}
-                    bets on this slot. You can place more bets on different
-                    icons.
-                  </p>
-                )}
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {CHIP_VALUES.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setSelectedChip(value)}
+                      className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full font-black text-base transition-all transform hover:scale-110 shadow-2xl ${
+                        selectedChip === value
+                          ? "bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 text-slate-900 scale-110 shadow-yellow-500/80 border-4 border-yellow-200"
+                          : "bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white hover:from-green-500 hover:to-green-700 border-4 border-white"
+                      }`}
+                    >
+                      <div className="absolute inset-0 rounded-full border-4 border-white/20"></div>
+                      <div className="absolute inset-2 rounded-full border-2 border-white/30"></div>
+                      <span className="relative z-10 text-xs">₹{value}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {error && <p className="text-sm text-red-400">{error}</p>}
+              {/* Total Bet Display */}
+              {placedBets.length > 0 && (
+                <div className="mt-6 bg-slate-900/60 rounded-xl p-4 border-2 border-yellow-700/50 max-w-2xl mx-auto">
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="text-center sm:text-left">
+                      <p className="text-sm text-yellow-400 font-semibold">
+                        Total Bet Amount:
+                      </p>
+                      <p className="text-2xl sm:text-3xl font-black text-white">
+                        ₹{getTotalBetAmount()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleClear}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg border-2 border-red-800 shadow-lg transition-all"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-              <Button
-                type="submit"
-                disabled={
-                  loading ||
-                  !selectedIcon ||
-                  Number.parseFloat(betAmount) < 10 ||
-                  Number.parseFloat(betAmount) > 500
-                }
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-              >
-                {loading ? (
-                  <>
-                    <Spinner className="w-4 h-4 mr-2" />
-                    Placing Bet...
-                  </>
-                ) : (
-                  "Place Bet"
-                )}
-              </Button>
-            </form>
+              {error && (
+                <div className="mt-4 bg-red-900/50 border-2 border-red-500 rounded-lg p-3 flex items-center gap-2 max-w-2xl mx-auto">
+                  <XIcon className="w-5 h-5 text-red-400 flex-shrink-0" />
+                  <p className="text-sm text-red-300 font-semibold">{error}</p>
+                </div>
+              )}
+
+              {/* Submit Bets Button */}
+              <div className="max-w-2xl mx-auto">
+                <Button
+                  type="button"
+                  onClick={handleSubmitBets}
+                  disabled={loading || placedBets.length === 0}
+                  className="w-full mt-6 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:via-red-600 hover:to-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed font-black text-xl sm:text-2xl py-4 sm:py-6 rounded-2xl border-4 border-red-900 shadow-2xl shadow-red-900/50 uppercase tracking-widest transform hover:scale-[1.02] transition-all relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-3">
+                      <Spinner className="w-5 h-5 sm:w-6 sm:h-6" />
+                      Placing Bets...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-3">
+                      <Trophy className="w-5 h-5 sm:w-7 sm:h-7" />
+                      Confirm Bets
+                      {placedBets.length > 0 && (
+                        <span className="ml-2 text-yellow-300">
+                          ({placedBets.length} bet
+                          {placedBets.length > 1 ? "s" : ""})
+                        </span>
+                      )}
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
 
-        {/* Refer & Earn - Below Prediction Table */}
+        {/* Refer & Earn */}
         <CardContent className="border-t border-slate-700 pt-6 mt-6">
           <CardTitle className="text-white mb-4">Refer & Earn</CardTitle>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -953,8 +1114,7 @@ export default function DashboardPage() {
               Previous 10 Slots History
             </CardTitle>
             <CardDescription className="text-slate-400">
-              View results of the last 10 completed slots, whether you
-              participated or not
+              View results of the last 10 completed slots
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -1036,7 +1196,7 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {/* Wallet, Transactions, Withdrawal Shortcuts */}
+      {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 mx-4 mb-4">
         {quickActions.map((action) => {
           const Icon = action.icon;

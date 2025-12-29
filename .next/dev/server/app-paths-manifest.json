@@ -1,5 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
   "/api/auth/me/route": "app/api/auth/me/route.js",
   "/api/bets/route": "app/api/bets/route.js",
   "/api/prediction-slots/[slotId]/route": "app/api/prediction-slots/[slotId]/route.js",

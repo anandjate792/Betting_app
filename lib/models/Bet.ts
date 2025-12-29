@@ -22,7 +22,7 @@ const betSchema = new mongoose.Schema({
   amount: {
     type: Number,
     required: true,
-    min: 50,
+    min: 10,
   },
   payout: {
     type: Number,

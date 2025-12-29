@@ -1710,10 +1710,6 @@
     row-gap: calc(var(--spacing) * .5);
   }
 
-  .self-center {
-    align-self: center;
-  }
-
   .self-start {
     align-self: flex-start;
   }
@@ -5487,12 +5483,6 @@
   @media (min-width: 48rem) {
     .md\:gap-8 {
       gap: calc(var(--spacing) * 8);
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .md\:self-start {
-      align-self: flex-start;
     }
   }
 

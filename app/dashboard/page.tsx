@@ -796,8 +796,6 @@ export default function DashboardPage() {
 
                     <div className="relative w-16 h-16 flex items-center justify-center my-1">
                       {/* Background chips for stack effect */}
-                      <div className="absolute top-[2px] left-[4px] w-[54px] h-[54px] rounded-full border-[3px] border-dashed border-orange-500/80 bg-orange-950/20 rotate-12 shadow-inner" />
-                      <div className="absolute top-[-1px] left-[-3px] w-[54px] h-[54px] rounded-full border-[3px] border-dashed border-green-500/80 bg-green-950/20 -rotate-6 shadow-inner" />
 
                       {/* Top Active Chip */}
                       <div className="relative z-10 w-[54px] h-[54px] rounded-full border-[3px] border-dashed border-white bg-[#4caf50] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.5)]">

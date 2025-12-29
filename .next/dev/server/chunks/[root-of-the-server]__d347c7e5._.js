@@ -325,7 +325,7 @@ const betSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose
     amount: {
         type: Number,
         required: true,
-        min: 50
+        min: 10
     },
     payout: {
         type: Number,

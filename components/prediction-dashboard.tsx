@@ -394,8 +394,8 @@ export default function PredictionDashboard() {
 
     try {
       const amount = Number.parseFloat(betAmount);
-      if (amount < 50) {
-        setError("Minimum bet amount is 50 rupees");
+      if (amount < 10) {
+        setError("Minimum bet amount is 10 rupees");
         setLoading(false);
         return;
       }
@@ -499,7 +499,7 @@ export default function PredictionDashboard() {
                     Select Icon & Place Bet
                   </CardTitle>
                   <CardDescription className="text-slate-400">
-                    Minimum bet: ₹50
+                    Minimum bet: ₹10
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -552,7 +552,7 @@ export default function PredictionDashboard() {
                       </label>
                       <Input
                         type="number"
-                        min="50"
+                        min="10"
                         step="10"
                         placeholder="50"
                         value={betAmount}
@@ -587,7 +587,7 @@ export default function PredictionDashboard() {
                       disabled={
                         loading ||
                         !selectedIcon ||
-                        Number.parseFloat(betAmount) < 50 ||
+                        Number.parseFloat(betAmount) < 10 ||
                         hasBetCurrentSlot
                       }
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
@@ -772,7 +772,7 @@ export default function PredictionDashboard() {
                   </div>
                 </div>
                 <div className="text-sm text-slate-400">
-                  <p>• Minimum bet amount: ₹50</p>
+                  <p>• Minimum bet amount: ₹10</p>
                   <p>• Winnings are automatically added to your wallet</p>
                   <p>
                     • Upload payment screenshot to add funds (admin approval

@@ -906,8 +906,12 @@ export default function DashboardPage() {
                 {/* Icon Grid - Compact */}
                 <div className="grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6 mb-3 lg:mb-4 xl:mb-5">
                   {ICONS.map(({ id, name, image }) => {
-                    const myBetAmount = getBetAmountForIcon(id);
-                    const hasMyBet = myBetAmount > 0;
+                    const localBetAmount = getBetAmountForIcon(id);
+                    const confirmedBetAmount = currentSlotBets
+                      .filter((bet) => bet.icon === id)
+                      .reduce((sum, bet) => sum + bet.amount, 0);
+                    const hasMyBet = localBetAmount > 0 || confirmedBetAmount > 0;
+                    const totalBetAmount = localBetAmount + confirmedBetAmount;
 
                     return (
                       <button
@@ -920,10 +924,15 @@ export default function DashboardPage() {
                             : "bg-slate-700/50 border-slate-600 hover:border-slate-500"
                         }`}
                       >
-                        {hasMyBet && (
-                          <div className="absolute -top-0.5 -right-0.5 lg:-top-1 lg:-right-1 xl:-top-1.5 xl:-right-1.5 2xl:-top-2 2xl:-right-2 bg-green-500 text-white text-[9px] lg:text-[10px] xl:text-xs 2xl:text-sm font-bold rounded-full w-4 h-4 lg:w-6 lg:h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 flex items-center justify-center border border-white shadow-lg z-10">
-                            {myBetAmount}
-                          </div>
+                        {(localBetAmount > 0 || confirmedBetAmount > 0) && (
+                          <>
+                            <div className="absolute -top-0.5 -right-0.5 lg:-top-1 lg:-right-1 xl:-top-1.5 xl:-right-1.5 2xl:-top-2 2xl:-right-2 bg-green-600 text-white text-[8px] lg:text-[9px] xl:text-[10px] 2xl:text-xs font-bold rounded-full w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6 flex items-center justify-center border-2 border-white shadow-lg z-10">
+                              {totalBetAmount}
+                            </div>
+                            <div className="absolute top-1 left-1 bg-green-600 text-white text-[7px] lg:text-[8px] xl:text-[9px] 2xl:text-[10px] px-1.5 lg:px-2 xl:px-2.5 2xl:px-3 py-0.5 lg:py-1 xl:py-1.5 2xl:py-2 rounded-full font-semibold shadow-lg z-10">
+                              BETTED
+                            </div>
+                          </>
                         )}
                         <Image
                           src={image}

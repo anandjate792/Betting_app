@@ -1,33 +1,17 @@
-[00:00:00.558] Server  LOG      ✓ Ready in 375ms
-[00:00:03.507] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:03.507] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/withdrawals","route":"/admin/withdrawals"}
-[00:00:03.507] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680725461}
-[00:00:04.541] Server  LOG     [v0] MongoDB connected
-[00:00:10.538] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680732477}
-[00:00:14.503] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680736454}
-[00:00:41.080] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680763017}
-[00:00:54.215] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680776165}
-[00:00:55.461] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/add-money color: rgb(120, 120, 120) color: inherit {"dp":"/admin/add-money","o":"http://localhost:3000/admin/add-money","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680777414}
-[00:00:56.312] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/approvals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/approvals","o":"http://localhost:3000/admin/approvals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680778259}
-[00:00:57.050] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680778986}
-[00:00:58.065] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680780016}
-[00:01:27.770] Server  LOG      ✓ Compiled in 152ms
-[00:01:39.921] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:01:39.921] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/withdrawals","route":"/admin/withdrawals"}
-[00:01:39.921] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680821874}
-[00:01:53.093] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680835013}
-[00:01:54.928] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680836878}
-[00:01:58.929] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680840871}
-[00:02:05.760] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/approvals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/approvals","o":"http://localhost:3000/admin/approvals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680847712}
-[00:02:07.054] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/add-money color: rgb(120, 120, 120) color: inherit {"dp":"/admin/add-money","o":"http://localhost:3000/admin/add-money","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680849007}
-[00:02:08.222] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/approvals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/approvals","o":"http://localhost:3000/admin/approvals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680850172}
-[00:02:09.496] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/add-money color: rgb(120, 120, 120) color: inherit {"dp":"/admin/add-money","o":"http://localhost:3000/admin/add-money","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680851450}
-[00:02:11.188] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680853135}
-[00:03:27.327] Server  LOG      ✓ Compiled in 52ms
-[00:03:34.335] Server  LOG      ✓ Compiled in 77ms
-[00:03:37.881] Server  LOG      ✓ Compiled in 60ms
-[00:03:46.842] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:03:46.842] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/withdrawals","route":"/admin/withdrawals"}
-[00:03:46.842] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680948794}
-[00:03:47.331] Server  LOG      ✓ Compiled in 71ms
-[00:04:06.173] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767680968108}
+[00:00:00.863] Server  LOG      ✓ Ready in 590ms
+[00:02:37.280] Server  LOG      ○ Compiling / ...
+[00:02:38.369] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:38.814] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:02:38.814] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:02:38.814] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767697743553}
+[00:02:42.365] Server  LOG     [v0] MongoDB connected
+[00:02:44.985] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767697749721}
+[00:03:02.822] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:03:03.216] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:03:03.216] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:03:03.216] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767697767955}
+[00:03:03.557] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767697768294}
+[00:03:44.214] Server  LOG      ✓ Compiled in 203ms
+[00:04:21.191] Server  LOG      ✓ Compiled in 195ms
+[00:04:29.950] Server  LOG      ✓ Compiled in 187ms
+[00:05:55.346] Server  LOG      ✓ Compiled in 91ms

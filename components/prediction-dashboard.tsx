@@ -96,6 +96,9 @@ export default function PredictionDashboard() {
     icon: string;
     amount: number;
   } | null>(null);
+  const [currentSlotBets, setCurrentSlotBets] = useState<
+    { icon: string; amount: number }[]
+  >([]);
   const [refreshing, setRefreshing] = useState(false);
   const [transactionAmount, setTransactionAmount] = useState<string>("");
   const [transactionDescription, setTransactionDescription] =
@@ -224,6 +227,7 @@ export default function PredictionDashboard() {
     if (!slotId) {
       setHasBetCurrentSlot(false);
       setCurrentSlotBet(null);
+      setCurrentSlotBets([]);
       return;
     }
     try {
@@ -232,13 +236,23 @@ export default function PredictionDashboard() {
       const betsArray = Array.isArray(response)
         ? response
         : response.data || [];
-      const selfBet = betsArray.find((b: any) => b.slotId === slotId);
-      setHasBetCurrentSlot(Boolean(selfBet));
+      const myBetsForSlot = betsArray.filter((b: any) => b.userId === user?.id);
+      setHasBetCurrentSlot(myBetsForSlot.length > 0);
+      
+      // Set all bets for current slot
+      setCurrentSlotBets(
+        myBetsForSlot.map((b: any) => ({ icon: b.icon, amount: b.amount }))
+      );
+      
+      // Keep backward compatibility - set first bet as currentSlotBet
       setCurrentSlotBet(
-        selfBet ? { icon: selfBet.icon, amount: selfBet.amount } : null
+        myBetsForSlot.length > 0 
+          ? { icon: myBetsForSlot[0].icon, amount: myBetsForSlot[0].amount }
+          : null
       );
     } catch (error) {
       console.error("Failed to load current slot bet:", error);
+      setCurrentSlotBets([]);
     }
   };
 
@@ -539,7 +553,10 @@ export default function PredictionDashboard() {
                             totalAmount: 0,
                           };
                           const isSelected = selectedIcon === id;
-                          const isMyBet = currentSlotBet?.icon === id;
+                          const isMyBet = currentSlotBets.some((bet) => bet.icon === id);
+                          const myBetAmount = currentSlotBets
+                            .filter((bet) => bet.icon === id)
+                            .reduce((sum, bet) => sum + bet.amount, 0);
                           return (
                             <button
                               key={id}
@@ -548,11 +565,15 @@ export default function PredictionDashboard() {
                               className={`p-4 rounded-lg border-2 transition-all ${
                                 isSelected
                                   ? "border-blue-500 bg-blue-500 bg-opacity-20"
+                                  : isMyBet
+                                  ? "border-green-500 bg-green-500 bg-opacity-30 shadow-lg shadow-green-500/30"
                                   : "border-slate-600 bg-slate-700 hover:border-slate-500"
                               }`}
                             >
                               <Icon
-                                className={`w-8 h-8 mx-auto mb-2 ${color}`}
+                                className={`w-8 h-8 mx-auto mb-2 ${
+                                  isMyBet ? "text-green-300" : color
+                                }`}
                               />
                               <p className="text-xs text-slate-300">{name}</p>
                               <p className="text-xs text-slate-400 mt-1">
@@ -560,9 +581,12 @@ export default function PredictionDashboard() {
                                 {iconData.totalAmount.toFixed(0)}
                               </p>
                               {isMyBet && (
-                                <p className="text-[10px] text-amber-300 mt-1 font-semibold">
-                                  Your bet
-                                </p>
+                                <div className="mt-2 flex items-center justify-center">
+                                  <div className="bg-green-600 text-white text-[10px] px-2 py-1 rounded-full font-semibold flex items-center gap-1">
+                                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                                    Betted ₹{myBetAmount}
+                                  </div>
+                                </div>
                               )}
                             </button>
                           );

@@ -10,26 +10,34 @@ const requireAdmin = (request: NextRequest) => {
   return decoded && typeof decoded === "object" && (decoded as any).role === "admin"
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> | { userId: string } }
+) {
   try {
     if (!requireAdmin(request)) {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 })
     }
 
+    const { userId } = await Promise.resolve(params)
     await connectDB()
-    await User.findByIdAndDelete(params.userId)
+    await User.findByIdAndDelete(userId)
     return NextResponse.json({ message: "User deleted" })
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Server error" }, { status: 500 })
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> | { userId: string } }
+) {
   try {
     if (!requireAdmin(request)) {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 })
     }
 
+    const { userId } = await Promise.resolve(params)
     const { amount } = await request.json()
     if (typeof amount !== "number") {
       return NextResponse.json({ error: "Amount is required" }, { status: 400 })
@@ -37,7 +45,7 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
 
     await connectDB()
     const user = await User.findByIdAndUpdate(
-      params.userId,
+      userId,
       { $inc: { walletBalance: amount } },
       { new: true },
     )

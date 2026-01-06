@@ -39,15 +39,24 @@ export async function GET(request: NextRequest) {
     if (admin) {
       await connectDB();
       const query = {};
-      const [withdrawals, total] = await Promise.all([
-        Withdrawal.find(query)
-          .select("_id userId userName amount status approvedBy approvedAt createdAt")
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(limit)
-          .lean(),
-        Withdrawal.countDocuments(query),
-      ]);
+      const withdrawals = await Withdrawal.find(query)
+        .select("_id userId userName amount status approvedBy approvedAt createdAt")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
+
+      // Get user bank details for each withdrawal
+      const userIds = withdrawals.map((w: any) => w.userId);
+      const users = await User.find({ _id: { $in: userIds } })
+        .select("_id bankDetails")
+        .lean();
+      
+      const userBankMap = new Map(
+        users.map((u: any) => [u._id.toString(), u.bankDetails || {}])
+      );
+
+      const total = await Withdrawal.countDocuments(query);
 
       const formatted = withdrawals.map((w: any) => ({
         id: w._id.toString(),
@@ -58,6 +67,7 @@ export async function GET(request: NextRequest) {
         approvedBy: w.approvedBy ? w.approvedBy.toString() : undefined,
         approvedAt: w.approvedAt,
         createdAt: w.createdAt,
+        bankDetails: userBankMap.get(w.userId.toString()) || {},
       }));
 
       return NextResponse.json({

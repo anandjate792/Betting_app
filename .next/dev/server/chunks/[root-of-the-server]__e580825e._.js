@@ -99,7 +99,9 @@ const predictionSlotSchema = new __TURBOPACK__imported__module__$5b$externals$5d
         enum: [
             "open",
             "closed",
-            "completed"
+            "completed",
+            "cancelled",
+            "processing"
         ],
         default: "open"
     },
@@ -278,7 +280,7 @@ const betSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose
     amount: {
         type: Number,
         required: true,
-        min: 50
+        min: 10
     },
     payout: {
         type: Number,
@@ -415,9 +417,10 @@ async function POST(request) {
     try {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
         const now = new Date();
+        // Only process slots where endTime has definitely passed (with 1 second buffer for safety)
         const expiredSlots = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
             endTime: {
-                $lt: now
+                $lt: new Date(now.getTime() - 1000)
             },
             status: "open"
         });
@@ -426,36 +429,25 @@ async function POST(request) {
             role: "admin"
         });
         for (const slot of expiredSlots){
-            // Skip if slot is already processed (race condition protection)
-            const currentSlot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(slot._id);
-            if (!currentSlot || currentSlot.status !== "open") {
-                continue;
+            // Atomically mark slot as processing to prevent race conditions
+            const currentSlot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOneAndUpdate({
+                _id: slot._id,
+                status: "open"
+            }, {
+                $set: {
+                    status: "processing"
+                }
+            }, {
+                new: true
+            });
+            if (!currentSlot) {
+                continue; // Slot already processed or not found
             }
             const allBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
                 slotId: currentSlot._id,
                 status: "pending"
             });
-            const betsByIconMap = new Map();
-            allBets.forEach((bet)=>{
-                const existing = betsByIconMap.get(bet.icon) || {
-                    totalBets: 0,
-                    totalAmount: 0
-                };
-                existing.totalBets += 1;
-                existing.totalAmount += bet.amount;
-                betsByIconMap.set(bet.icon, existing);
-            });
-            let leastBetIcon = "";
-            let leastBetAmount = Infinity;
-            let leastBetCount = Infinity;
-            betsByIconMap.forEach((data, icon)=>{
-                if (data.totalAmount < leastBetAmount || data.totalAmount === leastBetAmount && data.totalBets < leastBetCount) {
-                    leastBetAmount = data.totalAmount;
-                    leastBetCount = data.totalBets;
-                    leastBetIcon = icon;
-                }
-            });
-            if (!leastBetIcon) {
+            if (!allBets.length) {
                 currentSlot.status = "closed";
                 await currentSlot.save();
                 results.push({
@@ -466,63 +458,120 @@ async function POST(request) {
                 });
                 continue;
             }
-            currentSlot.winningIcon = leastBetIcon;
-            currentSlot.status = "completed";
+            // Check if only single user bet - cancel and refund
+            const uniqueUsersCount = new Set(allBets.map((bet)=>bet.userId.toString())).size;
+            if (uniqueUsersCount === 1) {
+                // Only one user bet - cancel all bets and refund
+                const userId = allBets[0].userId;
+                const totalRefund = allBets.reduce((sum, bet)=>sum + bet.amount, 0);
+                // Refund to user
+                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(userId, {
+                    $inc: {
+                        walletBalance: totalRefund
+                    }
+                });
+                // Mark all bets as cancelled
+                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
+                    slotId: currentSlot._id,
+                    status: "pending"
+                }, {
+                    $set: {
+                        status: "cancelled"
+                    }
+                });
+                // Mark slot as cancelled
+                currentSlot.status = "cancelled";
+                currentSlot.winningIcon = null;
+                currentSlot.companyCommission = 0;
+                await currentSlot.save();
+                results.push({
+                    slotId: currentSlot._id.toString(),
+                    slotNumber: currentSlot.slotNumber,
+                    action: "cancelled",
+                    reason: "Only one user participated",
+                    refunded: totalRefund
+                });
+                continue;
+            }
+            // Multiple users - select random winning icon
+            const iconsWithBets = [
+                ...new Set(allBets.map((bet)=>bet.icon))
+            ];
+            const randomWinningIcon = iconsWithBets[Math.floor(Math.random() * iconsWithBets.length)];
             const winningBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
                 slotId: currentSlot._id,
-                icon: leastBetIcon,
+                icon: randomWinningIcon,
                 status: "pending"
             });
-            const totalSlotAmount = currentSlot.totalAmount; // Total pool from all bets
-            // Profit only when more than 1 unique user participated
-            const uniqueUsersCount = new Set(allBets.map((bet)=>bet.userId.toString())).size;
-            const commissionRate = uniqueUsersCount > 1 ? 0.20 : 0;
-            // Updated logic:
-            // - Take 20% commission only if >1 user
-            // - Distribute remaining (100% or 80%) to winners PROPORTIONAL to the coins they bet
-            const companyCommission = totalSlotAmount * commissionRate;
+            const totalSlotAmount = currentSlot.totalAmount;
+            // Always take 25% commission
+            const companyCommission = totalSlotAmount * 0.25;
             const totalPayoutToWinners = totalSlotAmount - companyCommission;
-            const totalWinningAmount = winningBets.reduce((sum, bet)=>sum + bet.amount, 0);
+            // Equal distribution: divide equally among all winners
+            const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
+            // Atomically update slot to completed
+            currentSlot.winningIcon = randomWinningIcon;
             currentSlot.companyCommission = companyCommission;
+            currentSlot.status = "completed";
             await currentSlot.save();
             for (const bet of winningBets){
-                // Double-check bet is still pending before processing
-                const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
-                if (currentBet && currentBet.status === "pending") {
-                    // Each winner gets share of 80% pool based on their coins vs total winning coins
-                    const share = totalWinningAmount > 0 ? bet.amount / totalWinningAmount : 0;
-                    const payout = totalPayoutToWinners * share;
-                    currentBet.payout = payout;
-                    currentBet.status = "won";
-                    await currentBet.save();
+                // Use atomic update to prevent double-processing
+                const updatedBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOneAndUpdate({
+                    _id: bet._id,
+                    status: "pending"
+                }, {
+                    $set: {
+                        status: "won",
+                        payout: payoutPerWinner
+                    }
+                }, {
+                    new: true
+                });
+                if (updatedBet) {
                     await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
                         $inc: {
-                            walletBalance: payout
+                            walletBalance: payoutPerWinner
                         }
                     });
                     await createApprovedTransaction({
                         userId: bet.userId.toString(),
                         userName: bet.userName,
-                        amount: payout,
+                        amount: payoutPerWinner,
                         description: `Bet winning for Slot #${currentSlot.slotNumber}`
                     });
                 }
             }
-            const losingBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
+            // Atomically update all losing bets (only update pending bets to avoid overwriting already processed bets)
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
                 slotId: currentSlot._id,
                 icon: {
-                    $ne: leastBetIcon
+                    $ne: randomWinningIcon
                 },
                 status: "pending"
-            });
-            for (const bet of losingBets){
-                const currentBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findById(bet._id);
-                if (currentBet && currentBet.status === "pending") {
-                    currentBet.status = "lost";
-                    await currentBet.save();
+            }, {
+                $set: {
+                    status: "lost"
                 }
-            }
-            if (companyCommission > 0 && adminUser) {
+            });
+            // Also update any bets that might have been missed (safety check)
+            await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].updateMany({
+                slotId: currentSlot._id,
+                icon: {
+                    $ne: randomWinningIcon
+                },
+                status: {
+                    $nin: [
+                        "won",
+                        "lost",
+                        "cancelled"
+                    ]
+                }
+            }, {
+                $set: {
+                    status: "lost"
+                }
+            });
+            if (adminUser) {
                 await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(adminUser._id, {
                     $inc: {
                         walletBalance: companyCommission
@@ -539,7 +588,7 @@ async function POST(request) {
                 slotId: currentSlot._id.toString(),
                 slotNumber: currentSlot.slotNumber,
                 action: "completed",
-                winningIcon: leastBetIcon,
+                winningIcon: randomWinningIcon,
                 totalWinners: winningBets.length,
                 totalPayout: totalPayoutToWinners,
                 companyCommission

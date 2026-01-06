@@ -55,6 +55,7 @@ export default function AdminDashboard() {
   const [usersLoading, setUsersLoading] = useState(false);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [withdrawalsLoading, setWithdrawalsLoading] = useState(false);
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
 
   useEffect(() => {
     const loadAutoCreate = async () => {
@@ -109,8 +110,12 @@ export default function AdminDashboard() {
   const loadWithdrawals = async () => {
     setWithdrawalsLoading(true);
     try {
-      const data = await withdrawalApi.getWithdrawals();
-      setWithdrawals(data as any[]);
+      const response = await withdrawalApi.getWithdrawals(50, 0);
+      if (Array.isArray(response)) {
+        setWithdrawals(response);
+      } else {
+        setWithdrawals((response as any)?.data || []);
+      }
     } catch (error) {
       console.error("Failed to load withdrawals:", error);
     } finally {
@@ -200,7 +205,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto p-4 space-y-6">
           {/* ... existing stats and tabs code ... */}
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <Card className="border-slate-700 bg-slate-800">
               <CardHeader>
                 <CardTitle className="text-slate-300 text-sm font-medium">
@@ -235,6 +240,29 @@ export default function AdminDashboard() {
                 <div className="text-3xl font-bold text-green-400">
                   {totalTransactions || transactions.length}
                 </div>
+              </CardContent>
+            </Card>
+            <Card 
+              className="border-slate-700 bg-slate-800 cursor-pointer hover:border-purple-500 transition-colors"
+              onClick={() => {
+                setActiveTab("withdrawals");
+                if (withdrawals.length === 0) {
+                  loadWithdrawals();
+                }
+              }}
+            >
+              <CardHeader>
+                <CardTitle className="text-slate-300 text-sm font-medium">
+                  Pending Withdrawals
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-purple-400">
+                  {pendingWithdrawals.length}
+                </div>
+                <p className="text-xs text-slate-400 mt-1">
+                  Click to view details
+                </p>
               </CardContent>
             </Card>
             <Card className="border-slate-700 bg-slate-800">
@@ -628,13 +656,128 @@ export default function AdminDashboard() {
 
             {/* Withdrawals Tab */}
             <TabsContent value="withdrawals" className="mt-6">
+              {/* Selected Withdrawal Details Modal */}
+              {selectedWithdrawal && (
+                <Card className="border-slate-700 bg-slate-800 mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-white flex justify-between items-center">
+                      Withdrawal Details
+                      <Button
+                        onClick={() => setSelectedWithdrawal(null)}
+                        variant="ghost"
+                        className="text-slate-400 hover:text-white"
+                      >
+                        ×
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-300">User Information</p>
+                        <p className="text-white">{selectedWithdrawal.userName}</p>
+                        <p className="text-sm text-slate-400">ID: {selectedWithdrawal.userId}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-300">Amount</p>
+                        <p className="text-2xl font-bold text-purple-400">
+                          ₹{selectedWithdrawal.amount.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-slate-400">
+                          Status: <span className={`px-2 py-1 rounded text-xs ${
+                            selectedWithdrawal.status === 'pending' ? 'bg-yellow-600 text-white' :
+                            selectedWithdrawal.status === 'approved' ? 'bg-green-600 text-white' :
+                            'bg-red-600 text-white'
+                          }`}>
+                            {selectedWithdrawal.status}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-semibold text-slate-300 mb-2">Bank Details</p>
+                      {selectedWithdrawal.bankDetails ? (
+                        <div className="p-4 bg-slate-900 rounded-lg border border-slate-600 space-y-2">
+                          {selectedWithdrawal.bankDetails.accountHolderName && (
+                            <p className="text-slate-300">
+                              <span className="text-slate-500">Account Holder:</span> {selectedWithdrawal.bankDetails.accountHolderName}
+                            </p>
+                          )}
+                          {selectedWithdrawal.bankDetails.bankName && (
+                            <p className="text-slate-300">
+                              <span className="text-slate-500">Bank Name:</span> {selectedWithdrawal.bankDetails.bankName}
+                            </p>
+                          )}
+                          {selectedWithdrawal.bankDetails.accountNumber && (
+                            <p className="text-slate-300">
+                              <span className="text-slate-500">Account Number:</span> {selectedWithdrawal.bankDetails.accountNumber}
+                            </p>
+                          )}
+                          {selectedWithdrawal.bankDetails.ifscCode && (
+                            <p className="text-slate-300">
+                              <span className="text-slate-500">IFSC Code:</span> {selectedWithdrawal.bankDetails.ifscCode}
+                            </p>
+                          )}
+                          {selectedWithdrawal.bankDetails.upiId && (
+                            <p className="text-slate-300">
+                              <span className="text-slate-500">UPI ID:</span> {selectedWithdrawal.bankDetails.upiId}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-yellow-400 text-sm">No bank details provided</p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-semibold text-slate-300 mb-2">Request Information</p>
+                      <p className="text-slate-400">
+                        <span className="text-slate-500">Requested:</span> {new Date(selectedWithdrawal.createdAt).toLocaleString()}
+                      </p>
+                      {selectedWithdrawal.updatedAt && (
+                        <p className="text-slate-400">
+                          <span className="text-slate-500">Last Updated:</span> {new Date(selectedWithdrawal.updatedAt).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                    
+                    {selectedWithdrawal.status === 'pending' && (
+                      <div className="flex gap-2 pt-4">
+                        <Button
+                          onClick={() => {
+                            handleApproveWithdrawal(selectedWithdrawal.id);
+                            setSelectedWithdrawal(null);
+                          }}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Approve Withdrawal
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            handleRejectWithdrawal(selectedWithdrawal.id);
+                            setSelectedWithdrawal(null);
+                          }}
+                          variant="destructive"
+                          className="flex-1"
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Reject Withdrawal
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+              
               <Card className="border-slate-700 bg-slate-800">
                 <CardHeader>
                   <CardTitle className="text-white">
                     Withdrawal Requests
                   </CardTitle>
                   <CardDescription className="text-slate-400">
-                    Approve or reject user withdrawal requests
+                    Click on any withdrawal to view detailed information
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -643,20 +786,21 @@ export default function AdminDashboard() {
                       <Spinner className="w-6 h-6 text-blue-400" />
                       <p className="ml-3 text-slate-400">Loading withdrawals...</p>
                     </div>
-                  ) : pendingWithdrawals.length === 0 ? (
+                  ) : withdrawals.length === 0 ? (
                     <p className="text-slate-400 text-center py-8">
-                      No pending withdrawal requests
+                      No withdrawal requests found
                     </p>
                   ) : (
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3 pr-4">
-                      {pendingWithdrawals.map((withdrawal) => (
+                      {withdrawals.map((withdrawal) => (
                         <div
                           key={withdrawal.id}
-                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                          onClick={() => setSelectedWithdrawal(withdrawal)}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600 cursor-pointer hover:border-purple-500 transition-colors"
                         >
                           <div className="flex justify-between items-start mb-3">
-                            <div>
+                            <div className="flex-1">
                               <p className="font-semibold text-white">
                                 {withdrawal.userName}
                               </p>
@@ -669,35 +813,22 @@ export default function AdminDashboard() {
                                 ).toLocaleString()}
                               </p>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right ml-4">
                               <p className="text-lg font-bold text-purple-400">
                                 ₹{withdrawal.amount.toFixed(2)}
                               </p>
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                withdrawal.status === 'pending' ? 'bg-yellow-600 text-white' :
+                                withdrawal.status === 'approved' ? 'bg-green-600 text-white' :
+                                'bg-red-600 text-white'
+                              }`}>
+                                {withdrawal.status}
+                              </span>
                             </div>
                           </div>
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={() =>
-                                handleApproveWithdrawal(withdrawal.id)
-                              }
-                              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                              size="sm"
-                            >
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Approve
-                            </Button>
-                            <Button
-                              onClick={() =>
-                                handleRejectWithdrawal(withdrawal.id)
-                              }
-                              variant="destructive"
-                              className="flex-1"
-                              size="sm"
-                            >
-                              <XCircle className="w-4 h-4 mr-2" />
-                              Reject
-                            </Button>
-                          </div>
+                          <p className="text-xs text-slate-400">
+                            Click to view details
+                          </p>
                         </div>
                       ))}
                     </div>

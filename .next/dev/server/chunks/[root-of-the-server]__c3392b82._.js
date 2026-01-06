@@ -343,12 +343,21 @@ async function GET(request) {
         if (admin) {
             await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
             const query = {};
-            const [withdrawals, total] = await Promise.all([
-                __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).select("_id userId userName amount status approvedBy approvedAt createdAt").sort({
-                    createdAt: -1
-                }).skip(skip).limit(limit).lean(),
-                __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments(query)
-            ]);
+            const withdrawals = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find(query).select("_id userId userName amount status approvedBy approvedAt createdAt").sort({
+                createdAt: -1
+            }).skip(skip).limit(limit).lean();
+            // Get user bank details for each withdrawal
+            const userIds = withdrawals.map((w)=>w.userId);
+            const users = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
+                _id: {
+                    $in: userIds
+                }
+            }).select("_id bankDetails").lean();
+            const userBankMap = new Map(users.map((u)=>[
+                    u._id.toString(),
+                    u.bankDetails || {}
+                ]));
+            const total = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].countDocuments(query);
             const formatted = withdrawals.map((w)=>({
                     id: w._id.toString(),
                     userId: w.userId.toString(),
@@ -357,7 +366,8 @@ async function GET(request) {
                     status: w.status,
                     approvedBy: w.approvedBy ? w.approvedBy.toString() : undefined,
                     approvedAt: w.approvedAt,
-                    createdAt: w.createdAt
+                    createdAt: w.createdAt,
+                    bankDetails: userBankMap.get(w.userId.toString()) || {}
                 }));
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 data: formatted,

@@ -24,20 +24,7 @@ import {
 import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner";
 import { Trophy } from "lucide-react";
-
-import { FaUmbrella, FaFootballBall } from "react-icons/fa";
-import {
-  GiButterfly,
-  GiCow,
-  GiEmptyMetalBucketHandle,
-  GiKite,
-} from "react-icons/gi";
-import { WiDaySunny } from "react-icons/wi";
-import { MdLight } from "react-icons/md";
-import { GiSpinningTop } from "react-icons/gi";
-import { GiRose } from "react-icons/gi";
-import { GiSparrow } from "react-icons/gi";
-import { GiRabbit } from "react-icons/gi";
+import Image from "next/image";
 
 import { betApi, predictionApi, referralApi } from "@/lib/api";
 import { authApi } from "@/lib/api";
@@ -48,40 +35,35 @@ const ICONS = [
   {
     id: "umbrella",
     name: "Umbrella",
-    Icon: FaUmbrella,
-    color: "text-blue-500",
+    image: "/umbrella.webp",
   },
   {
     id: "football",
     name: "Football",
-    Icon: FaFootballBall,
-    color: "text-orange-600",
+    image: "/football.webp",
   },
-  { id: "sun", name: "Sun", Icon: WiDaySunny, color: "text-yellow-400" },
-  { id: "lamp", name: "Lamp", Icon: MdLight, color: "text-amber-500" },
-  { id: "cow", name: "Cow", Icon: GiCow, color: "text-stone-600" },
+  { id: "sun", name: "Sun", image: "/sun.webp" },
+  { id: "lamp", name: "Lamp", image: "/lamp.webp" },
+  { id: "cow", name: "Cow", image: "/cow.webp" },
   {
     id: "bucket",
     name: "Bucket",
-    Icon: GiEmptyMetalBucketHandle,
-    color: "text-cyan-500",
+    image: "/bucket.webp",
   },
-  { id: "kite", name: "Kite", Icon: GiKite, color: "text-red-500" },
+  { id: "kite", name: "Kite", image: "/kite.webp" },
   {
     id: "spinning-top",
     name: "Spinning Top",
-    Icon: GiSpinningTop,
-    color: "text-indigo-500",
+    image: "/spinning-top.webp",
   },
-  { id: "rose", name: "Rose", Icon: GiRose, color: "text-pink-500" },
+  { id: "rose", name: "Rose", image: "/rose.webp" },
   {
     id: "butterfly",
     name: "Butterfly",
-    Icon: GiButterfly,
-    color: "text-purple-500",
+    image: "/butterfly.webp",
   },
-  { id: "sparrow", name: "Sparrow", Icon: GiSparrow, color: "text-sky-600" },
-  { id: "rabbit", name: "Rabbit", Icon: GiRabbit, color: "text-emerald-500" },
+  { id: "sparrow", name: "Sparrow", image: "/sparrow.webp" },
+  { id: "rabbit", name: "Rabbit", image: "/rabbit.webp" },
 ];
 
 const CHIP_VALUES = [10, 20, 50, 100, 200, 500];
@@ -175,6 +157,10 @@ export default function DashboardPage() {
 
       if (diff <= 0) {
         setTimeRemaining("Slot Closed");
+
+        // Clear placed bets when slot ends
+        setPlacedBets([]);
+
         // Start checking for results when slot ends
         if (!checkingResultRef.current) {
           startResultPolling(currentSlot.id);
@@ -237,11 +223,23 @@ export default function DashboardPage() {
 
       // Check if slot has changed
       if (slot?.id !== currentSlot?.id) {
+        // Only clear placed bets if we're moving from a completed/closed slot to a new one
+        const shouldClearBets =
+          currentSlot &&
+          (currentSlot.status === "completed" ||
+            currentSlot.status === "closed" ||
+            currentSlot.status === "cancelled") &&
+          slot &&
+          slot.status === "active";
+
+        if (shouldClearBets) {
+          // Clear placed bets when new slot starts (only when previous slot is done)
+          setPlacedBets([]);
+        }
+
         // Stop previous polling if any
         stopResultPolling();
         lastCheckedSlotIdRef.current = null;
-        // Clear placed bets when new slot starts
-        setPlacedBets([]);
       }
 
       setCurrentSlot(slot);
@@ -551,6 +549,14 @@ export default function DashboardPage() {
       return;
     }
 
+    // Check if slot is still active
+    const now = Date.now();
+    const end = new Date(currentSlot.endTime).getTime();
+    if (now >= end) {
+      setError("Slot has ended. Bets are no longer accepted.");
+      return;
+    }
+
     if (selectedChip < 10 || selectedChip > 500) {
       setError("Invalid chip value");
       return;
@@ -592,6 +598,14 @@ export default function DashboardPage() {
 
     if (!currentSlot) {
       setError("No active slot found");
+      return;
+    }
+
+    // Check if slot is still active
+    const now = Date.now();
+    const end = new Date(currentSlot.endTime).getTime();
+    if (now >= end) {
+      setError("Slot has ended. Bets are no longer accepted.");
       return;
     }
 
@@ -664,23 +678,23 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-slate-800 pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-slate-800 pb-6">
       <Toaster position="top-right" richColors />
 
       {/* Top Stats Bar */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 px-4 py-3">
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
+      <div className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 px-3 py-2">
+        <div className="flex justify-between items-center max-w-5xl mx-auto">
           <div className="flex items-center gap-4">
             <div>
-              <p className="text-xs text-slate-400">Balance</p>
-              <p className="text-lg font-bold text-green-400">
+              <p className="text-[10px] text-slate-400">Balance</p>
+              <p className="text-base font-bold text-green-400">
                 ₹{user?.walletBalance?.toFixed(2) || "0.00"}
               </p>
             </div>
             {lastWin && (
-              <div className="border-l border-slate-600 pl-4">
-                <p className="text-xs text-slate-400">Last Win</p>
-                <p className="text-lg font-bold text-yellow-400">
+              <div className="border-l border-slate-600 pl-3">
+                <p className="text-[10px] text-slate-400">Last Win</p>
+                <p className="text-base font-bold text-yellow-400">
                   ₹{lastWin.payout?.toFixed(2) || "0.00"}
                 </p>
               </div>
@@ -702,30 +716,30 @@ export default function DashboardPage() {
 
       {/* Win/Loss Banner */}
       {showResultBanner && resultPopup.type && (
-        <div className="mx-4 mt-4 animate-in slide-in-from-top duration-500">
+        <div className="mx-auto mt-3 max-w-5xl animate-in slide-in-from-top duration-500 px-3">
           {resultPopup.type === "win" ? (
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 p-6 text-center shadow-lg animate-pulse">
+            <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500 p-4 text-center shadow-lg animate-pulse">
               <div className="relative z-10">
-                <Trophy className="w-12 h-12 mx-auto mb-2 text-white" />
-                <p className="text-3xl font-black text-white mb-1">YOU WIN!</p>
-                <p className="text-4xl font-black text-white">
+                <Trophy className="w-8 h-8 mx-auto mb-1 text-white" />
+                <p className="text-xl font-black text-white mb-1">YOU WIN!</p>
+                <p className="text-3xl font-black text-white">
                   +₹{resultPopup.payout?.toFixed(2)}
                 </p>
-                <p className="text-sm text-white/80 mt-2">
+                <p className="text-xs text-white/80 mt-1">
                   Slot #{resultPopup.slotNumber} • {resultPopup.winningIcon}
                 </p>
               </div>
               <div className="absolute inset-0 bg-white/20 backdrop-blur-sm" />
             </div>
           ) : (
-            <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-center shadow-lg border-2 border-red-500">
+            <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-slate-700 to-slate-800 p-4 text-center shadow-lg border-2 border-red-500">
               <div className="relative z-10">
-                <XIcon className="w-12 h-12 mx-auto mb-2 text-red-400" />
-                <p className="text-2xl font-black text-white mb-1">LOST</p>
-                <p className="text-3xl font-black text-red-400">
+                <XIcon className="w-8 h-8 mx-auto mb-1 text-red-400" />
+                <p className="text-xl font-black text-white mb-1">LOST</p>
+                <p className="text-2xl font-black text-red-400">
                   -₹{resultPopup.betAmount?.toFixed(2)}
                 </p>
-                <p className="text-sm text-slate-400 mt-2">
+                <p className="text-xs text-slate-400 mt-1">
                   Slot #{resultPopup.slotNumber} • Winning Icon:{" "}
                   {resultPopup.winningIcon}
                 </p>
@@ -737,28 +751,33 @@ export default function DashboardPage() {
 
       {/* Previous Winner History */}
       {winningHistory.length > 0 && (
-        <Card className="border-slate-700 bg-slate-800 mt-4 mx-4">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-white text-base">
+        <Card className="border-slate-700 bg-slate-800 mt-3 mx-auto max-w-5xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-7xl">
+          <CardHeader className="pb-2 px-4 pt-4">
+            <CardTitle className="text-white text-sm">
               Last 10 Results
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <CardContent className="pt-0 px-4 pb-4">
+            <div className="flex gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-5 overflow-x-auto pb-2 scrollbar-hide">
               {winningHistory.map((item, idx) => {
                 const iconData = ICONS.find((i) => i.id === item.winningIcon);
-                const IconComponent = iconData?.Icon || Trophy;
                 return (
                   <div
                     key={idx}
-                    className="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 bg-slate-700 rounded-lg border-2 border-slate-600 hover:border-blue-400 transition-colors"
+                    className="flex-shrink-0 flex flex-col items-center justify-center w-12 h-12 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 bg-slate-700 rounded-lg border-2 border-slate-600 hover:border-blue-400 transition-colors"
                   >
-                    <IconComponent
-                      className={`w-6 h-6 ${
-                        iconData?.color || "text-yellow-500"
-                      }`}
-                    />
-                    <span className="text-[10px] text-slate-400 mt-1">
+                    {iconData ? (
+                      <Image
+                        src={iconData.image}
+                        alt={iconData.name}
+                        width={20}
+                        height={20}
+                        className="w-5 h-5 lg:w-8 lg:h-8 xl:w-12 xl:h-12 2xl:w-16 2xl:h-16"
+                      />
+                    ) : (
+                      <Trophy className="w-5 h-5 lg:w-8 lg:h-8 xl:w-12 xl:h-12 2xl:w-16 2xl:h-16 text-yellow-500" />
+                    )}
+                    <span className="text-[9px] lg:text-[10px] xl:text-xs 2xl:text-sm text-slate-400 mt-0.5 lg:mt-1 xl:mt-1.5">
                       #{item.slotNumber}
                     </span>
                   </div>
@@ -770,15 +789,15 @@ export default function DashboardPage() {
       )}
 
       {/* Main Prediction Game */}
-      <Card className="border-slate-700 bg-slate-800 mx-4 mt-4">
-        <CardHeader>
+      <Card className="border-slate-700 bg-slate-800 mx-auto mt-3 max-w-5xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-7xl">
+        <CardHeader className="px-4 py-3">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Gamepad2 className="w-5 h-5" />
+              <CardTitle className="text-white flex items-center gap-2 text-base">
+                <Gamepad2 className="w-4 h-4" />
                 Pop The Picture
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-slate-400 text-xs mt-0.5">
                 {currentSlot
                   ? `Slot #${currentSlot.slotNumber} • Time Remaining: ${timeRemaining}`
                   : "No active slot"}
@@ -786,15 +805,15 @@ export default function DashboardPage() {
             </div>
             {currentSlot && (
               <div className="text-right">
-                <p className="text-sm text-slate-400">Total Bets</p>
-                <p className="text-xl font-bold text-blue-400">
+                <p className="text-xs text-slate-400">Total Bets</p>
+                <p className="text-lg font-bold text-blue-400">
                   {currentSlot.totalBets}
                 </p>
               </div>
             )}
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4">
           {lastResult &&
             (() => {
               // Calculate overall slot result
@@ -830,35 +849,35 @@ export default function DashboardPage() {
               const showWin = hasBothWinsAndLosses || isOverallWin;
 
               return (
-                <div className="mb-6">
+                <div className="mb-4">
                   {showWin ? (
-                    <div className="relative overflow-hidden rounded-xl border-2 border-yellow-500 bg-gradient-to-br from-yellow-500 via-orange-400 to-orange-500 shadow-xl">
+                    <div className="relative overflow-hidden rounded-lg border-2 border-yellow-500 bg-gradient-to-br from-yellow-500 via-orange-400 to-orange-500 shadow-xl">
                       <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
-                      <div className="relative px-6 py-4 text-center text-slate-900">
-                        <Trophy className="w-8 h-8 mx-auto mb-2 text-white" />
-                        <p className="text-sm font-bold tracking-wider uppercase text-white drop-shadow-md">
+                      <div className="relative px-4 py-3 text-center text-slate-900">
+                        <Trophy className="w-6 h-6 mx-auto mb-1 text-white" />
+                        <p className="text-xs font-bold tracking-wider uppercase text-white drop-shadow-md">
                           Latest Result: Won
                         </p>
-                        <p className="mt-1 text-4xl font-black text-white drop-shadow-lg">
+                        <p className="mt-1 text-2xl font-black text-white drop-shadow-lg">
                           +₹{netResult.toFixed(2)}
                         </p>
-                        <p className="mt-2 text-xs text-white/80">
+                        <p className="mt-1 text-[10px] text-white/80">
                           Slot #{slotNumber ?? "-"}
                         </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="relative overflow-hidden rounded-xl border-2 border-red-500 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 shadow-xl">
+                    <div className="relative overflow-hidden rounded-lg border-2 border-red-500 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 shadow-xl">
                       <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
-                      <div className="relative px-6 py-4 text-center">
-                        <XIcon className="w-8 h-8 mx-auto mb-2 text-red-400" />
-                        <p className="text-sm font-bold tracking-wider uppercase text-red-400 drop-shadow-md">
+                      <div className="relative px-4 py-3 text-center">
+                        <XIcon className="w-6 h-6 mx-auto mb-1 text-red-400" />
+                        <p className="text-xs font-bold tracking-wider uppercase text-red-400 drop-shadow-md">
                           Latest Result: Lost
                         </p>
-                        <p className="mt-1 text-4xl font-black text-red-400 drop-shadow-lg">
+                        <p className="mt-1 text-2xl font-black text-red-400 drop-shadow-lg">
                           -₹{Math.abs(netResult).toFixed(2)}
                         </p>
-                        <p className="mt-2 text-xs text-slate-400">
+                        <p className="mt-1 text-[10px] text-slate-400">
                           Slot #{slotNumber ?? "-"}
                         </p>
                       </div>
@@ -869,262 +888,156 @@ export default function DashboardPage() {
             })()}
 
           {slotLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Spinner className="w-6 h-6 text-blue-400" />
-              <p className="ml-3 text-slate-400">Loading slot...</p>
+            <div className="flex items-center justify-center py-8">
+              <Spinner className="w-5 h-5 text-blue-400" />
+              <p className="ml-2 text-sm text-slate-400">Loading slot...</p>
             </div>
           ) : !currentSlot ? (
-            <div className="text-center py-8">
-              <p className="text-slate-400">
+            <div className="text-center py-6">
+              <p className="text-sm text-slate-400">
                 No active slot. Waiting for the next prediction slot to be
                 created.
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
-              {/* Main Betting Interface */}
-              <div className="flex flex-col lg:flex-row gap-6">
-                {/* Left Icon Grid */}
-                <div className="flex-1">
-                  <div className="mb-4">
-                    <label className="text-sm font-bold text-yellow-300 uppercase tracking-wider flex items-center gap-2">
-                      <Trophy className="w-4 h-4" />
-                      Click on Icon to Place Bet
-                      {placedBets.length > 0 && (
-                        <span className="ml-2 text-sm text-yellow-400 bg-yellow-900/50 px-2 py-1 rounded-full border border-yellow-600">
-                          {placedBets.length} bet(s) placed
-                        </span>
-                      )}
-                    </label>
-                  </div>
+            <div className="space-y-3">
+              {/* Compact Single Screen Betting Interface */}
+              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 lg:p-5 xl:p-6 2xl:p-8 border border-slate-700">
+                {/* Icon Grid - Compact */}
+                <div className="grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6 mb-3 lg:mb-4 xl:mb-5">
+                  {ICONS.map(({ id, name, image }) => {
+                    const myBetAmount = getBetAmountForIcon(id);
+                    const hasMyBet = myBetAmount > 0;
 
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                    {ICONS.map(({ id, name, Icon, color }) => {
-                      const iconData = betsByIcon[id] || {
-                        totalBets: 0,
-                        totalAmount: 0,
-                      };
-                      const myBetAmount = getBetAmountForIcon(id);
-                      const hasMyBet = myBetAmount > 0;
-
-                      // Get all bet amounts for this icon from all users
-                      const iconBets = allCurrentSlotBets
-                        .filter((bet) => bet.icon === id)
-                        .map((bet) => bet.amount);
-
-                      return (
-                        <button
-                          key={id}
-                          type="button"
-                          onClick={() => handleIconClick(id)}
-                          className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 aspect-square ${
-                            selectedIcon === id
-                              ? "bg-slate-700 border-blue-500 shadow-lg shadow-blue-500/20"
-                              : "bg-slate-800/50 border-slate-700 hover:border-slate-600"
-                          }`}
-                        >
-                          {hasMyBet && (
-                            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold rounded-full min-w-[24px] h-6 flex items-center justify-center px-1 border-2 border-white shadow-lg z-10">
-                              ₹{myBetAmount}
-                            </div>
-                          )}
-                          <Icon
-                            className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${color}`}
-                          />
-                          <span className="text-xs font-medium text-slate-300">
-                            {name}
-                          </span>
-                          <div className="text-[10px] mt-1 text-slate-500 flex flex-col gap-0.5">
-                            <div>{iconData.totalBets} bets</div>
-                            <div>{iconData.totalAmount.toFixed(0)} coins</div>
-                          </div>
-                          {/* Show all bet amounts on this icon */}
-                          {iconBets.length > 0 && (
-                            <div className="mt-1 flex flex-wrap justify-center gap-1 px-1 max-w-full">
-                              {iconBets.slice(0, 4).map((amount, idx) => (
-                                <span
-                                  key={idx}
-                                  className="text-[9px] font-bold text-yellow-300 bg-yellow-900/60 px-1.5 py-0.5 rounded-md border border-yellow-600/70 shadow-sm whitespace-nowrap"
-                                  title={`Bet amount: ₹${amount}`}
-                                >
-                                  ₹{amount}
-                                </span>
-                              ))}
-                              {iconBets.length > 4 && (
-                                <span
-                                  className="text-[9px] font-bold text-yellow-400 bg-yellow-900/40 px-1.5 py-0.5 rounded-md border border-yellow-600/50"
-                                  title={`${iconBets.length - 4} more bet(s)`}
-                                >
-                                  +{iconBets.length - 4}
-                                </span>
-                              )}
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Middle Betting Controls */}
-                <div className="flex flex-col items-center justify-center">
-                  <div className="flex flex-col items-center justify-center gap-4 py-6 px-3 bg-[#3d0a1a]/40 rounded-full backdrop-blur-md border border-white/10 shadow-2xl min-h-[240px]">
-                    <div className="flex flex-col items-center gap-1.5">
-                      <span className="text-[11px] font-bold text-gray-400 tracking-tighter uppercase opacity-80">
-                        UNDO
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleUndo}
-                        disabled={placedBets.length === 0}
-                        className="w-[52px] h-[52px] rounded-full border border-white/20 bg-black/40 hover:bg-black/60 transition-colors group"
-                      >
-                        <Undo2
-                          className="w-7 h-7 text-gray-300 group-hover:text-white transition-colors"
-                          strokeWidth={1.5}
-                        />
-                      </Button>
-                    </div>
-
-                    <div className="relative w-16 h-16 flex items-center justify-center my-1">
-                      {/* Top Active Chip */}
-                      <div className="relative z-10 w-[54px] h-[54px] rounded-full border-[3px] border-dashed border-white bg-[#4caf50] flex items-center justify-center shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
-                        <div className="w-[38px] h-[38px] rounded-full border-2 border-white/20 flex items-center justify-center bg-black/10">
-                          <span className="text-white font-black text-lg tracking-tight drop-shadow-md">
-                            {selectedChip}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-1.5">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleRepeat}
-                        className="w-[52px] h-[52px] rounded-full border border-white/20 bg-black/40 hover:bg-black/60 transition-colors group"
-                      >
-                        <RotateCcw
-                          className="w-7 h-7 text-gray-300 group-hover:text-white transition-colors"
-                          strokeWidth={1.5}
-                        />
-                      </Button>
-                      <span className="text-[11px] font-bold text-gray-400 tracking-tighter uppercase opacity-80">
-                        REPEAT
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Chip Selection - Only visible on larger screens */}
-                <div className="hidden lg:block flex-shrink-0">
-                  <label className="text-sm font-bold text-yellow-300 uppercase tracking-wider mb-4 block text-center">
-                    Select Chip
-                  </label>
-                  <div className="flex flex-col gap-3">
-                    {CHIP_VALUES.map((value) => (
+                    return (
                       <button
-                        key={value}
+                        key={id}
                         type="button"
-                        onClick={() => setSelectedChip(value)}
-                        className={`relative w-16 h-16 rounded-full font-black text-base transition-all transform hover:scale-110 shadow-2xl ${
-                          selectedChip === value
-                            ? "bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 text-slate-900 scale-110 shadow-yellow-500/80 border-4 border-yellow-200"
-                            : "bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white hover:from-green-500 hover:to-green-700 border-4 border-white"
+                        onClick={() => handleIconClick(id)}
+                        className={`relative flex flex-col items-center justify-center p-1.5 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square ${
+                          hasMyBet
+                            ? "bg-green-600/30 border-green-500"
+                            : "bg-slate-700/50 border-slate-600 hover:border-slate-500"
                         }`}
                       >
-                        <div className="absolute inset-0 rounded-full border-4 border-white/20"></div>
-                        <div className="absolute inset-2 rounded-full border-2 border-white/30"></div>
-                        <span className="relative z-10 text-xs">₹{value}</span>
+                        {hasMyBet && (
+                          <div className="absolute -top-0.5 -right-0.5 lg:-top-1 lg:-right-1 xl:-top-1.5 xl:-right-1.5 2xl:-top-2 2xl:-right-2 bg-green-500 text-white text-[9px] lg:text-[10px] xl:text-xs 2xl:text-sm font-bold rounded-full w-4 h-4 lg:w-6 lg:h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 flex items-center justify-center border border-white shadow-lg z-10">
+                            {myBetAmount}
+                          </div>
+                        )}
+                        <Image
+                          src={image}
+                          alt={name}
+                          width={20}
+                          height={20}
+                          className="w-5 h-5 lg:w-8 lg:h-8 xl:w-12 xl:h-12 2xl:w-16 2xl:h-16"
+                        />
+                        <span className="text-[8px] lg:text-[10px] xl:text-sm 2xl:text-base text-slate-300 mt-0.5 lg:mt-1 xl:mt-1.5 2xl:mt-2 text-center leading-tight">
+                          {name}
+                        </span>
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              </div>
 
-              {/* Mobile Chip Selection - Visible only on mobile */}
-              <div className="lg:hidden">
-                <label className="text-sm font-bold text-yellow-300 uppercase tracking-wider mb-4 block text-center">
-                  Select Chip Value
-                </label>
-                <div className="flex flex-wrap gap-3 justify-center">
+                {/* Chip Selection - Horizontal */}
+                <div className="flex items-center justify-center gap-1.5 lg:gap-2.5 xl:gap-3 2xl:gap-4 mb-3 lg:mb-4 xl:mb-5 flex-wrap">
                   {CHIP_VALUES.map((value) => (
                     <button
                       key={value}
                       type="button"
                       onClick={() => setSelectedChip(value)}
-                      className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full font-black text-base transition-all transform hover:scale-110 shadow-2xl ${
+                      className={`relative w-11 h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 rounded-full font-bold text-xs lg:text-sm xl:text-base 2xl:text-lg transition-all ${
                         selectedChip === value
-                          ? "bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 text-slate-900 scale-110 shadow-yellow-500/80 border-4 border-yellow-200"
-                          : "bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white hover:from-green-500 hover:to-green-700 border-4 border-white"
+                          ? "bg-gradient-to-br from-yellow-300 to-yellow-500 text-slate-900 scale-110 border-2 border-yellow-200 shadow-lg shadow-yellow-500/50"
+                          : "bg-gradient-to-br from-green-600 to-green-800 text-white border-2 border-white/50"
                       }`}
                     >
-                      <div className="absolute inset-0 rounded-full border-4 border-white/20"></div>
-                      <div className="absolute inset-2 rounded-full border-2 border-white/30"></div>
-                      <span className="relative z-10 text-xs">₹{value}</span>
+                      <div className="absolute inset-0 rounded-full border-2 border-white/20"></div>
+                      <span className="relative z-10">₹{value}</span>
                     </button>
                   ))}
                 </div>
-              </div>
 
-              {/* Total Bet Display */}
-              {placedBets.length > 0 && (
-                <div className="mt-6 bg-slate-900/60 rounded-xl p-4 border-2 border-yellow-700/50 max-w-2xl mx-auto">
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div className="text-center sm:text-left">
-                      <p className="text-sm text-yellow-400 font-semibold">
-                        Total Bet Amount:
-                      </p>
-                      <p className="text-2xl sm:text-3xl font-black text-white">
+                {/* Control Buttons - Horizontal */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleUndo}
+                    disabled={placedBets.length === 0}
+                    className="flex-1 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 text-xs h-8"
+                  >
+                    <Undo2 className="w-3 h-3 mr-1" />
+                    Undo
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRepeat}
+                    className="flex-1 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 text-xs h-8"
+                  >
+                    <RotateCcw className="w-3 h-3 mr-1" />
+                    Repeat
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClear}
+                    disabled={placedBets.length === 0}
+                    className="flex-1 bg-red-700 border-red-600 text-white hover:bg-red-600 text-xs h-8"
+                  >
+                    <XIcon className="w-3 h-3 mr-1" />
+                    Clear
+                  </Button>
+                </div>
+
+                {/* Total and Submit */}
+                {placedBets.length > 0 && (
+                  <div className="bg-slate-700/50 rounded-lg p-2 mb-2 border border-slate-600">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-slate-300">
+                        Total Bets:
+                      </span>
+                      <span className="text-base font-bold text-yellow-400">
                         ₹{getTotalBetAmount()}
-                      </p>
+                      </span>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={handleClear}
-                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg border-2 border-red-800 shadow-lg transition-all"
-                      >
-                        Clear All
-                      </button>
+                    <div className="text-[10px] text-slate-400">
+                      {placedBets.length} bet(s) placed
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {error && (
-                <div className="mt-4 bg-red-900/50 border-2 border-red-500 rounded-lg p-3 flex items-center gap-2 max-w-2xl mx-auto">
-                  <XIcon className="w-5 h-5 text-red-400 flex-shrink-0" />
-                  <p className="text-sm text-red-300 font-semibold">{error}</p>
-                </div>
-              )}
+                {error && (
+                  <div className="bg-red-900/50 border border-red-500 rounded-lg p-1.5 flex items-center gap-1.5 mb-2">
+                    <XIcon className="w-3 h-3 text-red-400 flex-shrink-0" />
+                    <p className="text-[10px] text-red-300">{error}</p>
+                  </div>
+                )}
 
-              {/* Submit Bets Button */}
-              <div className="max-w-2xl mx-auto">
                 <Button
                   type="button"
                   onClick={handleSubmitBets}
-                  disabled={loading || placedBets.length === 0}
-                  className="w-full mt-6 bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-500 hover:via-red-600 hover:to-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed font-black text-xl sm:text-2xl py-4 sm:py-6 rounded-2xl border-4 border-red-900 shadow-2xl shadow-red-900/50 uppercase tracking-widest transform hover:scale-[1.02] transition-all relative overflow-hidden"
+                  disabled={
+                    loading ||
+                    placedBets.length === 0 ||
+                    !currentSlot ||
+                    Date.now() >= new Date(currentSlot.endTime).getTime()
+                  }
+                  className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white disabled:opacity-50 font-bold text-sm py-2.5 rounded-lg border-2 border-red-900 shadow-lg uppercase"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-
                   {loading ? (
-                    <span className="flex items-center justify-center gap-3">
-                      <Spinner className="w-5 h-5 sm:w-6 sm:h-6" />
-                      Placing Bets...
+                    <span className="flex items-center justify-center gap-1.5">
+                      <Spinner className="w-4 h-4" />
+                      Placing...
                     </span>
                   ) : (
-                    <span className="flex items-center justify-center gap-3">
-                      <Trophy className="w-5 h-5 sm:w-7 sm:h-7" />
+                    <span className="flex items-center justify-center gap-1.5">
+                      <Trophy className="w-4 h-4" />
                       Confirm Bets
-                      {placedBets.length > 0 && (
-                        <span className="ml-2 text-yellow-300">
-                          ({placedBets.length} bet
-                          {placedBets.length > 1 ? "s" : ""})
-                        </span>
-                      )}
                     </span>
                   )}
                 </Button>
@@ -1134,28 +1047,30 @@ export default function DashboardPage() {
         </CardContent>
 
         {/* Refer & Earn */}
-        <CardContent className="border-t border-slate-700 pt-6 mt-6">
-          <CardTitle className="text-white mb-4">Refer & Earn</CardTitle>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <CardContent className="border-t border-slate-700 pt-4 mt-4 px-4 pb-4">
+          <CardTitle className="text-white mb-3 text-sm">
+            Refer & Earn
+          </CardTitle>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-              <p className="text-sm text-slate-400 mb-1">Your Referral Code</p>
-              <p className="text-2xl font-bold text-blue-400">
+              <p className="text-xs text-slate-400 mb-1">Your Referral Code</p>
+              <p className="text-lg font-bold text-blue-400">
                 {referralLoading
                   ? "Loading..."
                   : referralInfo.referralCode || "N/A"}
               </p>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-[10px] text-slate-500 mt-0.5">
                 Share this code with friends to earn rewards
               </p>
             </div>
-            <div className="text-right space-y-1">
-              <p className="text-sm text-slate-400">
+            <div className="text-right space-y-0.5">
+              <p className="text-xs text-slate-400">
                 Total Referrals:{" "}
                 <span className="font-semibold text-white">
                   {referralInfo.referralCount ?? 0}
                 </span>
               </p>
-              <p className="text-sm text-slate-400">
+              <p className="text-xs text-slate-400">
                 Referral Earnings:{" "}
                 <span className="font-semibold text-green-400">
                   ₹{(referralInfo.referralEarnings ?? 0).toFixed(2)}
@@ -1167,26 +1082,30 @@ export default function DashboardPage() {
       </Card>
 
       {/* My Betting History */}
-      <Card className="border-slate-700 bg-slate-800 mx-4 mt-4">
-        <CardHeader>
-          <CardTitle className="text-white">My Betting History</CardTitle>
-          <CardDescription className="text-slate-400">
+      <Card className="border-slate-700 bg-slate-800 mx-auto mt-3 max-w-5xl">
+        <CardHeader className="px-4 py-3">
+          <CardTitle className="text-white text-base">
+            My Betting History
+          </CardTitle>
+          <CardDescription className="text-slate-400 text-xs">
             View all your bets and their results
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4">
           {betsLoading && myBets.length === 0 ? (
-            <div className="flex items-center justify-center py-12">
-              <Spinner className="w-6 h-6 text-blue-400" />
-              <p className="ml-3 text-slate-400">Loading betting history...</p>
+            <div className="flex items-center justify-center py-8">
+              <Spinner className="w-5 h-5 text-blue-400" />
+              <p className="ml-2 text-sm text-slate-400">
+                Loading betting history...
+              </p>
             </div>
           ) : myBets.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">
+            <p className="text-slate-400 text-center py-6 text-sm">
               No betting history found
             </p>
           ) : (
             <>
-              <ScrollArea className="h-[500px]">
+              <ScrollArea className="h-[400px]">
                 <div className="space-y-3 pr-4">
                   {(() => {
                     // Group bets by slot
@@ -1428,7 +1347,6 @@ export default function DashboardPage() {
                 const iconData = winningIcon
                   ? ICONS.find((i) => i.id === winningIcon)
                   : null;
-                const IconComponent = iconData?.Icon || Trophy;
                 const totalUserBetAmount = item.userBets.reduce(
                   (sum, b) => sum + b.amount,
                   0
@@ -1453,12 +1371,18 @@ export default function DashboardPage() {
                         </span>
                         {winningIcon && (
                           <div className="flex items-center gap-2">
-                            <IconComponent
-                              className={`w-5 h-5 ${
-                                iconData?.color || "text-yellow-500"
-                              }`}
-                            />
-                            <span className="text-sm text-slate-400">
+                            {iconData ? (
+                              <Image
+                                src={iconData.image}
+                                alt={iconData.name}
+                                width={20}
+                                height={20}
+                                className="w-5 h-5 lg:w-7 lg:h-7 xl:w-9 xl:h-9 2xl:w-12 2xl:h-12"
+                              />
+                            ) : (
+                              <Trophy className="w-5 h-5 lg:w-7 lg:h-7 xl:w-9 xl:h-9 2xl:w-12 2xl:h-12 text-yellow-500" />
+                            )}
+                            <span className="text-sm lg:text-base xl:text-lg 2xl:text-xl text-slate-400">
                               Winner: {winningIcon}
                             </span>
                           </div>
@@ -1507,20 +1431,20 @@ export default function DashboardPage() {
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 mx-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3 mx-auto mb-4 max-w-5xl px-3">
         {quickActions.map((action) => {
           const Icon = action.icon;
           return (
             <Link key={action.href} href={action.href}>
               <Card className="border-slate-700 bg-slate-800 hover:bg-slate-750 transition-colors cursor-pointer h-full">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <Icon className={`w-8 h-8 ${action.color}`} />
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-6 h-6 ${action.color}`} />
                     <div>
-                      <h3 className="font-semibold text-white">
+                      <h3 className="font-semibold text-white text-sm">
                         {action.label}
                       </h3>
-                      <p className="text-sm text-slate-400">
+                      <p className="text-xs text-slate-400">
                         {action.description}
                       </p>
                     </div>

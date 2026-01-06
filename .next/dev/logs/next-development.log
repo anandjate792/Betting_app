@@ -1,32 +1,45 @@
-[00:00:01.132] Server  LOG      ✓ Ready in 746ms
-[00:00:22.351] Server  LOG      ○ Compiling / ...
-[00:00:25.053] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:25.806] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:25.806] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:00:25.806] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767368019516}
-[00:00:26.763] Browser ERROR   Session restore error: {}
-[00:00:26.763] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:28.218] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
-
-If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
-
-For more information, see https://radix-ui.com/primitives/docs/components/dialog
-[00:00:28.219] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:28.219] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
-
-If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
-
-For more information, see https://radix-ui.com/primitives/docs/components/dialog
-[00:00:28.219] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:59.360] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
-
-If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
-
-For more information, see https://radix-ui.com/primitives/docs/components/dialog
-[00:00:59.360] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:59.360] Browser ERROR   `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
-
-If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
-
-For more information, see https://radix-ui.com/primitives/docs/components/dialog
-[00:00:59.360] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:00:00.923] Server  LOG      ✓ Ready in 602ms
+[00:00:14.244] Server  LOG      ○ Compiling / ...
+[00:00:16.210] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:16.728] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:16.728] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:00:16.729] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767678279026}
+[00:00:20.982] Server  LOG     [v0] MongoDB connected
+[00:00:22.430] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767678284718}
+[00:03:18.500] Server  LOG      ✓ Compiled in 568ms
+[00:03:23.645] Server  LOG      ✓ Compiled in 163ms
+[00:03:39.274] Server  LOG      ✓ Compiled in 65ms
+[00:03:53.460] Server  LOG      ✓ Compiled in 139ms
+[00:04:03.294] Server  LOG      ✓ Compiled in 65ms
+[00:04:32.760] Server  LOG      ✓ Compiled in 53ms
+[00:04:38.832] Server  LOG      ✓ Compiled in 58ms
+[00:04:48.117] Server  LOG      ✓ Compiled in 210ms
+[00:04:56.825] Server  LOG      ✓ Compiled in 282ms
+[00:05:07.815] Server  LOG      ✓ Compiled in 146ms
+[00:05:22.529] Server  LOG      ✓ Compiled in 142ms
+[00:05:26.083] Server  LOG      ✓ Compiled in 58ms
+[00:05:37.604] Server  LOG      ✓ Compiled in 187ms
+[00:05:56.443] Server  LOG      ✓ Compiled in 42ms
+[00:06:06.466] Server  LOG      ✓ Compiled in 61ms
+[00:06:39.623] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:06:39.951] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:06:39.951] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:06:39.951] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1767678662176}
+[00:11:15.907] Server  LOG      ✓ Compiled in 200ms
+[00:11:19.786] Server  LOG      ✓ Compiled in 161ms
+[00:11:45.861] Server  LOG      ✓ Compiled in 149ms
+[00:11:58.380] Server  LOG      ✓ Compiled in 209ms
+[00:12:07.657] Server  LOG      ✓ Compiled in 182ms
+[00:12:10.485] Server  LOG      ✓ Compiled in 92ms
+[00:12:20.066] Server  LOG      ✓ Compiled in 163ms
+[00:13:13.854] Server  LOG      ✓ Compiled in 46ms
+[00:13:38.600] Server  LOG      ✓ Compiled in 139ms
+[00:13:42.493] Server  LOG      ✓ Compiled in 141ms
+[00:13:44.012] Server  LOG      ✓ Compiled in 124ms
+[00:13:50.761] Server  LOG      ✓ Compiled in 139ms
+[00:14:00.207] Server  LOG      ✓ Compiled in 123ms
+[00:14:01.908] Server  LOG      ✓ Compiled in 164ms
+[00:14:07.194] Server  LOG      ✓ Compiled in 322ms
+[00:14:11.454] Server  LOG      ✓ Compiled in 153ms
+[00:14:33.297] Server  LOG      ✓ Compiled in 116ms
+[00:14:51.738] Server  LOG      ✓ Compiled in 58ms

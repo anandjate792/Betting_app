@@ -138,8 +138,8 @@ export async function POST(
     const winningBets = allBets.filter((bet) => bet.icon === randomWinningIcon);
     const totalSlotAmount = slot.totalAmount;
 
-    // Always take 20% commission
-    const companyCommission = totalSlotAmount * 0.2;
+    // Always take 25% commission
+    const companyCommission = totalSlotAmount * 0.25;
     const totalPayoutToWinners = totalSlotAmount - companyCommission;
 
     // Equal distribution: divide equally among all winners

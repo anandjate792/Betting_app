@@ -18,7 +18,7 @@ import { GiSpinningTop } from "react-icons/gi";
 import { GiRose } from "react-icons/gi";
 import { GiSparrow } from "react-icons/gi";
 import { GiRabbit } from "react-icons/gi";
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 
 const ICONS = [
   {
@@ -135,6 +135,7 @@ export default function Home() {
 
       <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
         <DialogContent className="border-0 p-0 max-w-md">
+          <DialogTitle className="sr-only">Login</DialogTitle>
           <LoginPage />
         </DialogContent>
       </Dialog>

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/lib/models/User";
+import Transaction from "@/lib/models/Transaction";
 import { generateToken } from "@/lib/auth-token";
 
 export async function POST(request: NextRequest) {
@@ -38,7 +39,33 @@ export async function POST(request: NextRequest) {
       if (referrer) {
         referredBy = referrer._id;
         // Increment referrer's referral count
-        referrer.referralCount = (referrer.referralCount || 0) + 1;
+        const currentReferralCount = referrer.referralCount || 0;
+        referrer.referralCount = currentReferralCount + 1;
+        
+        // Give 5 rupees per referral, up to 1000 rupees (max 200 referrals)
+        const currentReferralEarnings = referrer.referralEarnings || 0;
+        const maxReferralEarnings = 1000; // Maximum total referral earnings
+        const referralReward = 5; // Amount per referral
+        
+        if (currentReferralEarnings < maxReferralEarnings) {
+          // Calculate how much more can be earned (remaining amount)
+          const remainingEarnings = maxReferralEarnings - currentReferralEarnings;
+          const rewardAmount = Math.min(referralReward, remainingEarnings);
+          
+          // Add reward to wallet and update referral earnings
+          referrer.walletBalance = (referrer.walletBalance || 0) + rewardAmount;
+          referrer.referralEarnings = currentReferralEarnings + rewardAmount;
+          
+          // Create transaction record
+          await Transaction.create({
+            userId: referrer._id,
+            userName: referrer.name,
+            amount: rewardAmount,
+            description: `Referral reward for referring a new user`,
+            status: "approved",
+          });
+        }
+        
         await referrer.save();
       }
     }

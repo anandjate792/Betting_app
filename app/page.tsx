@@ -5,59 +5,41 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import LoginPage from "@/components/login-page"
 import { Spinner } from "@/components/ui/spinner"
-import { FaUmbrella, FaFootballBall } from "react-icons/fa";
-import {
-  GiButterfly,
-  GiCow,
-  GiEmptyMetalBucketHandle,
-  GiKite,
-} from "react-icons/gi";
-import { WiDaySunny } from "react-icons/wi";
-import { MdLight } from "react-icons/md";
-import { GiSpinningTop } from "react-icons/gi";
-import { GiRose } from "react-icons/gi";
-import { GiSparrow } from "react-icons/gi";
-import { GiRabbit } from "react-icons/gi";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 
 const ICONS = [
   {
     id: "umbrella",
     name: "Umbrella",
-    Icon: FaUmbrella,
-    color: "text-blue-500",
+    image: "/umbrella.webp",
   },
   {
     id: "football",
     name: "Football",
-    Icon: FaFootballBall,
-    color: "text-orange-600",
+    image: "/football.webp",
   },
-  { id: "sun", name: "Sun", Icon: WiDaySunny, color: "text-yellow-400" },
-  { id: "lamp", name: "Lamp", Icon: MdLight, color: "text-amber-500" },
-  { id: "cow", name: "Cow", Icon: GiCow, color: "text-stone-600" },
+  { id: "sun", name: "Sun", image: "/sun.webp" },
+  { id: "lamp", name: "Lamp", image: "/lamp.webp" },
+  { id: "cow", name: "Cow", image: "/cow.webp" },
   {
     id: "bucket",
     name: "Bucket",
-    Icon: GiEmptyMetalBucketHandle,
-    color: "text-cyan-500",
+    image: "/bucket.webp",
   },
-  { id: "kite", name: "Kite", Icon: GiKite, color: "text-red-500" },
+  { id: "kite", name: "Kite", image: "/kite.webp" },
   {
     id: "spinning-top",
     name: "Spinning Top",
-    Icon: GiSpinningTop,
-    color: "text-indigo-500",
+    image: "/spinning-top.webp",
   },
-  { id: "rose", name: "Rose", Icon: GiRose, color: "text-pink-500" },
+  { id: "rose", name: "Rose", image: "/rose.webp" },
   {
     id: "butterfly",
     name: "Butterfly",
-    Icon: GiButterfly,
-    color: "text-purple-500",
+    image: "/butterfly.webp",
   },
-  { id: "sparrow", name: "Sparrow", Icon: GiSparrow, color: "text-sky-600" },
-  { id: "rabbit", name: "Rabbit", Icon: GiRabbit, color: "text-emerald-500" },
+  { id: "sparrow", name: "Sparrow", image: "/sparrow.webp" },
+  { id: "rabbit", name: "Rabbit", image: "/rabbit.webp" },
 ]
 
 export default function Home() {
@@ -116,13 +98,19 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-4 md:grid-cols-6 gap-4 max-w-4xl w-full">
-          {ICONS.map(({ id, name, Icon, color }) => (
+          {ICONS.map(({ id, name, image }) => (
             <button
               key={id}
               onClick={() => setShowLoginModal(true)}
               className="p-6 rounded-lg border-2 border-slate-600 bg-slate-800 hover:border-blue-500 hover:bg-slate-700 transition-all flex flex-col items-center gap-2"
             >
-              <Icon className={`w-8 h-8 ${color}`} />
+              <Image
+                src={image}
+                alt={name}
+                width={64}
+                height={64}
+                className="w-16 h-16 object-contain"
+              />
               <span className="text-xs text-slate-300">{name}</span>
             </button>
           ))}

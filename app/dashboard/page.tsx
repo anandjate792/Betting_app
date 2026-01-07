@@ -918,7 +918,7 @@ export default function DashboardPage() {
                         key={id}
                         type="button"
                         onClick={() => handleIconClick(id)}
-                        className={`relative flex flex-col items-center justify-center p-1.5 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square ${
+                        className={`relative flex flex-col items-center justify-center p-2 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square ${
                           hasMyBet
                             ? "bg-green-600/30 border-green-500"
                             : "bg-slate-700/50 border-slate-600 hover:border-slate-500"
@@ -937,11 +937,11 @@ export default function DashboardPage() {
                         <Image
                           src={image}
                           alt={name}
-                          width={20}
-                          height={20}
-                          className="w-5 h-5 lg:w-8 lg:h-8 xl:w-12 xl:h-12 2xl:w-16 2xl:h-16"
+                          width={64}
+                          height={64}
+                          className="w-10 h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 object-contain"
                         />
-                        <span className="text-[8px] lg:text-[10px] xl:text-sm 2xl:text-base text-slate-300 mt-0.5 lg:mt-1 xl:mt-1.5 2xl:mt-2 text-center leading-tight">
+                        <span className="text-[9px] lg:text-[10px] xl:text-sm 2xl:text-base text-slate-300 mt-1 lg:mt-1 xl:mt-1.5 2xl:mt-2 text-center leading-tight">
                           {name}
                         </span>
                       </button>

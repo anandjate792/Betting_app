@@ -100,28 +100,42 @@ const finalizeExpiredOpenSlots = async () => {
       continue;
     }
 
-    // Multiple users - select random winning icon
+    // Multiple users - select winning icon with lowest total bet amount
     const iconsWithBets = [...new Set(allBets.map((bet) => bet.icon))];
-    const randomWinningIcon = iconsWithBets[Math.floor(Math.random() * iconsWithBets.length)];
+    
+    // Calculate total bet amount for each icon
+    const iconTotals: Record<string, number> = {};
+    for (const icon of iconsWithBets) {
+      iconTotals[icon] = allBets
+        .filter(bet => bet.icon === icon)
+        .reduce((sum, bet) => sum + bet.amount, 0);
+    }
+    
+    // Find icon with lowest total bet amount
+    const lowestTotalBet = Math.min(...Object.values(iconTotals));
+    const lowestBetIcons = Object.keys(iconTotals).filter(icon => iconTotals[icon] === lowestTotalBet);
+    const winningIcon = lowestBetIcons[Math.floor(Math.random() * lowestBetIcons.length)];
 
     const winningBets = await Bet.find({
       slotId: currentSlot._id,
-      icon: randomWinningIcon,
+      icon: winningIcon,
       status: "pending",
     });
     const totalSlotAmount = currentSlot.totalAmount;
 
-    // Always take 25% commission
-    const companyCommission = totalSlotAmount * 0.25;
-    const totalPayoutToWinners = totalSlotAmount - companyCommission;
+    // Calculate total winner bets for 10x multiplier
+    const totalWinnerBets = winningBets.reduce((sum, bet) => sum + bet.amount, 0);
+    const totalPayoutToWinners = totalWinnerBets * 10; // 10x multiplier
+    const companyCommission = totalSlotAmount - totalPayoutToWinners; // Rest goes to platform
 
-    // Equal distribution: divide equally among all winners
-    const payoutPerWinner = winningBets.length > 0 
-      ? totalPayoutToWinners / winningBets.length 
-      : 0;
+    // Distribute payout proportionally based on bet amounts
+    const payoutsPerWinner: Record<string, number> = {};
+    for (const bet of winningBets) {
+      payoutsPerWinner[bet._id.toString()] = (bet.amount / totalWinnerBets) * totalPayoutToWinners;
+    }
 
     // Atomically update slot to completed
-    currentSlot.winningIcon = randomWinningIcon;
+    currentSlot.winningIcon = winningIcon;
     currentSlot.companyCommission = companyCommission;
     currentSlot.status = "completed";
     await currentSlot.save();
@@ -133,7 +147,7 @@ const finalizeExpiredOpenSlots = async () => {
         {
           $set: {
             status: "won",
-            payout: payoutPerWinner,
+            payout: payoutsPerWinner[bet._id.toString()],
           },
         },
         { new: true }
@@ -141,12 +155,12 @@ const finalizeExpiredOpenSlots = async () => {
 
       if (updatedBet) {
         await User.findByIdAndUpdate(bet.userId, {
-          $inc: { walletBalance: payoutPerWinner },
+          $inc: { walletBalance: payoutsPerWinner[bet._id.toString()] },
         });
         await createApprovedTransaction({
           userId: bet.userId.toString(),
           userName: bet.userName,
-          amount: payoutPerWinner,
+          amount: payoutsPerWinner[bet._id.toString()],
           description: `Bet winning for Slot #${currentSlot.slotNumber}`,
         });
       }
@@ -156,7 +170,7 @@ const finalizeExpiredOpenSlots = async () => {
     await Bet.updateMany(
       {
         slotId: currentSlot._id,
-        icon: { $ne: randomWinningIcon },
+        icon: { $ne: winningIcon },
         status: "pending",
       },
       { $set: { status: "lost" } }
@@ -166,7 +180,7 @@ const finalizeExpiredOpenSlots = async () => {
     await Bet.updateMany(
       {
         slotId: currentSlot._id,
-        icon: { $ne: randomWinningIcon },
+        icon: { $ne: winningIcon },
         status: { $nin: ["won", "lost", "cancelled"] },
       },
       { $set: { status: "lost" } }
@@ -208,6 +222,21 @@ export async function GET(request: NextRequest) {
       }).sort({ startTime: -1 });
 
       if (!slot && autoCreateEnabled) {
+        // Check if there was a recently completed slot within the last 5 seconds
+        // If so, wait before creating a new slot to allow users to see results
+        const recentlyCompletedSlot = await PredictionSlot.findOne({
+          status: { $in: ["completed", "cancelled"] },
+          endTime: { $gte: new Date(now.getTime() - 5 * 1000) }, // Within last 5 seconds
+        }).sort({ endTime: -1 });
+
+        if (recentlyCompletedSlot) {
+          // Don't create new slot yet - let users see the results for 5 seconds
+          return NextResponse.json({ 
+            error: "Waiting period between slots",
+            waitTime: 5 - Math.floor((now.getTime() - recentlyCompletedSlot.endTime.getTime()) / 1000)
+          }, { status: 404 });
+        }
+
         // create an on-demand 45-second slot so users aren't blocked when admin is offline
         const nextSlotStart = new Date(now);
         const nextSlotEnd = new Date(nextSlotStart.getTime() + 45 * 1000);

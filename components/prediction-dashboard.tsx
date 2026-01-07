@@ -4,6 +4,7 @@ import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useAppStore } from "@/lib/store";
 import { authApi } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 import {
   Card,
   CardContent,
@@ -80,6 +81,7 @@ const ICONS = [
 export default function PredictionDashboard() {
   const { user, logout, addTransaction, transactions, fetchTransactions } =
     useAppStore();
+  const { toast } = useToast();
   const [currentSlot, setCurrentSlot] = useState<any>(null);
   const [selectedIcon, setSelectedIcon] = useState<string>("");
   const [betAmount, setBetAmount] = useState<string>("50");
@@ -123,6 +125,8 @@ export default function PredictionDashboard() {
   const betsScrollRef = useRef<HTMLDivElement>(null);
   const transactionsScrollRef = useRef<HTMLDivElement>(null);
   const withdrawalsScrollRef = useRef<HTMLDivElement>(null);
+  const [processedBetIds, setProcessedBetIds] = useState<Set<string>>(new Set());
+  const [slotWaitTime, setSlotWaitTime] = useState<number | null>(null);
 
   const handleBetsScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
@@ -168,6 +172,26 @@ export default function PredictionDashboard() {
     }
   }, [currentSlot]);
 
+  // Load bets when current slot changes to catch results immediately
+  useEffect(() => {
+    if (currentSlot) {
+      loadMyBets(true);
+    }
+  }, [currentSlot?.status]);
+
+  // Handle waiting period countdown
+  useEffect(() => {
+    if (slotWaitTime !== null && slotWaitTime > 0) {
+      const timer = setTimeout(() => {
+        setSlotWaitTime(prev => prev !== null ? prev - 1 : null);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (slotWaitTime === 0) {
+      // Time's up, try loading slot again
+      loadCurrentSlot();
+    }
+  }, [slotWaitTime]);
+
   const loadCurrentSlot = async () => {
     setSlotLoading(true);
     try {
@@ -180,12 +204,22 @@ export default function PredictionDashboard() {
             { totalBets: number; totalAmount: number }
           >
         );
+        setSlotWaitTime(null);
       } else {
         setCurrentSlot(null);
+        // Check if it's a waiting period error
+        const response = await fetch('/api/prediction-slots?current=true');
+        const data = await response.json();
+        if (response.status === 404 && data.waitTime !== undefined) {
+          setSlotWaitTime(data.waitTime);
+        } else {
+          setSlotWaitTime(null);
+        }
       }
       await loadMyCurrentSlotBet(slot?.id);
     } catch (error: any) {
       setCurrentSlot(null);
+      setSlotWaitTime(null);
     } finally {
       setSlotLoading(false);
     }
@@ -272,6 +306,31 @@ export default function PredictionDashboard() {
       loadWithdrawals(true);
     }
   }, [activeTab]);
+
+  // Check for bet results and show notifications
+  useEffect(() => {
+    myBets.forEach((bet) => {
+      // Only process bets that haven't been processed yet
+      if (!processedBetIds.has(bet.id) && (bet.status === "won" || bet.status === "lost")) {
+        if (bet.status === "won") {
+          toast({
+            title: "🎉 Congratulations! You Won!",
+            description: `You won ₹${bet.payout?.toFixed(2) || "0.00"} on Slot #${bet.slotNumber || "N/A"} with ${bet.icon}`,
+            variant: "default",
+          });
+        } else if (bet.status === "lost") {
+          toast({
+            title: "😔 You Lost",
+            description: `Your bet on ${bet.icon} for Slot #${bet.slotNumber || "N/A"} was not the winning icon`,
+            variant: "destructive",
+          });
+        }
+        
+        // Mark this bet as processed
+        setProcessedBetIds(prev => new Set([...prev, bet.id]));
+      }
+    });
+  }, [myBets, processedBetIds, toast]);
 
   const loadTransactions = async (reset = false) => {
     if (reset) {
@@ -497,16 +556,30 @@ export default function PredictionDashboard() {
           ) : !currentSlot ? (
             <Card className="border-slate-700 bg-slate-800">
               <CardHeader>
-                <CardTitle className="text-white">No Active Slot</CardTitle>
+                <CardTitle className="text-white">
+                  {slotWaitTime !== null ? "Next Slot Starting Soon" : "No Active Slot"}
+                </CardTitle>
                 <CardDescription className="text-slate-400">
-                  Waiting for the next prediction slot to be created. Please
-                  check back soon!
+                  {slotWaitTime !== null 
+                    ? `Previous slot just ended! Next slot starts in ${slotWaitTime} seconds...`
+                    : "Waiting for the next prediction slot to be created. Please check back soon!"
+                  }
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-400 text-center py-8">
-                  The next slot will be created automatically every 10 minutes.
+                  {slotWaitTime !== null 
+                    ? "Take a moment to check your results from the previous slot!"
+                    : "The next slot will be created automatically every 10 minutes."
+                  }
                 </p>
+                {slotWaitTime !== null && (
+                  <div className="flex justify-center mt-4">
+                    <div className="text-3xl font-bold text-blue-400 animate-pulse">
+                      {slotWaitTime}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ) : (

@@ -21,6 +21,7 @@ export default function ApprovalsPage() {
   const [selectedImageTransaction, setSelectedImageTransaction] = useState<
     string | null
   >(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [transactionsSkip, setTransactionsSkip] = useState(10);
@@ -163,6 +164,11 @@ export default function ApprovalsPage() {
                     <p>
                       <strong>Description:</strong> {trans.description}
                     </p>
+                    {trans.description && trans.description.includes('UTR:') && (
+                      <p>
+                        <strong>UTR Number:</strong> {trans.description.split('UTR:')[1]?.trim() || 'N/A'}
+                      </p>
+                    )}
                   </div>
                   <Button
                     onClick={() => setSelectedImageTransaction(null)}
@@ -174,6 +180,113 @@ export default function ApprovalsPage() {
                 </>
               ) : null;
             })()}
+          </CardContent>
+        </Card>
+      )}
+
+      {selectedTransaction && (
+        <Card className="border-slate-700 bg-slate-800">
+          <CardHeader>
+            <CardTitle className="text-white">Transaction Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-slate-400">User</p>
+                <p className="text-white font-medium">{selectedTransaction.userName}</p>
+              </div>
+              <div>
+                <p className="text-slate-400">Amount</p>
+                <p className="text-green-400 font-medium">${selectedTransaction.amount.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-slate-400">Status</p>
+                <p className={`font-medium ${
+                  selectedTransaction.status === 'pending' ? 'text-yellow-400' :
+                  selectedTransaction.status === 'approved' ? 'text-green-400' :
+                  'text-red-400'
+                }`}>
+                  {selectedTransaction.status.charAt(0).toUpperCase() + selectedTransaction.status.slice(1)}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-400">Date</p>
+                <p className="text-white font-medium">
+                  {new Date(selectedTransaction.createdAt).toLocaleString()}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-slate-400">Description</p>
+                <p className="text-white font-medium">{selectedTransaction.description}</p>
+                {selectedTransaction.description && selectedTransaction.description.includes('UTR:') && (
+                  <p className="text-blue-400 text-sm mt-1">
+                    UTR: {selectedTransaction.description.split('UTR:')[1]?.trim() || 'N/A'}
+                  </p>
+                )}
+              </div>
+              {selectedTransaction.approvedAt && (
+                <div>
+                  <p className="text-slate-400">Approved At</p>
+                  <p className="text-white font-medium">
+                    {new Date(selectedTransaction.approvedAt).toLocaleString()}
+                  </p>
+                </div>
+              )}
+              {selectedTransaction.approvedBy && (
+                <div>
+                  <p className="text-slate-400">Approved By</p>
+                  <p className="text-white font-medium">{selectedTransaction.approvedBy}</p>
+                </div>
+              )}
+            </div>
+            
+            {selectedTransaction.screenshotImage && (
+              <div>
+                <p className="text-slate-400 mb-2">Screenshot</p>
+                <img
+                  src={selectedTransaction.screenshotImage}
+                  alt="Transaction screenshot"
+                  className="w-full max-h-64 object-cover rounded-lg border border-slate-600"
+                />
+              </div>
+            )}
+            
+            <div className="flex gap-2">
+              {selectedTransaction.status === 'pending' && (
+                <>
+                  <Button
+                    onClick={() => {
+                      handleApprove(selectedTransaction.id);
+                      setSelectedTransaction(null);
+                    }}
+                    disabled={processingTransaction?.id === selectedTransaction.id}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Approve
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      handleReject(selectedTransaction.id);
+                      setSelectedTransaction(null);
+                    }}
+                    disabled={processingTransaction?.id === selectedTransaction.id}
+                    variant="destructive"
+                    className="flex-1"
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Reject
+                  </Button>
+                </>
+              )}
+              <Button
+                onClick={() => setSelectedTransaction(null)}
+                variant="outline"
+                className="w-full text-slate-300 border-slate-600 hover:bg-slate-700"
+              >
+                Close
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -214,7 +327,8 @@ export default function ApprovalsPage() {
                 {pendingTransactions.map((trans) => (
                   <div
                     key={trans.id}
-                    className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                    className="p-4 bg-slate-700 rounded-lg border border-slate-600 cursor-pointer hover:bg-slate-650 transition-colors"
+                    onClick={() => setSelectedTransaction(trans)}
                   >
                     <div className="flex gap-4">
                       {/* Left side: Transaction details */}
@@ -227,6 +341,11 @@ export default function ApprovalsPage() {
                             <p className="text-sm text-slate-400">
                               {trans.description}
                             </p>
+                            {trans.description && trans.description.includes('UTR:') && (
+                              <p className="text-xs text-blue-400 mt-1">
+                                UTR: {trans.description.split('UTR:')[1]?.trim() || 'N/A'}
+                              </p>
+                            )}
                           </div>
                           <p className="text-xl font-bold text-green-400">
                             ${trans.amount.toFixed(2)}
@@ -238,7 +357,10 @@ export default function ApprovalsPage() {
 
                         <div className="flex gap-2">
                           <Button
-                            onClick={() => handleApprove(trans.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleApprove(trans.id);
+                            }}
                             disabled={
                               processingTransaction?.id === trans.id ||
                               processingTransaction !== null
@@ -260,7 +382,10 @@ export default function ApprovalsPage() {
                             )}
                           </Button>
                           <Button
-                            onClick={() => handleReject(trans.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleReject(trans.id);
+                            }}
                             disabled={
                               processingTransaction?.id === trans.id ||
                               processingTransaction !== null
@@ -335,6 +460,7 @@ export default function ApprovalsPage() {
                         <th className="text-left py-2 px-2 text-slate-300">User</th>
                         <th className="text-left py-2 px-2 text-slate-300">Amount</th>
                         <th className="text-left py-2 px-2 text-slate-300">Status</th>
+                        <th className="text-left py-2 px-2 text-slate-300">UTR</th>
                         <th className="text-left py-2 px-2 text-slate-300">Date</th>
                       </tr>
                     </thead>
@@ -342,7 +468,8 @@ export default function ApprovalsPage() {
                       {allTransactions.map((trans) => (
                         <tr
                           key={trans.id}
-                          className="border-b border-slate-700 hover:bg-slate-700/50"
+                          className="border-b border-slate-700 hover:bg-slate-700/50 cursor-pointer"
+                          onClick={() => setSelectedTransaction(trans)}
                         >
                           <td className="py-3 px-2 text-white">
                             {trans.userName}
@@ -363,6 +490,11 @@ export default function ApprovalsPage() {
                               {trans.status.charAt(0).toUpperCase() +
                                 trans.status.slice(1)}
                             </span>
+                          </td>
+                          <td className="py-3 px-2 text-blue-400 text-xs">
+                            {trans.description && trans.description.includes('UTR:') 
+                              ? trans.description.split('UTR:')[1]?.trim() 
+                              : 'N/A'}
                           </td>
                           <td className="py-3 px-2 text-slate-400">
                             {new Date(trans.createdAt).toLocaleDateString()}

@@ -346,6 +346,10 @@ const useAppStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mod
         },
         addTransaction: async (amount, description, screenshotImage)=>{
             try {
+                // Check if amount is positive
+                if (amount <= 0) {
+                    throw new Error("Transaction amount must be positive");
+                }
                 await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["transactionApi"].createTransaction(amount, description, screenshotImage || "");
                 await get().fetchTransactions();
             } catch (error) {
@@ -374,13 +378,22 @@ const useAppStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mod
         },
         addMoneyToWallet: async (userId, amount)=>{
             try {
+                // Check if amount is positive
+                if (amount <= 0) {
+                    throw new Error("Amount must be positive");
+                }
                 await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["userApi"].addMoney(userId, amount);
                 await get().fetchUsers();
                 if (get().user?.id === userId) {
+                    const newBalance = get().user.walletBalance + amount;
+                    // Prevent wallet balance from going below 0
+                    if (newBalance < 0) {
+                        throw new Error("Insufficient funds: Wallet balance cannot be negative");
+                    }
                     set((state)=>({
                             user: state.user ? {
                                 ...state.user,
-                                walletBalance: state.user.walletBalance + amount
+                                walletBalance: Math.max(0, newBalance)
                             } : null
                         }));
                 }

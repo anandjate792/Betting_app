@@ -18,6 +18,7 @@ export default function WalletPage() {
   const { user, addTransaction } = useAppStore();
   const [transactionAmount, setTransactionAmount] = useState<string>("");
   const [transactionDescription, setTransactionDescription] = useState<string>("");
+  const [utrNumber, setUtrNumber] = useState<string>("");
   const [screenshotImage, setScreenshotImage] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [transactionLoading, setTransactionLoading] = useState(false);
@@ -37,26 +38,41 @@ export default function WalletPage() {
   };
 
   const handleSubmitTransaction = async () => {
-    if (!transactionAmount || !transactionDescription) {
+    if (!transactionAmount || !transactionDescription || !utrNumber) {
+      alert("Please fill in all fields including UTR number");
+      return;
+    }
+
+    const amount = parseFloat(transactionAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a positive amount only");
+      return;
+    }
+
+    if (amount < 100) {
+      alert("Minimum deposit amount is ₹100");
       return;
     }
 
     setTransactionLoading(true);
     try {
       await addTransaction(
-        parseFloat(transactionAmount),
-        transactionDescription,
+        amount,
+        `${transactionDescription} (UTR: ${utrNumber})`,
         screenshotImage || undefined
       );
       setTransactionAmount("");
       setTransactionDescription("");
+      setUtrNumber("");
       setScreenshotImage(null);
       setImagePreview(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+      alert("Transaction submitted successfully! It will be reviewed by admin.");
     } catch (error) {
       console.error("Failed to submit transaction:", error);
+      alert("Failed to submit transaction. Please try again.");
     } finally {
       setTransactionLoading(false);
     }
@@ -85,7 +101,7 @@ export default function WalletPage() {
         <CardHeader>
           <CardTitle className="text-white">Upload Transaction</CardTitle>
           <CardDescription className="text-slate-400">
-            Upload a screenshot of your Gpay transaction to add money to your wallet
+            Upload a screenshot of your Gpay transaction to add money to your wallet (Minimum: ₹100)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -95,9 +111,21 @@ export default function WalletPage() {
             </label>
             <Input
               type="number"
-              placeholder="Enter amount"
+              placeholder="Enter amount (Minimum: ₹100)"
               value={transactionAmount}
               onChange={(e) => setTransactionAmount(e.target.value)}
+              className="bg-slate-700 border-slate-600 text-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              UTR Number
+            </label>
+            <Input
+              type="text"
+              placeholder="Enter UTR number"
+              value={utrNumber}
+              onChange={(e) => setUtrNumber(e.target.value)}
               className="bg-slate-700 border-slate-600 text-white"
             />
           </div>
@@ -146,7 +174,7 @@ export default function WalletPage() {
           </div>
           <Button
             onClick={handleSubmitTransaction}
-            disabled={transactionLoading || !transactionAmount || !transactionDescription}
+            disabled={transactionLoading || !transactionAmount || !transactionDescription || !utrNumber}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
           >
             {transactionLoading ? (

@@ -517,6 +517,13 @@ export default function PredictionDashboard() {
         return;
       }
 
+      // Check if user has sufficient balance
+      if (user && user.walletBalance < amount) {
+        setError("Insufficient wallet balance. Please add money to your wallet to place bets.");
+        setLoading(false);
+        return;
+      }
+
       const result = await betApi.placeBet(
         currentSlot.id,
         selectedIcon,

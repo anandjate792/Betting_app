@@ -1,10 +1,21 @@
 {
+  "/admin/add-money/page": "app/admin/add-money/page.js",
+  "/admin/approvals/page": "app/admin/approvals/page.js",
+  "/admin/prediction/page": "app/admin/prediction/page.js",
+  "/admin/users/page": "app/admin/users/page.js",
+  "/admin/withdrawals/page": "app/admin/withdrawals/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
   "/api/auth/me/route": "app/api/auth/me/route.js",
   "/api/bets/route": "app/api/bets/route.js",
-  "/api/prediction-slots/[slotId]/route": "app/api/prediction-slots/[slotId]/route.js",
+  "/api/prediction-slots/auto-complete/route": "app/api/prediction-slots/auto-complete/route.js",
+  "/api/prediction-slots/auto-create/route": "app/api/prediction-slots/auto-create/route.js",
   "/api/prediction-slots/route": "app/api/prediction-slots/route.js",
   "/api/referrals/route": "app/api/referrals/route.js",
+  "/api/transactions/[transactionId]/route": "app/api/transactions/[transactionId]/route.js",
   "/api/transactions/route": "app/api/transactions/route.js",
+  "/api/users/route": "app/api/users/route.js",
+  "/api/withdrawals/route": "app/api/withdrawals/route.js",
   "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/wallet/page": "app/dashboard/wallet/page.js",
   "/page": "app/page.js"
 }

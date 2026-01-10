@@ -722,6 +722,10 @@
     order: 9999;
   }
 
+  .col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+
   .col-start-2 {
     grid-column-start: 2;
   }

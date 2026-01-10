@@ -125,6 +125,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   addTransaction: async (amount: number, description: string, screenshotImage?: string) => {
     try {
+      // Check if amount is positive
+      if (amount <= 0) {
+        throw new Error("Transaction amount must be positive")
+      }
+      
       await transactionApi.createTransaction(amount, description, screenshotImage || "")
       await get().fetchTransactions()
     } catch (error) {
@@ -156,11 +161,21 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   addMoneyToWallet: async (userId: string, amount: number) => {
     try {
+      // Check if amount is positive
+      if (amount <= 0) {
+        throw new Error("Amount must be positive")
+      }
+      
       await userApi.addMoney(userId, amount)
       await get().fetchUsers()
       if (get().user?.id === userId) {
+        const newBalance = get().user!.walletBalance + amount
+        // Prevent wallet balance from going below 0
+        if (newBalance < 0) {
+          throw new Error("Insufficient funds: Wallet balance cannot be negative")
+        }
         set((state) => ({
-          user: state.user ? { ...state.user, walletBalance: state.user.walletBalance + amount } : null,
+          user: state.user ? { ...state.user, walletBalance: Math.max(0, newBalance) } : null,
         }))
       }
     } catch (error) {

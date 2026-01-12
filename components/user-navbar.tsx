@@ -14,6 +14,7 @@ import {
   CreditCard,
   ArrowUpDown,
   Settings,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 import SettingsModal from "./settings-modal";
@@ -33,6 +34,7 @@ export default function UserNavbar() {
       icon: ArrowUpDown,
     },
     { href: "/dashboard/withdrawals", label: "Withdrawals", icon: ArrowUpDown },
+    { href: "/dashboard/profile", label: "Profile", icon: User },
   ];
 
   return (

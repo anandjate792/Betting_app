@@ -10,6 +10,7 @@ export interface User {
   email: string
   role: "admin" | "user"
   walletBalance: number
+  createdAt?: string
 }
 
 export interface Transaction {

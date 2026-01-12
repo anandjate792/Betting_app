@@ -53,6 +53,10 @@ function WalletPage() {
             return;
         }
         const amount = parseFloat(transactionAmount);
+        if (isNaN(amount) || amount <= 0) {
+            alert("Please enter a positive amount only");
+            return;
+        }
         if (amount < 100) {
             alert("Minimum deposit amount is ₹100");
             return;
@@ -90,19 +94,19 @@ function WalletPage() {
                                     className: "w-5 h-5"
                                 }, void 0, false, {
                                     fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                    lineNumber: 82,
+                                    lineNumber: 87,
                                     columnNumber: 13
                                 }, this),
                                 "Wallet Balance"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/dashboard/wallet/page.tsx",
-                            lineNumber: 81,
+                            lineNumber: 86,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                        lineNumber: 80,
+                        lineNumber: 85,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -115,7 +119,7 @@ function WalletPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                lineNumber: 87,
+                                lineNumber: 92,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -123,19 +127,19 @@ function WalletPage() {
                                 children: "Your current wallet balance"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                lineNumber: 90,
+                                lineNumber: 95,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                        lineNumber: 86,
+                        lineNumber: 91,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                lineNumber: 79,
+                lineNumber: 84,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -148,7 +152,7 @@ function WalletPage() {
                                 children: "Upload Transaction"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                lineNumber: 97,
+                                lineNumber: 102,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -156,13 +160,13 @@ function WalletPage() {
                                 children: "Upload a screenshot of your Gpay transaction to add money to your wallet (Minimum: ₹100)"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                lineNumber: 98,
+                                lineNumber: 103,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                        lineNumber: 96,
+                        lineNumber: 101,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -175,7 +179,7 @@ function WalletPage() {
                                         children: "Amount"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 104,
+                                        lineNumber: 109,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -186,13 +190,13 @@ function WalletPage() {
                                         className: "bg-slate-700 border-slate-600 text-white"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 107,
+                                        lineNumber: 112,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                lineNumber: 103,
+                                lineNumber: 108,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -202,7 +206,7 @@ function WalletPage() {
                                         children: "UTR Number"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 116,
+                                        lineNumber: 121,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -213,13 +217,13 @@ function WalletPage() {
                                         className: "bg-slate-700 border-slate-600 text-white"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 119,
+                                        lineNumber: 124,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                lineNumber: 115,
+                                lineNumber: 120,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -229,7 +233,7 @@ function WalletPage() {
                                         children: "Description"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 128,
+                                        lineNumber: 133,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -240,13 +244,13 @@ function WalletPage() {
                                         className: "bg-slate-700 border-slate-600 text-white"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 131,
+                                        lineNumber: 136,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                lineNumber: 127,
+                                lineNumber: 132,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -256,7 +260,7 @@ function WalletPage() {
                                         children: "Screenshot"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 140,
+                                        lineNumber: 145,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -268,7 +272,7 @@ function WalletPage() {
                                         id: "screenshot-upload"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 143,
+                                        lineNumber: 148,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -279,7 +283,7 @@ function WalletPage() {
                                                 className: "w-5 h-5 text-slate-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                                lineNumber: 155,
+                                                lineNumber: 160,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -287,13 +291,13 @@ function WalletPage() {
                                                 children: imagePreview ? "Change Image" : "Upload Screenshot"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                                lineNumber: 156,
+                                                lineNumber: 161,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 151,
+                                        lineNumber: 156,
                                         columnNumber: 13
                                     }, this),
                                     imagePreview && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -304,18 +308,18 @@ function WalletPage() {
                                             className: "w-full max-h-64 object-contain rounded-lg border border-slate-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                            lineNumber: 162,
+                                            lineNumber: 167,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                        lineNumber: 161,
+                                        lineNumber: 166,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                lineNumber: 139,
+                                lineNumber: 144,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -328,7 +332,7 @@ function WalletPage() {
                                             className: "w-4 h-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                            lineNumber: 177,
+                                            lineNumber: 182,
                                             columnNumber: 17
                                         }, this),
                                         "Submitting..."
@@ -336,25 +340,25 @@ function WalletPage() {
                                 }, void 0, true) : "Submit Transaction"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                                lineNumber: 170,
+                                lineNumber: 175,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/dashboard/wallet/page.tsx",
-                        lineNumber: 102,
+                        lineNumber: 107,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/dashboard/wallet/page.tsx",
-                lineNumber: 95,
+                lineNumber: 100,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/dashboard/wallet/page.tsx",
-        lineNumber: 77,
+        lineNumber: 82,
         columnNumber: 5
     }, this);
 }

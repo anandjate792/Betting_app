@@ -813,79 +813,100 @@ export default function DashboardPage() {
             )}
           </div>
         </CardHeader>
-        <CardContent className="px-4">
-          {lastResult &&
-            (() => {
-              // Calculate overall slot result
-              const slotId = lastResult.slot?.id || lastResult.slotId;
-              const slotNumber =
-                lastResult.slot?.slotNumber || lastResult.slotNumber;
+      <CardContent className="px-4">
+  {lastResult &&
+    (() => {
+      // Calculate overall slot result
+      const slotId = lastResult.slot?.id || lastResult.slotId;
+      const slotNumber = lastResult.slot?.slotNumber || lastResult.slotNumber;
+      
+      // Get the winning icon from the slot
+      const winningIcon = lastResult.slot?.winningIcon || lastResult.winningIcon;
+      
+      // Find the icon data
+      const winningIconData = ICONS.find(icon => icon.id === winningIcon);
 
-              // Get all bets for this slot
-              const slotBets = myBets.filter((bet: any) => {
-                const betSlotId = bet.slot?.id || bet.slotId;
-                const betSlotNumber = bet.slot?.slotNumber || bet.slotNumber;
-                return betSlotId === slotId || betSlotNumber === slotNumber;
-              });
+      // Get all bets for this slot
+      const slotBets = myBets.filter((bet: any) => {
+        const betSlotId = bet.slot?.id || bet.slotId;
+        const betSlotNumber = bet.slot?.slotNumber || bet.slotNumber;
+        return betSlotId === slotId || betSlotNumber === slotNumber;
+      });
 
-              // Calculate net result for the slot
-              let totalBetAmount = 0;
-              let totalPayout = 0;
-              let hasWins = false;
-              let hasLosses = false;
+      // Calculate net result for the slot
+      let totalBetAmount = 0;
+      let totalPayout = 0;
+      let hasWins = false;
+      let hasLosses = false;
 
-              slotBets.forEach((bet: any) => {
-                totalBetAmount += bet.amount || 0;
-                totalPayout += bet.payout || 0;
-                if (bet.status === "won") hasWins = true;
-                if (bet.status === "lost") hasLosses = true;
-              });
+      slotBets.forEach((bet: any) => {
+        totalBetAmount += bet.amount || 0;
+        totalPayout += bet.payout || 0;
+        if (bet.status === "won") hasWins = true;
+        if (bet.status === "lost") hasLosses = true;
+      });
 
-              const netResult = totalPayout - totalBetAmount;
-              const isOverallWin = netResult > 0;
-              const hasBothWinsAndLosses = hasWins && hasLosses;
+      const netResult = totalPayout - totalBetAmount;
+      const isOverallWin = netResult > 0;
+      const hasBothWinsAndLosses = hasWins && hasLosses;
 
-              // Show "Won" only if there are both wins and losses AND net result is positive
-              const showWin = hasBothWinsAndLosses || isOverallWin;
+      // Show "Won" only if there are both wins and losses AND net result is positive
+      const showWin = hasBothWinsAndLosses || isOverallWin;
 
-              return (
-                <div className="mb-4">
-                  {showWin ? (
-                    <div className="relative overflow-hidden rounded-lg border-2 border-yellow-500 bg-gradient-to-br from-yellow-500 via-orange-400 to-orange-500 shadow-xl">
-                      <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
-                      <div className="relative px-4 py-3 text-center text-slate-900">
-                        <Trophy className="w-6 h-6 mx-auto mb-1 text-white" />
-                        <p className="text-xs font-bold tracking-wider uppercase text-white drop-shadow-md">
-                          Latest Result: Won
-                        </p>
-                        <p className="mt-1 text-2xl font-black text-white drop-shadow-lg">
-                          +₹{netResult.toFixed(2)}
-                        </p>
-                        <p className="mt-1 text-[10px] text-white/80">
-                          Slot #{slotNumber ?? "-"}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="relative overflow-hidden rounded-lg border-2 border-red-500 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 shadow-xl">
-                      <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
-                      <div className="relative px-4 py-3 text-center">
-                        <XIcon className="w-6 h-6 mx-auto mb-1 text-red-400" />
-                        <p className="text-xs font-bold tracking-wider uppercase text-red-400 drop-shadow-md">
-                          Latest Result: Lost
-                        </p>
-                        <p className="mt-1 text-2xl font-black text-red-400 drop-shadow-lg">
-                          -₹{Math.abs(netResult).toFixed(2)}
-                        </p>
-                        <p className="mt-1 text-[10px] text-slate-400">
-                          Slot #{slotNumber ?? "-"}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
+      return (
+        <div className="mb-4">
+          {showWin ? (
+            <div className="relative overflow-hidden rounded-lg border-2 border-yellow-500 bg-gradient-to-br from-yellow-500 via-orange-400 to-orange-500 shadow-xl">
+              <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
+              <div className="relative px-4 py-3 text-center text-slate-900">
+                {/* Show winning icon image if available, otherwise show trophy */}
+                {winningIconData ? (
+                  <div className="relative w-16 h-16 mx-auto mb-1 flex items-center justify-center">
+                    <Image
+                      src={winningIconData.image}
+                      alt={winningIconData.name}
+                      width={48}
+                      height={48}
+                      className="w-12 h-12 object-contain drop-shadow-lg"
+                    />
+                    <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-50" />
+                  </div>
+                ) : (
+                  <Trophy className="w-6 h-6 mx-auto mb-1 text-white" />
+                )}
+                <p className="text-xs font-bold tracking-wider uppercase text-white drop-shadow-md">
+                  Latest Result: Won
+                </p>
+                <p className="mt-1 text-2xl font-black text-white drop-shadow-lg">
+                  +₹{netResult.toFixed(2)}
+                </p>
+                <p className="mt-1 text-[10px] text-white/80">
+                  Slot #{slotNumber ?? "-"}
+                  {winningIcon && ` • ${winningIcon}`}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="relative overflow-hidden rounded-lg border-2 border-red-500 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 shadow-xl">
+              <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
+              <div className="relative px-4 py-3 text-center">
+                <XIcon className="w-6 h-6 mx-auto mb-1 text-red-400" />
+                <p className="text-xs font-bold tracking-wider uppercase text-red-400 drop-shadow-md">
+                  Latest Result: Lost
+                </p>
+                <p className="mt-1 text-2xl font-black text-red-400 drop-shadow-lg">
+                  -₹{Math.abs(netResult).toFixed(2)}
+                </p>
+                <p className="mt-1 text-[10px] text-slate-400">
+                  Slot #{slotNumber ?? "-"}
+                  {winningIcon && ` • Winning Icon: ${winningIcon}`}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    })()}
 
           {slotLoading ? (
             <div className="flex items-center justify-center py-8">

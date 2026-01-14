@@ -30,6 +30,7 @@ import { betApi, predictionApi, referralApi } from "@/lib/api";
 import { authApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster, toast } from "sonner";
+import { playSound } from "@/lib/sounds";
 
 const ICONS = [
   {
@@ -297,15 +298,20 @@ export default function DashboardPage() {
       const hasShownResult = localStorage.getItem(resultKey);
 
       if (!hasShownResult) {
+        const isWin = winningBets.length > 0;
+        
         setResultPopup({
           show: true,
-          type: winningBets.length > 0 ? "win" : "loss",
+          type: isWin ? "win" : "loss",
           slotNumber: slot.slotNumber,
           winningIcon: slot.winningIcon,
           payout,
           betAmount: totalBet,
         });
         setShowResultBanner(true);
+
+        // Play sound effect
+        playSound(isWin ? "win" : "lose");
 
         // Mark as shown
         localStorage.setItem(resultKey, "true");
@@ -845,8 +851,13 @@ export default function DashboardPage() {
         if (bet.status === "won") hasWins = true;
         if (bet.status === "lost") hasLosses = true;
       });
-
-      const netResult = totalPayout - totalBetAmount;
+      let netResult;
+       if(hasWins){
+      netResult = totalPayout;
+       }
+       else{
+      netResult = totalPayout - totalBetAmount;
+       }
       const isOverallWin = netResult > 0;
       const hasBothWinsAndLosses = hasWins && hasLosses;
 

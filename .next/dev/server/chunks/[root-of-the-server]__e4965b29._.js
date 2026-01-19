@@ -535,7 +535,7 @@ const finalizeExpiredOpenSlots = async ()=>{
         });
         if (!allBets.length) {
             currentSlot.status = "closed";
-            currentSlot.winningIcon = null;
+            currentSlot.winningIcon = "";
             currentSlot.companyCommission = 0;
             await currentSlot.save();
             continue;
@@ -563,45 +563,33 @@ const finalizeExpiredOpenSlots = async ()=>{
             });
             // Mark slot as cancelled
             currentSlot.status = "cancelled";
-            currentSlot.winningIcon = null;
+            currentSlot.winningIcon = "";
             currentSlot.companyCommission = 0;
             await currentSlot.save();
             continue;
         }
-        // Multiple users - select winning icon with lowest total bet amount
+        // Multiple users - select random winning icon from all icons that have bets
         const iconsWithBets = [
             ...new Set(allBets.map((bet)=>bet.icon))
         ];
-        // Calculate total bet amount for each icon
-        const iconTotals = {};
-        for (const icon of iconsWithBets){
-            iconTotals[icon] = allBets.filter((bet)=>bet.icon === icon).reduce((sum, bet)=>sum + bet.amount, 0);
-        }
-        // Find icon with lowest total bet amount
-        const lowestTotalBet = Math.min(...Object.values(iconTotals));
-        const lowestBetIcons = Object.keys(iconTotals).filter((icon)=>iconTotals[icon] === lowestTotalBet);
-        const winningIcon = lowestBetIcons[Math.floor(Math.random() * lowestBetIcons.length)];
+        const winningIcon = iconsWithBets[Math.floor(Math.random() * iconsWithBets.length)];
         const winningBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
             slotId: currentSlot._id,
             icon: winningIcon,
             status: "pending"
         });
         const totalSlotAmount = currentSlot.totalAmount;
-        // Calculate total winner bets for 10x multiplier
-        const totalWinnerBets = winningBets.reduce((sum, bet)=>sum + bet.amount, 0);
-        const totalPayoutToWinners = totalWinnerBets * 10; // 10x multiplier
-        const companyCommission = totalSlotAmount - totalPayoutToWinners; // Rest goes to platform
-        // Distribute payout proportionally based on bet amounts
-        const payoutsPerWinner = {};
-        for (const bet of winningBets){
-            payoutsPerWinner[bet._id.toString()] = bet.amount / totalWinnerBets * totalPayoutToWinners;
-        }
+        // Calculate total payout to winners (10x each winner's bet)
+        const totalPayoutToWinners = winningBets.reduce((sum, bet)=>sum + bet.amount * 10, 0);
+        const companyCommission = totalSlotAmount - totalPayoutToWinners; // Remaining goes to platform
         // Atomically update slot to completed
         currentSlot.winningIcon = winningIcon;
         currentSlot.companyCommission = companyCommission;
         currentSlot.status = "completed";
         await currentSlot.save();
         for (const bet of winningBets){
+            // Calculate 10x payout for this winner
+            const payoutPerWinner = bet.amount * 10;
             // Use atomic update to prevent double-processing
             const updatedBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOneAndUpdate({
                 _id: bet._id,
@@ -609,7 +597,7 @@ const finalizeExpiredOpenSlots = async ()=>{
             }, {
                 $set: {
                     status: "won",
-                    payout: payoutsPerWinner[bet._id.toString()]
+                    payout: payoutPerWinner
                 }
             }, {
                 new: true
@@ -617,13 +605,13 @@ const finalizeExpiredOpenSlots = async ()=>{
             if (updatedBet) {
                 await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findByIdAndUpdate(bet.userId, {
                     $inc: {
-                        walletBalance: payoutsPerWinner[bet._id.toString()]
+                        walletBalance: payoutPerWinner
                     }
                 });
                 await createApprovedTransaction({
                     userId: bet.userId.toString(),
                     userName: bet.userName,
-                    amount: payoutsPerWinner[bet._id.toString()],
+                    amount: payoutPerWinner,
                     description: `Bet winning for Slot #${currentSlot.slotNumber}`
                 });
             }
@@ -750,10 +738,18 @@ async function GET(request) {
             const betsByIconObj = {};
             if (slot.betsByIcon && slot.betsByIcon instanceof Map) {
                 slot.betsByIcon.forEach((value, key)=>{
-                    betsByIconObj[key] = value;
+                    betsByIconObj[key] = {
+                        totalBets: value.totalBets || 0,
+                        totalAmount: value.totalAmount || 0
+                    };
                 });
             } else if (slot.betsByIcon && typeof slot.betsByIcon === "object") {
-                Object.assign(betsByIconObj, slot.betsByIcon);
+                Object.entries(slot.betsByIcon).forEach(([key, value])=>{
+                    betsByIconObj[key] = {
+                        totalBets: value.totalBets || 0,
+                        totalAmount: value.totalAmount || 0
+                    };
+                });
             }
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 id: slot._id.toString(),

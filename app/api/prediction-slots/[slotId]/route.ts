@@ -120,7 +120,7 @@ export async function POST(
       
       // Mark slot as cancelled
       slot.status = "cancelled";
-      slot.winningIcon = null;
+      slot.winningIcon = "";
       slot.companyCommission = 0;
       await slot.save();
 
@@ -138,14 +138,9 @@ export async function POST(
     const winningBets = allBets.filter((bet) => bet.icon === randomWinningIcon);
     const totalSlotAmount = slot.totalAmount;
 
-    // Always take 25% commission
-    const companyCommission = totalSlotAmount * 0.25;
-    const totalPayoutToWinners = totalSlotAmount - companyCommission;
-
-    // Equal distribution: divide equally among all winners
-    const payoutPerWinner = winningBets.length > 0 
-      ? totalPayoutToWinners / winningBets.length 
-      : 0;
+    // Calculate total payout to winners (10x each winner's bet)
+    const totalPayoutToWinners = winningBets.reduce((sum, bet) => sum + (bet.amount * 10), 0);
+    const companyCommission = totalSlotAmount - totalPayoutToWinners; // Remaining goes to platform
 
     // Atomically update slot status to completed
     slot.winningIcon = randomWinningIcon;
@@ -154,6 +149,9 @@ export async function POST(
     await slot.save();
 
     for (const bet of winningBets) {
+      // Calculate 10x payout for this winner
+      const payoutPerWinner = bet.amount * 10;
+      
       // Use atomic update to prevent double-processing
       const updatedBet = await Bet.findOneAndUpdate(
         { _id: bet._id, status: "pending" },

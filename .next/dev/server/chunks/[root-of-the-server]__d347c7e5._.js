@@ -560,7 +560,7 @@ async function POST(request, { params }) {
             });
             // Mark slot as cancelled
             slot.status = "cancelled";
-            slot.winningIcon = null;
+            slot.winningIcon = "";
             slot.companyCommission = 0;
             await slot.save();
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -576,17 +576,17 @@ async function POST(request, { params }) {
         const randomWinningIcon = iconsWithBets[Math.floor(Math.random() * iconsWithBets.length)];
         const winningBets = allBets.filter((bet)=>bet.icon === randomWinningIcon);
         const totalSlotAmount = slot.totalAmount;
-        // Always take 25% commission
-        const companyCommission = totalSlotAmount * 0.25;
-        const totalPayoutToWinners = totalSlotAmount - companyCommission;
-        // Equal distribution: divide equally among all winners
-        const payoutPerWinner = winningBets.length > 0 ? totalPayoutToWinners / winningBets.length : 0;
+        // Calculate total payout to winners (10x each winner's bet)
+        const totalPayoutToWinners = winningBets.reduce((sum, bet)=>sum + bet.amount * 10, 0);
+        const companyCommission = totalSlotAmount - totalPayoutToWinners; // Remaining goes to platform
         // Atomically update slot status to completed
         slot.winningIcon = randomWinningIcon;
         slot.companyCommission = companyCommission;
         slot.status = "completed";
         await slot.save();
         for (const bet of winningBets){
+            // Calculate 10x payout for this winner
+            const payoutPerWinner = bet.amount * 10;
             // Use atomic update to prevent double-processing
             const updatedBet = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOneAndUpdate({
                 _id: bet._id,

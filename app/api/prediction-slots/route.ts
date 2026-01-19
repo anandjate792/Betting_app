@@ -100,9 +100,25 @@ const finalizeExpiredOpenSlots = async () => {
       continue;
     }
 
-    // Multiple users - select random winning icon from all icons that have bets
+    // Multiple users - select winning icon with lowest total bet amount for company profit
     const iconsWithBets = [...new Set(allBets.map((bet) => bet.icon))];
-    const winningIcon = iconsWithBets[Math.floor(Math.random() * iconsWithBets.length)];
+    
+    // Calculate total bet amount for each icon
+    const iconTotals: Record<string, number> = {};
+    for (const icon of iconsWithBets) {
+      iconTotals[icon] = allBets
+        .filter(bet => bet.icon === icon)
+        .reduce((sum, bet) => sum + bet.amount, 0);
+    }
+    
+    // Find icon with lowest total bet amount
+    const lowestTotalBet = Math.min(...Object.values(iconTotals));
+    const lowestBetIcons = Object.keys(iconTotals).filter(icon => iconTotals[icon] === lowestTotalBet);
+    
+    // If multiple icons have same lowest amount, select default one, otherwise select the lowest
+    const winningIcon = lowestBetIcons.length > 1 
+      ? iconsWithBets[0] // Default to first icon in list
+      : lowestBetIcons[0]; // Select the single lowest icon
 
     const winningBets = await Bet.find({
       slotId: currentSlot._id,

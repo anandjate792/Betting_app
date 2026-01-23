@@ -245,15 +245,20 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
 export const useLoadStore = () => {
   useEffect(() => {
+    console.log("🔄 useLoadStore useEffect started")
     const initialize = async () => {
+      console.log("🔐 Checking for auth token")
       const token = localStorage.getItem("authToken")
       if (!token) {
+        console.log("❌ No token found, setting isLoading false")
         useAppStore.setState({ isLoading: false })
         return
       }
 
       try {
+        console.log("👤 Fetching user profile...")
         const profile = await authApi.getProfile()
+        console.log("✅ Profile fetched:", profile)
         useAppStore.setState((state) => ({
           ...state,
           user: profile,
@@ -261,13 +266,21 @@ export const useLoadStore = () => {
         }))
 
         const { role } = profile
+        console.log("👑 User role:", role)
+        const promises = []
+        
         if (role === "admin") {
-          await useAppStore.getState().fetchUsers()
+          console.log("📋 Fetching users...")
+          promises.push(useAppStore.getState().fetchUsers())
         }
-        // Fetch first page to get total count
-        await useAppStore.getState().fetchTransactions(10, 0)
+        console.log("💰 Fetching transactions...")
+        promises.push(useAppStore.getState().fetchTransactions(10, 0))
+        
+        console.log("⚡ Executing promises in parallel...")
+        await Promise.all(promises)
+        console.log("🎉 All data loaded successfully")
       } catch (error) {
-        console.error("Session restore error:", error)
+        console.error("💥 Session restore error:", error)
         localStorage.removeItem("authToken")
         useAppStore.setState({ user: null, users: [], transactions: [], isLoading: false })
       }

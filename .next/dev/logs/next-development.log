@@ -62,3 +62,8 @@ Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
 [00:11:39.740] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769181172642}
 [00:11:40.066] Browser LOG     Active slot found: 69738fdeff2e80f2e61b5ecd open Previous slot: undefined
 [00:11:40.423] Browser LOG     Active slot found: 69738fdeff2e80f2e61b5ecd open Previous slot: undefined
+[00:12:11.034] Browser LOG     Active slot found: 69739013e6a8778a8fabe911 open Previous slot: undefined
+[00:12:40.494] Browser LOG     Active slot found: 69739013e6a8778a8fabe911 open Previous slot: undefined
+[00:13:12.335] Browser LOG     Active slot found: 69739051e6a8778a8fabe92a open Previous slot: undefined
+[00:13:40.168] Browser LOG     Active slot found: 69739051e6a8778a8fabe92a open Previous slot: undefined
+[00:14:11.091] Browser LOG     Active slot found: 6973908be6a8778a8fabe944 open Previous slot: undefined

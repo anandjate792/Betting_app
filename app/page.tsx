@@ -43,7 +43,9 @@ const ICONS = [
 ]
 
 export default function Home() {
+  console.log("🚀 Page component started")
   useLoadStore()
+  console.log("📦 useLoadStore called")
   const { user, isLoading } = useAppStore()
   const router = useRouter()
   const [showLoginModal, setShowLoginModal] = useState(false)

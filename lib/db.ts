@@ -8,7 +8,12 @@ export async function connectDB() {
   }
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/wallet-app")
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/wallet-app", {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      bufferCommands: false
+    })
     isConnected = true
     console.log("[v0] MongoDB connected")
     return mongoose.connection

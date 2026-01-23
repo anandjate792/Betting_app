@@ -81,7 +81,14 @@ const preloadImages = () => {
   })
 }
 
-// Memoized Icon Component with loading states
+// Mobile-optimized touch handling
+let touchTimeout: NodeJS.Timeout | null = null
+const handleTouchStart = (callback: () => void) => {
+  if (touchTimeout) clearTimeout(touchTimeout)
+  touchTimeout = setTimeout(callback, 50) // Faster response on mobile
+}
+
+// Memoized Icon Component with mobile optimizations
 const IconButton = memo(({ 
   id, 
   name, 
@@ -107,6 +114,7 @@ const IconButton = memo(({
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [isPressed, setIsPressed] = useState(false)
 
   useEffect(() => {
     const img = new window.Image()
@@ -115,12 +123,22 @@ const IconButton = memo(({
     img.src = image
   }, [image])
 
+  // Mobile-optimized click handler
+  const handleClick = useCallback(() => {
+    if (!disabled) {
+      setIsPressed(true)
+      setTimeout(() => setIsPressed(false), 100)
+      onClick()
+    }
+  }, [disabled, onClick])
+
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={handleClick}
+      onTouchStart={handleClick} // Faster touch response
       disabled={disabled}
-      className={`relative flex flex-col items-center justify-center p-2 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square ${
+      className={`relative flex flex-col items-center justify-center p-2 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square touch-none ${
         hasMyBet
           ? "bg-green-600/30 border-green-500"
           : "bg-slate-700/50 border-slate-600 hover:border-slate-500"
@@ -128,7 +146,13 @@ const IconButton = memo(({
         timeRemaining === "Slot Closed" 
           ? "opacity-50 cursor-not-allowed" 
           : "hover:border-slate-500 cursor-pointer"
+      } ${
+        isPressed ? "scale-95 bg-slate-600" : "scale-100"
       }`}
+      style={{
+        WebkitTapHighlightColor: 'transparent', // Remove tap highlight
+        willChange: 'transform' // Optimize for animations
+      }}
     >
       {(localBetAmount > 0 || confirmedBetAmount > 0) && (
         <>
@@ -141,7 +165,7 @@ const IconButton = memo(({
         </>
       )}
       
-      {/* Image with loading state */}
+      {/* Image with loading state - optimized for mobile */}
       <div className="relative w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 flex items-center justify-center">
         {!imageLoaded && !imageError && (
           <div className="absolute inset-0 bg-slate-600 animate-pulse rounded" />
@@ -160,6 +184,7 @@ const IconButton = memo(({
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             priority={id === 'umbrella' || id === 'football'} // Prioritize first few images
+            unoptimized={true} // Better mobile performance
           />
         )}
       </div>
@@ -749,7 +774,7 @@ const loadCurrentSlot = async () => {
     }
   };
 
-  // Handle icon click - throttled for performance
+  // Handle icon click - mobile-optimized throttling
   const handleIconClickThrottled = useThrottle((iconId: string) => {
     // Mark user as having interacted
     hasUserInteractedRef.current = true;
@@ -799,7 +824,7 @@ const loadCurrentSlot = async () => {
         return [...prev, { icon: iconId, amount: selectedChip }];
       }
     });
-  }, 100); // Throttle to 100ms
+  }, 50); // Faster throttle for mobile (50ms instead of 100ms)
 
   // Wrapper function to maintain the same interface
   const handleIconClick = useCallback((iconId: string) => {
@@ -1247,8 +1272,13 @@ const loadCurrentSlot = async () => {
     
     {/* Compact Single Screen Betting Interface */}
     <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 lg:p-5 xl:p-6 2xl:p-8 border border-slate-700">
-                {/* Icon Grid - Compact */}
-                <div className="grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6 mb-3 lg:mb-4 xl:mb-5">
+                {/* Icon Grid - Mobile Optimized */}
+                <div className="grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6 mb-3 lg:mb-4 xl:mb-5" 
+                     style={{ 
+                       willChange: 'transform',
+                       contain: 'layout style paint',
+                       WebkitOverflowScrolling: 'touch'
+                     }}>
                   {ICONS.map(({ id, name, image }) => {
                     const localBetAmount = getBetAmountForIcon(id);
                     const confirmedBetAmount = currentSlotBets

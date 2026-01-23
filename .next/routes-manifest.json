@@ -127,6 +127,18 @@
       "namedRegex": "^/api/auth/me(?:/)?$"
     },
     {
+      "page": "/api/auth/register",
+      "regex": "^/api/auth/register(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/register(?:/)?$"
+    },
+    {
+      "page": "/api/bank-details",
+      "regex": "^/api/bank\\-details(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/bank\\-details(?:/)?$"
+    },
+    {
       "page": "/api/bets",
       "regex": "^/api/bets(?:/)?$",
       "routeKeys": {},
@@ -149,6 +161,12 @@
       "regex": "^/api/prediction\\-slots/auto\\-create(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/prediction\\-slots/auto\\-create(?:/)?$"
+    },
+    {
+      "page": "/api/referrals",
+      "regex": "^/api/referrals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/referrals(?:/)?$"
     },
     {
       "page": "/api/transactions",
@@ -175,10 +193,10 @@
       "namedRegex": "^/dashboard(?:/)?$"
     },
     {
-      "page": "/dashboard/prediction",
-      "regex": "^/dashboard/prediction(?:/)?$",
+      "page": "/dashboard/profile",
+      "regex": "^/dashboard/profile(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/dashboard/prediction(?:/)?$"
+      "namedRegex": "^/dashboard/profile(?:/)?$"
     },
     {
       "page": "/dashboard/transactions",

@@ -20,6 +20,8 @@ import {
   XIcon,
   RotateCcw,
   Undo2,
+  Clock,
+  Pause,
 } from "lucide-react";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/spinner";
@@ -69,6 +71,61 @@ const ICONS = [
 
 const CHIP_VALUES = [10, 20, 50, 100, 200, 500];
 
+// Helper function to format slot numbers that restart after 1000
+const formatSlotNumber = (slotNumber: number): number => {
+  return slotNumber > 1000 ? ((slotNumber - 1) % 1000) + 1 : slotNumber;
+};
+
+// Animated Clock Component with animated outer circle
+const AnimatedClock = ({ size = 24, className = "" }: { size?: number; className?: string }) => {
+  return (
+    <div className={`relative ${className}`} style={{ width: size, height: size }}>
+      {/* Outer animated ring */}
+      <div 
+        className="absolute inset-0 rounded-full border-2 border-blue-400/40"
+        style={{
+          animation: 'ring-pulse 2s ease-in-out infinite',
+        }}
+      />
+      
+      {/* Clock icon - properly sized */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Clock 
+          size={size * 0.65}
+          className="text-blue-300"
+          style={{
+            animation: 'rotate-clock 6s linear infinite',
+          }}
+        />
+      </div>
+      
+      <style jsx>{`
+        @keyframes ring-pulse {
+          0%, 100% {
+            transform: scale(0.95);
+            opacity: 0.4;
+            border-width: 1px;
+          }
+          50% {
+            transform: scale(1.05);
+            opacity: 0.8;
+            border-width: 2px;
+          }
+        }
+        
+        @keyframes rotate-clock {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 export default function DashboardPage() {
   const { user } = useAppStore();
   const [currentSlot, setCurrentSlot] = useState<any>(null);
@@ -84,6 +141,7 @@ export default function DashboardPage() {
   >({});
   const [timeRemaining, setTimeRemaining] = useState<string>("");
   const [slotLoading, setSlotLoading] = useState(true);
+  const [slotWaitTime, setSlotWaitTime] = useState<number | null>(null);
   const [lastWin, setLastWin] = useState<any | null>(null);
   const [lastResult, setLastResult] = useState<any | null>(null);
   const [currentSlotBets, setCurrentSlotBets] = useState<
@@ -127,6 +185,7 @@ export default function DashboardPage() {
   const checkingResultRef = useRef<boolean>(false);
   const lastCheckedSlotIdRef = useRef<string | null>(null);
   const resultPollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasUserInteractedRef = useRef<boolean>(false);
 
   // Load initial data
   useEffect(() => {
@@ -135,6 +194,7 @@ export default function DashboardPage() {
     loadReferralInfo();
     loadWinningHistory();
     loadPreviousSlotsHistory();
+
 
     // Setup polling for slot changes
     const slotPollInterval = setInterval(loadCurrentSlot, 15000);
@@ -172,6 +232,13 @@ export default function DashboardPage() {
       const minutes = Math.floor(diff / 60000);
       const seconds = Math.floor((diff % 60000) / 1000);
       setTimeRemaining(`${minutes}:${seconds.toString().padStart(2, "0")}`);
+      
+      // Play clock tick sound when time is running low (less than 30 seconds)
+      // Only if user has interacted before
+      if (hasUserInteractedRef.current && diff <= 45000 && diff > 0) {
+        playSound('clock');
+      }
+
     };
 
     updateTimer();
@@ -181,6 +248,19 @@ export default function DashboardPage() {
       clearInterval(timerInterval);
     };
   }, [currentSlot?.endTime]);
+
+  // Handle waiting period countdown
+  useEffect(() => {
+    if (slotWaitTime !== null && slotWaitTime > 0) {
+      const timer = setTimeout(() => {
+        setSlotWaitTime(prev => prev !== null ? prev - 1 : null);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (slotWaitTime === 0) {
+      // Time's up, try loading slot again
+      loadCurrentSlot();
+    }
+  }, [slotWaitTime]);
 
   // Function to start polling for results
   const startResultPolling = (slotId: string) => {
@@ -196,7 +276,7 @@ export default function DashboardPage() {
 
     // Then poll every 3 seconds for up to 30 seconds
     let pollCount = 0;
-    const maxPolls = 10; // 10 polls * 3 seconds = 30 seconds total
+    const maxPolls = 10;
 
     resultPollingIntervalRef.current = setInterval(async () => {
       pollCount++;
@@ -217,49 +297,74 @@ export default function DashboardPage() {
     checkingResultRef.current = false;
   };
 
-  // Load current slot
-  const loadCurrentSlot = async () => {
-    try {
-      const slot = await predictionApi.getCurrentSlot().catch(() => null);
-
-      // Check if slot has changed
-      if (slot?.id !== currentSlot?.id) {
-        // Only clear placed bets if we're moving from a completed/closed slot to a new one
-        const shouldClearBets =
-          currentSlot &&
-          (currentSlot.status === "completed" ||
-            currentSlot.status === "closed" ||
-            currentSlot.status === "cancelled") &&
-          slot &&
-          slot.status === "active";
-
-        if (shouldClearBets) {
-          // Clear placed bets when new slot starts (only when previous slot is done)
-          setPlacedBets([]);
-        }
-
-        // Stop previous polling if any
-        stopResultPolling();
-        lastCheckedSlotIdRef.current = null;
-      }
-
-      setCurrentSlot(slot);
-      setBetsByIcon(slot?.betsByIcon || {});
-
-      if (slot) {
-        await loadMyCurrentSlotBet(slot.id);
-
-        // If slot is completed, check results immediately
-        if (slot.status === "completed" && !checkingResultRef.current) {
-          await checkSlotResult(slot.id);
-        }
-      } else {
-        setAllCurrentSlotBets([]);
-      }
-    } finally {
-      setSlotLoading(false);
+  // Load current slot - UPDATED VERSION with no auto sounds
+ // Load current slot - UPDATED VERSION with new slot sound
+const loadCurrentSlot = async () => {
+  try {
+    const response = await fetch('/api/prediction-slots?current=true');
+    
+    if (response.status === 404) {
+      const data = await response.json();
+      console.log("No active slot, wait time data:", data);
+      
+      setCurrentSlot(null);
+      setSlotWaitTime(data.waitTime !== undefined ? data.waitTime : null);
+      setAllCurrentSlotBets([]);
+      setCurrentSlotBets([]);
+      setBetsByIcon({});
+      
+      stopResultPolling();
+      lastCheckedSlotIdRef.current = null;
+      
+      return;
     }
-  };
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch current slot');
+    }
+    
+    const slot = await response.json();
+    
+    console.log("Active slot found:", slot.id, slot.status, "Previous slot:", currentSlot?.id);
+    
+    // Check if this is a NEW active slot
+    const isNewSlot = !currentSlot || currentSlot.id !== slot.id;
+    const isSlotActive = slot.status === "active";
+    const isNewActiveSlot = isNewSlot && isSlotActive;
+    
+    if (isNewActiveSlot) {
+      console.log("New active slot detected!");
+      
+      // Play belt sound when new slot starts
+      playSound('belt');
+      
+      // Clear placed bets when new slot starts
+      setPlacedBets([]);
+    }
+    
+    // Stop previous polling if any
+    stopResultPolling();
+    lastCheckedSlotIdRef.current = null;
+
+    setCurrentSlot(slot);
+    setBetsByIcon(slot?.betsByIcon || {});
+    setSlotWaitTime(null);
+
+    if (slot) {
+      await loadMyCurrentSlotBet(slot.id);
+
+      if (slot.status === "completed" && !checkingResultRef.current) {
+        await checkSlotResult(slot.id);
+      }
+    }
+  } catch (error) {
+    console.error("Error loading current slot:", error);
+    setCurrentSlot(null);
+    setSlotWaitTime(null);
+  } finally {
+    setSlotLoading(false);
+  }
+};
 
   // Check slot result - optimized
   const checkSlotResult = async (slotId: string) => {
@@ -270,7 +375,6 @@ export default function DashboardPage() {
         return;
       }
 
-      // Check if we have bets for this slot
       const response = (await betApi.getBets(slotId, 100, 0)) as any;
       const bets = Array.isArray(response) ? response : response?.data || [];
       const userBets = bets.filter((b: any) => b.userId === user?.id);
@@ -280,7 +384,6 @@ export default function DashboardPage() {
         return;
       }
 
-      // Calculate results
       const winningBets = userBets.filter(
         (b: any) => b.icon === slot.winningIcon
       );
@@ -293,7 +396,6 @@ export default function DashboardPage() {
         0
       );
 
-      // Show result if we haven't shown it yet for this slot
       const resultKey = `${slotId}_${user?.id}`;
       const hasShownResult = localStorage.getItem(resultKey);
 
@@ -310,18 +412,17 @@ export default function DashboardPage() {
         });
         setShowResultBanner(true);
 
-        // Play sound effect
-        playSound(isWin ? "win" : "lose");
+        // Play sound effect only if user has interacted before
+        if (hasUserInteractedRef.current) {
+          playSound(isWin ? "win" : "lose");
+        }
 
-        // Mark as shown
         localStorage.setItem(resultKey, "true");
 
-        // Auto-hide banner after 5 seconds
         setTimeout(() => {
           setShowResultBanner(false);
         }, 5000);
 
-        // Show toast notification
         if (winningBets.length > 0) {
           toast.success(`You won ₹${payout} on Slot #${slot.slotNumber}!`, {
             duration: 5000,
@@ -336,7 +437,6 @@ export default function DashboardPage() {
         }
       }
 
-      // Update user data
       try {
         const profile = (await authApi.getProfile()) as any;
         useAppStore.setState({ user: profile });
@@ -344,12 +444,10 @@ export default function DashboardPage() {
         console.error("Failed to update user profile:", err);
       }
 
-      // Refresh data
       await loadMyBets(true);
       await loadWinningHistory();
       await loadPreviousSlotsHistory();
 
-      // Stop polling since we got the result
       stopResultPolling();
     } catch (error) {
       console.error("Error checking slot result:", error);
@@ -550,6 +648,12 @@ export default function DashboardPage() {
 
   // Handle icon click - place bet with selected chip
   const handleIconClick = (iconId: string) => {
+    // Mark user as having interacted
+    hasUserInteractedRef.current = true;
+    
+    // Play belt sound when placing bet
+    playSound('belt');
+
     if (!currentSlot) {
       setError("No active slot found");
       return;
@@ -576,6 +680,9 @@ export default function DashboardPage() {
   // Undo last bet
   const handleUndo = () => {
     if (placedBets.length > 0) {
+      // Mark user as having interacted
+      hasUserInteractedRef.current = true;
+      
       setPlacedBets(placedBets.slice(0, -1));
     }
   };
@@ -583,15 +690,23 @@ export default function DashboardPage() {
   // Repeat last bet pattern
   const handleRepeat = () => {
     if (placedBets.length > 0) {
+      // Mark user as having interacted
+      hasUserInteractedRef.current = true;
+      
       setPlacedBets([...placedBets, ...placedBets]);
     } else if (currentSlotBets.length > 0) {
-      // Repeat bets from the current slot if no local bets are placed yet
+      // Mark user as having interacted
+      hasUserInteractedRef.current = true;
+      
       setPlacedBets([...currentSlotBets]);
     }
   };
 
   // Clear all bets
   const handleClear = () => {
+    // Mark user as having interacted
+    hasUserInteractedRef.current = true;
+    
     setPlacedBets([]);
   };
 
@@ -632,7 +747,6 @@ export default function DashboardPage() {
       useAppStore.setState({ user: profile });
 
       await loadCurrentSlot();
-      // Reload all bets for the current slot to show updated bet amounts
       if (currentSlot?.id) {
         await loadMyCurrentSlotBet(currentSlot.id);
       }
@@ -770,18 +884,18 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={idx}
-                    className="flex-shrink-0 flex flex-col items-center justify-center w-12 h-12 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 bg-slate-700 rounded-lg border-2 border-slate-600 hover:border-blue-400 transition-colors"
+                    className="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 lg:w-24 lg:h-24 xl:w-28 xl:h-28 2xl:w-32 2xl:h-32 bg-slate-700 rounded-lg border-2 border-slate-600 hover:border-blue-400 transition-colors"
                   >
                     {iconData ? (
                       <Image
                         src={iconData.image}
                         alt={iconData.name}
-                        width={20}
-                        height={20}
-                        className="w-5 h-5 lg:w-8 lg:h-8 xl:w-12 xl:h-12 2xl:w-16 2xl:h-16"
+                        width={32}
+                        height={32}
+                        className="w-10 h-10 lg:w-16 lg:h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24"
                       />
                     ) : (
-                      <Trophy className="w-5 h-5 lg:w-8 lg:h-8 xl:w-12 xl:h-12 2xl:w-16 2xl:h-16 text-yellow-500" />
+                      <Trophy className="w-10 h-10 lg:w-16 lg:h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 text-yellow-500" />
                     )}
                     <span className="text-[9px] lg:text-[10px] xl:text-xs 2xl:text-sm text-slate-400 mt-0.5 lg:mt-1 xl:mt-1.5">
                       #{item.slotNumber}
@@ -803,9 +917,16 @@ export default function DashboardPage() {
                 <Gamepad2 className="w-4 h-4" />
                 Pop The Picture
               </CardTitle>
-              <CardDescription className="text-slate-400 text-xs mt-0.5">
+              <CardDescription className="text-slate-400 text-xs mt-0.5 flex items-center gap-1">
                 {currentSlot
-                  ? `Slot #${currentSlot.slotNumber} • Time Remaining: ${timeRemaining}`
+                  ? (
+                    <>
+                      {timeRemaining !== "Slot Closed" && timeRemaining !== "0:00" && timeRemaining !== "" && (
+                        <AnimatedClock size={24} />
+                      )}
+                      Slot #{formatSlotNumber(currentSlot.slotNumber || 0)} • Time Remaining: {timeRemaining}
+                    </>
+                  )
                   : "No active slot"}
               </CardDescription>
             </div>
@@ -872,13 +993,13 @@ export default function DashboardPage() {
               <div className="relative px-4 py-3 text-center text-slate-900">
                 {/* Show winning icon image if available, otherwise show trophy */}
                 {winningIconData ? (
-                  <div className="relative w-16 h-16 mx-auto mb-1 flex items-center justify-center">
+                  <div className="relative w-20 h-20 mx-auto mb-1 flex items-center justify-center">
                     <Image
                       src={winningIconData.image}
                       alt={winningIconData.name}
-                      width={48}
-                      height={48}
-                      className="w-12 h-12 object-contain drop-shadow-lg"
+                      width={64}
+                      height={64}
+                      className="w-16 h-16 object-contain drop-shadow-lg"
                     />
                     <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-50" />
                   </div>
@@ -920,171 +1041,241 @@ export default function DashboardPage() {
     })()}
 
           {slotLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Spinner className="w-5 h-5 text-blue-400" />
-              <p className="ml-2 text-sm text-slate-400">Loading slot...</p>
-            </div>
-          ) : !currentSlot ? (
-            <div className="text-center py-6">
-              <p className="text-sm text-slate-400">
-                No active slot. Waiting for the next prediction slot to be
-                created.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {/* Compact Single Screen Betting Interface */}
-              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 lg:p-5 xl:p-6 2xl:p-8 border border-slate-700">
-                {/* Icon Grid - Compact */}
-                <div className="grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6 mb-3 lg:mb-4 xl:mb-5">
-                  {ICONS.map(({ id, name, image }) => {
-                    const localBetAmount = getBetAmountForIcon(id);
-                    const confirmedBetAmount = currentSlotBets
-                      .filter((bet) => bet.icon === id)
-                      .reduce((sum, bet) => sum + bet.amount, 0);
-                    const hasMyBet = localBetAmount > 0 || confirmedBetAmount > 0;
-                    const totalBetAmount = localBetAmount + confirmedBetAmount;
+  <div className="flex items-center justify-center py-8">
+    <Spinner className="w-5 h-5 text-blue-400" />
+    <p className="ml-2 text-sm text-slate-400">Loading slot...</p>
+  </div>
+) : !currentSlot ? (
+  <div className="text-center py-6">
+    {/* LARGE CLOCK - NO ACTIVE SLOT */}
+    <div className="flex flex-col items-center space-y-3">
+      <AnimatedClock size={32} />
+      <span className="text-sm font-medium text-blue-300">
+        {slotWaitTime !== null 
+          ? "Next slot starting soon" 
+          : "Waiting for next slot"
+        }
+      </span>
+      
+      {/* Only show countdown if we have a waitTime */}
+      {slotWaitTime !== null ? (
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-lg font-bold text-white">
+            {slotWaitTime}s
+          </span>
+          <p className="text-xs text-blue-300 animate-pulse">
+            {slotWaitTime > 1 ? "seconds remaining" : "second remaining"}
+          </p>
+        </div>
+      ) : (
+        <p className="text-xs text-slate-400">
+          Please refresh to check for new slots
+        </p>
+      )}
+    </div>
+  </div>
+) : (
+  <div className="space-y-3">
+    {/* Slot Closed State - Show small animated clock */}
+    {timeRemaining === "Slot Closed" && (
+      <div className="flex items-center justify-center gap-2 py-2 bg-slate-800/50 rounded-lg border border-slate-700">
+        <AnimatedClock size={20} />
+        <p className="text-sm text-blue-300">
+          Slot completed. Next slot starting soon...
+        </p>
+      </div>
+    )}
 
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => handleIconClick(id)}
-                        className={`relative flex flex-col items-center justify-center p-2 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square ${
-                          hasMyBet
-                            ? "bg-green-600/30 border-green-500"
-                            : "bg-slate-700/50 border-slate-600 hover:border-slate-500"
-                        }`}
-                      >
-                        {(localBetAmount > 0 || confirmedBetAmount > 0) && (
-                          <>
-                            <div className="absolute -top-0.5 -right-0.5 lg:-top-1 lg:-right-1 xl:-top-1.5 xl:-right-1.5 2xl:-top-2 2xl:-right-2 bg-green-600 text-white text-[8px] lg:text-[9px] xl:text-[10px] 2xl:text-xs font-bold rounded-full w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6 flex items-center justify-center border-2 border-white shadow-lg z-10">
-                              {totalBetAmount}
-                            </div>
-                            <div className="absolute top-1 left-1 bg-green-600 text-white text-[7px] lg:text-[8px] xl:text-[9px] 2xl:text-[10px] px-1.5 lg:px-2 xl:px-2.5 2xl:px-3 py-0.5 lg:py-1 xl:py-1.5 2xl:py-2 rounded-full font-semibold shadow-lg z-10">
-                              BETTED
-                            </div>
-                          </>
-                        )}
-                        <Image
-                          src={image}
-                          alt={name}
-                          width={64}
-                          height={64}
-                          className="w-10 h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 object-contain"
-                        />
-                        <span className="text-[9px] lg:text-[10px] xl:text-sm 2xl:text-base text-slate-300 mt-1 lg:mt-1 xl:mt-1.5 2xl:mt-2 text-center leading-tight">
-                          {name}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+    {!hasUserInteractedRef.current && timeRemaining !== "Slot Closed" && (
+  <div
+    onClick={() => {
+      hasUserInteractedRef.current = true;
+      playSound("clock"); // now allowed
+    }}
+    className="cursor-pointer text-xs text-blue-300 bg-blue-900/40 p-2 rounded-lg text-center animate-pulse"
+  >
+    🔊 Tap to enable sound alerts
+  </div>
+)}
 
-                {/* Chip Selection - Horizontal */}
-                <div className="flex items-center justify-center gap-1.5 lg:gap-2.5 xl:gap-3 2xl:gap-4 mb-3 lg:mb-4 xl:mb-5 flex-wrap">
-                  {CHIP_VALUES.map((value) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setSelectedChip(value)}
-                      className={`relative w-11 h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 rounded-full font-bold text-xs lg:text-sm xl:text-base 2xl:text-lg transition-all ${
-                        selectedChip === value
-                          ? "bg-gradient-to-br from-yellow-300 to-yellow-500 text-slate-900 scale-110 border-2 border-yellow-200 shadow-lg shadow-yellow-500/50"
-                          : "bg-gradient-to-br from-green-600 to-green-800 text-white border-2 border-white/50"
-                      }`}
-                    >
-                      <div className="absolute inset-0 rounded-full border-2 border-white/20"></div>
-                      <span className="relative z-10">₹{value}</span>
-                    </button>
-                  ))}
-                </div>
+    
+    {/* Compact Single Screen Betting Interface */}
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 lg:p-5 xl:p-6 2xl:p-8 border border-slate-700">
+      {/* Icon Grid - Compact */}
+      <div className="grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6 mb-3 lg:mb-4 xl:mb-5">
+        {ICONS.map(({ id, name, image }) => {
+          const localBetAmount = getBetAmountForIcon(id);
+          const confirmedBetAmount = currentSlotBets
+            .filter((bet) => bet.icon === id)
+            .reduce((sum, bet) => sum + bet.amount, 0);
+          const hasMyBet = localBetAmount > 0 || confirmedBetAmount > 0;
+          const totalBetAmount = localBetAmount + confirmedBetAmount;
 
-                {/* Control Buttons - Horizontal */}
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleUndo}
-                    disabled={placedBets.length === 0}
-                    className="flex-1 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 text-xs h-8"
-                  >
-                    <Undo2 className="w-3 h-3 mr-1" />
-                    Undo
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRepeat}
-                    className="flex-1 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 text-xs h-8"
-                  >
-                    <RotateCcw className="w-3 h-3 mr-1" />
-                    Repeat
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleClear}
-                    disabled={placedBets.length === 0}
-                    className="flex-1 bg-red-700 border-red-600 text-white hover:bg-red-600 text-xs h-8"
-                  >
-                    <XIcon className="w-3 h-3 mr-1" />
-                    Clear
-                  </Button>
-                </div>
-
-                {/* Total and Submit */}
-                {placedBets.length > 0 && (
-                  <div className="bg-slate-700/50 rounded-lg p-2 mb-2 border border-slate-600">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-slate-300">
-                        Total Bets:
-                      </span>
-                      <span className="text-base font-bold text-yellow-400">
-                        ₹{getTotalBetAmount()}
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-slate-400">
-                      {placedBets.length} bet(s) placed
-                    </div>
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => handleIconClick(id)}
+              disabled={timeRemaining === "Slot Closed"}
+              className={`relative flex flex-col items-center justify-center p-2 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square ${
+                hasMyBet
+                  ? "bg-green-600/30 border-green-500"
+                  : "bg-slate-700/50 border-slate-600 hover:border-slate-500"
+              } ${
+                timeRemaining === "Slot Closed" 
+                  ? "opacity-50 cursor-not-allowed" 
+                  : "hover:border-slate-500 cursor-pointer"
+              }`}
+            >
+              {(localBetAmount > 0 || confirmedBetAmount > 0) && (
+                <>
+                  <div className="absolute -top-0.5 -right-0.5 lg:-top-1 lg:-right-1 xl:-top-1.5 xl:-right-1.5 2xl:-top-2 2xl:-right-2 bg-green-600 text-white text-[8px] lg:text-[9px] xl:text-[10px] 2xl:text-xs font-bold rounded-full w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6 flex items-center justify-center border-2 border-white shadow-lg z-10">
+                    {totalBetAmount}
                   </div>
-                )}
-
-                {error && (
-                  <div className="bg-red-900/50 border border-red-500 rounded-lg p-1.5 flex items-center gap-1.5 mb-2">
-                    <XIcon className="w-3 h-3 text-red-400 flex-shrink-0" />
-                    <p className="text-[10px] text-red-300">{error}</p>
+                  <div className="absolute top-1 left-1 bg-green-600 text-white text-[7px] lg:text-[8px] xl:text-[9px] 2xl:text-[10px] px-1.5 lg:px-2 xl:px-2.5 2xl:px-3 py-0.5 lg:py-1 xl:py-1.5 2xl:py-2 rounded-full font-semibold shadow-lg z-10">
+                    BETTED
                   </div>
-                )}
+                </>
+              )}
+              <Image
+                src={image}
+                alt={name}
+                width={64}
+                height={64}
+                className="w-20 h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 2xl:w-32 2xl:h-32 object-contain"
+              />
+              <span className="text-[9px] lg:text-[10px] xl:text-sm 2xl:text-base text-slate-300 mt-1 lg:mt-1 xl:mt-1.5 2xl:mt-2 text-center leading-tight">
+                {name}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
-                <Button
-                  type="button"
-                  onClick={handleSubmitBets}
-                  disabled={
-                    loading ||
-                    placedBets.length === 0 ||
-                    !currentSlot ||
-                    Date.now() >= new Date(currentSlot.endTime).getTime()
-                  }
-                  className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white disabled:opacity-50 font-bold text-sm py-2.5 rounded-lg border-2 border-red-900 shadow-lg uppercase"
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-1.5">
-                      <Spinner className="w-4 h-4" />
-                      Placing...
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-1.5">
-                      <Trophy className="w-4 h-4" />
-                      Confirm Bets
-                    </span>
-                  )}
-                </Button>
-              </div>
-            </div>
-          )}
+      {/* Chip Selection - Horizontal */}
+      <div className="flex items-center justify-center gap-1.5 lg:gap-2.5 xl:gap-3 2xl:gap-4 mb-3 lg:mb-4 xl:mb-5 flex-wrap">
+        {CHIP_VALUES.map((value) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => {
+              // Mark user as having interacted when selecting chip
+              hasUserInteractedRef.current = true;
+              setSelectedChip(value);
+            }}
+            disabled={timeRemaining === "Slot Closed"}
+            className={`relative w-11 h-11 lg:w-14 lg:h-14 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 rounded-full font-bold text-xs lg:text-sm xl:text-base 2xl:text-lg transition-all ${
+              selectedChip === value
+                ? "bg-gradient-to-br from-yellow-300 to-yellow-500 text-slate-900 scale-110 border-2 border-yellow-200 shadow-lg shadow-yellow-500/50"
+                : "bg-gradient-to-br from-green-600 to-green-800 text-white border-2 border-white/50"
+            } ${
+              timeRemaining === "Slot Closed" 
+                ? "opacity-50 cursor-not-allowed" 
+                : "cursor-pointer"
+            }`}
+          >
+            <div className="absolute inset-0 rounded-full border-2 border-white/20"></div>
+            <span className="relative z-10">₹{value}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Control Buttons - Horizontal */}
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleUndo}
+          disabled={placedBets.length === 0 || timeRemaining === "Slot Closed"}
+          className="flex-1 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 text-xs h-8"
+        >
+          <Undo2 className="w-3 h-3 mr-1" />
+          Undo
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRepeat}
+          disabled={timeRemaining === "Slot Closed"}
+          className="flex-1 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 text-xs h-8"
+        >
+          <RotateCcw className="w-3 h-3 mr-1" />
+          Repeat
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleClear}
+          disabled={placedBets.length === 0 || timeRemaining === "Slot Closed"}
+          className="flex-1 bg-red-700 border-red-600 text-white hover:bg-red-600 text-xs h-8"
+        >
+          <XIcon className="w-3 h-3 mr-1" />
+          Clear
+        </Button>
+      </div>
+
+      {/* Total and Submit */}
+      {placedBets.length > 0 && (
+        <div className="bg-slate-700/50 rounded-lg p-2 mb-2 border border-slate-600">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-xs text-slate-300">
+              Total Bets:
+            </span>
+            <span className="text-base font-bold text-yellow-400">
+              ₹{getTotalBetAmount()}
+            </span>
+          </div>
+          <div className="text-[10px] text-slate-400">
+            {placedBets.length} bet(s) placed
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-900/50 border border-red-500 rounded-lg p-1.5 flex items-center gap-1.5 mb-2">
+          <XIcon className="w-3 h-3 text-red-400 flex-shrink-0" />
+          <p className="text-[10px] text-red-300">{error}</p>
+        </div>
+      )}
+
+      <Button
+        type="button"
+        onClick={() => {
+          // Mark user as having interacted when submitting bets
+          hasUserInteractedRef.current = true;
+          handleSubmitBets();
+        }}
+        disabled={
+          loading ||
+          placedBets.length === 0 ||
+          !currentSlot ||
+          Date.now() >= new Date(currentSlot.endTime).getTime() ||
+          timeRemaining === "Slot Closed"
+        }
+        className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white disabled:opacity-50 font-bold text-sm py-2.5 rounded-lg border-2 border-red-900 shadow-lg uppercase"
+      >
+        {loading ? (
+          <span className="flex items-center justify-center gap-1.5">
+            <Spinner className="w-4 h-4" />
+            Placing...
+          </span>
+        ) : timeRemaining === "Slot Closed" ? (
+          <span className="flex items-center justify-center gap-1.5">
+            <AnimatedClock size={16} />
+            Slot Closed
+          </span>
+        ) : (
+          <span className="flex items-center justify-center gap-1.5">
+            <Trophy className="w-4 h-4" />
+            Confirm Bets
+          </span>
+        )}
+      </Button>
+    </div>
+  </div>
+)}
         </CardContent>
 
         {/* Refer & Earn */}
@@ -1101,7 +1292,7 @@ export default function DashboardPage() {
                   : referralInfo.referralCode || "N/A"}
               </p>
               <p className="text-[10px] text-slate-500 mt-0.5">
-                Share this code with friends to earn rewards
+                Share this code with friends to earn ₹25 per referral
               </p>
             </div>
             <div className="text-right space-y-0.5">

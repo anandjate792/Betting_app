@@ -42,11 +42,11 @@ export async function POST(request: NextRequest) {
         const currentReferralCount = referrer.referralCount || 0;
         referrer.referralCount = currentReferralCount + 1;
         
-        // Give 5 rupees per referral, up to 1000 rupees (max 200 referrals)
-        const currentReferralEarnings = referrer.referralEarnings || 0;
-        const maxReferralEarnings = 1000; // Maximum total referral earnings
-        const referralReward = 5; // Amount per referral
+        // Give 5 rupees per referral, up to 200 rupees (max 200 referrals)
+        const referralReward = 5;
+        const maxReferralEarnings = 200; // Maximum total referral earnings
         
+        const currentReferralEarnings = referrer.referralEarnings || 0;
         if (currentReferralEarnings < maxReferralEarnings) {
           // Calculate how much more can be earned (remaining amount)
           const remainingEarnings = maxReferralEarnings - currentReferralEarnings;

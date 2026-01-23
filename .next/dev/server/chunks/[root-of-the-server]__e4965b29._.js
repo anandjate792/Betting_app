@@ -568,11 +568,21 @@ const finalizeExpiredOpenSlots = async ()=>{
             await currentSlot.save();
             continue;
         }
-        // Multiple users - select random winning icon from all icons that have bets
+        // Multiple users - select winning icon with lowest total bet amount for company profit
         const iconsWithBets = [
             ...new Set(allBets.map((bet)=>bet.icon))
         ];
-        const winningIcon = iconsWithBets[Math.floor(Math.random() * iconsWithBets.length)];
+        // Calculate total bet amount for each icon
+        const iconTotals = {};
+        for (const icon of iconsWithBets){
+            iconTotals[icon] = allBets.filter((bet)=>bet.icon === icon).reduce((sum, bet)=>sum + bet.amount, 0);
+        }
+        // Find icon with lowest total bet amount
+        const lowestTotalBet = Math.min(...Object.values(iconTotals));
+        const lowestBetIcons = Object.keys(iconTotals).filter((icon)=>iconTotals[icon] === lowestTotalBet);
+        // If multiple icons have same lowest amount, select default one, otherwise select the lowest
+        const winningIcon = lowestBetIcons.length > 1 ? iconsWithBets[0] // Default to first icon in list
+         : lowestBetIcons[0]; // Select the single lowest icon
         const winningBets = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Bet$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
             slotId: currentSlot._id,
             icon: winningIcon,

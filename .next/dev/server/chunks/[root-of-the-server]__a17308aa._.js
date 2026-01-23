@@ -146,7 +146,7 @@ const withdrawalSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$m
     amount: {
         type: Number,
         required: true,
-        min: 1000
+        min: 200
     },
     status: {
         type: String,

@@ -420,7 +420,7 @@ async function POST(request) {
         // Only process slots where endTime has definitely passed (with 1 second buffer for safety)
         const expiredSlots = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({
             endTime: {
-                $lt: new Date(now.getTime() - 1000)
+                $gte: new Date(now.getTime() - 1000)
             },
             status: "open"
         });

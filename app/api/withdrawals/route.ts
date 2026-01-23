@@ -133,8 +133,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Amount is required" }, { status: 400 });
     }
 
-    if (amount < 1000) {
-      return NextResponse.json({ error: "Minimum withdrawal amount is ₹1000" }, { status: 400 });
+    if (amount < 200) {
+      return NextResponse.json({ error: "Minimum withdrawal amount is ₹200" }, { status: 400 });
     }
 
     if (user.walletBalance < amount) {

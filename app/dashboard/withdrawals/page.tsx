@@ -37,6 +37,15 @@ export default function WithdrawalsPage() {
   useEffect(() => {
     loadWithdrawals(true);
     loadBankDetails();
+    
+    // Set up polling to check for withdrawal status changes every 5 seconds
+    const interval = setInterval(() => {
+      loadWithdrawals();
+    }, 5000);
+    
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const loadBankDetails = async () => {
@@ -105,7 +114,13 @@ export default function WithdrawalsPage() {
   };
 
   const handleWithdrawal = async () => {
-    if (!withdrawalAmount || parseFloat(withdrawalAmount) <= 0) {
+    if (!withdrawalAmount || parseFloat(withdrawalAmount) < 200) {
+      alert("Minimum withdrawal amount is ₹200");
+      return;
+    }
+
+    if (!user || user.walletBalance < parseFloat(withdrawalAmount)) {
+      alert("Insufficient wallet balance");
       return;
     }
 
@@ -259,7 +274,7 @@ export default function WithdrawalsPage() {
             </label>
             <Input
               type="number"
-              placeholder="Enter withdrawal amount"
+              placeholder="Enter withdrawal amount (Minimum: ₹200)"
               value={withdrawalAmount}
               onChange={(e) => setWithdrawalAmount(e.target.value)}
               className="bg-slate-700 border-slate-600 text-white"
@@ -270,7 +285,7 @@ export default function WithdrawalsPage() {
           </div>
           <Button
             onClick={handleWithdrawal}
-            disabled={withdrawalLoading || !withdrawalAmount || parseFloat(withdrawalAmount) <= 0}
+            disabled={withdrawalLoading || !withdrawalAmount || parseFloat(withdrawalAmount) < 200}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
           >
             {withdrawalLoading ? (

@@ -16,8 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Spinner } from "@/components/ui/spinner";
-import { Upload } from "lucide-react";
+import { Clock, AlertCircle, CheckCircle, XCircle, TrendingUp, TrendingDown, Minus, RefreshCw, Play, Pause, SkipForward } from "lucide-react";
 import { FaUmbrella, FaFootballBall } from "react-icons/fa";
 import {
   GiButterfly,
@@ -77,6 +76,34 @@ const ICONS = [
   { id: "sparrow", name: "Sparrow", Icon: GiSparrow, color: "text-sky-600" },
   { id: "rabbit", name: "Rabbit", Icon: GiRabbit, color: "text-emerald-500" },
 ];
+
+// Helper function to format slot numbers that restart after 1000
+const formatSlotNumber = (slotNumber: number): number => {
+  return slotNumber > 1000 ? ((slotNumber - 1) % 1000) + 1 : slotNumber;
+};
+
+// Animated Clock Component
+const AnimatedClock = ({ size = 24, className = "" }: { size?: number; className?: string }) => {
+  return (
+    <div className={`relative ${className}`} style={{ width: size, height: size }}>
+      <Clock 
+        size={size} 
+        className="absolute animate-spin-slow text-blue-400"
+        style={{
+          animationDuration: '3s',
+          animationTimingFunction: 'linear',
+          animationIterationCount: 'infinite'
+        }}
+      />
+      <div 
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ fontSize: size * 0.3 }}
+      >
+        <div className="w-1 h-1 bg-blue-400 rounded-full animate-pulse"></div>
+      </div>
+    </div>
+  );
+};
 
 export default function PredictionDashboard() {
   const { user, logout, addTransaction, transactions, fetchTransactions } =
@@ -315,13 +342,13 @@ export default function PredictionDashboard() {
         if (bet.status === "won") {
           toast({
             title: "🎉 Congratulations! You Won!",
-            description: `You won ₹${bet.payout?.toFixed(2) || "0.00"} on Slot #${bet.slotNumber || "N/A"} with ${bet.icon}`,
+            description: `You won ₹${bet.payout?.toFixed(2) || "0.00"} on Slot #${formatSlotNumber(bet.slotNumber || 0)} with ${bet.icon}`,
             variant: "default",
           });
         } else if (bet.status === "lost") {
           toast({
             title: "😔 You Lost",
-            description: `Your bet on ${bet.icon} for Slot #${bet.slotNumber || "N/A"} was not the winning icon`,
+            description: `Your bet on ${bet.icon} for Slot #${formatSlotNumber(bet.slotNumber || 0)} was not the winning icon`,
             variant: "destructive",
           });
         }
@@ -563,8 +590,18 @@ export default function PredictionDashboard() {
           ) : !currentSlot ? (
             <Card className="border-slate-700 bg-slate-800">
               <CardHeader>
-                <CardTitle className="text-white">
-                  {slotWaitTime !== null ? "Next Slot Starting Soon" : "No Active Slot"}
+                <CardTitle className="text-white flex items-center gap-2">
+                  {slotWaitTime !== null ? (
+                    <>
+                      <AnimatedClock size={20} />
+                      Next Slot Starting Soon
+                    </>
+                  ) : (
+                    <>
+                      <Pause size={20} className="text-slate-400" />
+                      No Active Slot
+                    </>
+                  )}
                 </CardTitle>
                 <CardDescription className="text-slate-400">
                   {slotWaitTime !== null 
@@ -581,9 +618,23 @@ export default function PredictionDashboard() {
                   }
                 </p>
                 {slotWaitTime !== null && (
-                  <div className="flex justify-center mt-4">
-                    <div className="text-3xl font-bold text-blue-400 animate-pulse">
-                      {slotWaitTime}
+                  <div className="flex flex-col items-center mt-6 space-y-4">
+                    <div className="relative">
+                      <AnimatedClock size={60} className="text-blue-400" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl font-bold text-white">
+                          {slotWaitTime}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-blue-300 font-medium animate-pulse">
+                        {slotWaitTime > 1 ? "seconds remaining" : "second remaining"}
+                      </p>
+                      <div className="flex items-center justify-center gap-1 mt-2">
+                        <Play size={12} className="text-green-400" />
+                        <span className="text-xs text-green-400">Starting soon...</span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -596,9 +647,9 @@ export default function PredictionDashboard() {
                   <div className="flex justify-between items-center">
                     <div>
                       <CardTitle className="text-white">Current Slot</CardTitle>
-                      <CardDescription className="text-slate-400">
-                        Slot #{currentSlot.slotNumber} • Time Remaining:{" "}
-                        {timeRemaining}
+                      <CardDescription className="text-slate-400 flex items-center gap-2">
+                        <Clock size={14} />
+                        <span>Slot #{formatSlotNumber(currentSlot.slotNumber || 0)} • Time Remaining: {timeRemaining}</span>
                       </CardDescription>
                     </div>
                     <div className="text-right">
@@ -764,7 +815,7 @@ export default function PredictionDashboard() {
                         <div className="flex justify-between items-start">
                           <div>
                             <p className="font-semibold text-white">
-                              Slot #{bet.slotNumber || "N/A"}
+                              Slot #{formatSlotNumber(bet.slotNumber || 0)}
                             </p>
                             <p className="text-sm text-slate-400">
                               Icon: {bet.icon} • Amount: ₹
@@ -914,13 +965,13 @@ export default function PredictionDashboard() {
             <CardHeader>
               <CardTitle className="text-white">Withdraw Money</CardTitle>
               <CardDescription className="text-slate-400">
-                {user && user.walletBalance >= 1000
-                  ? "Request withdrawal (Minimum: ₹1000)"
-                  : "Minimum wallet balance of ₹1000 required for withdrawal"}
+                {user && user.walletBalance >= 200
+                  ? "Request withdrawal (Minimum: ₹200)"
+                  : "Minimum wallet balance of ₹200 required for withdrawal"}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {user && user.walletBalance >= 1000 ? (
+              {user && user.walletBalance >= 200 ? (
                 <form onSubmit={handleRequestWithdrawal} className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-slate-300">
@@ -928,9 +979,9 @@ export default function PredictionDashboard() {
                     </label>
                     <Input
                       type="number"
-                      min="1000"
+                      min="200"
                       step="100"
-                      placeholder="1000"
+                      placeholder="200"
                       value={withdrawalAmount}
                       onChange={(e) => setWithdrawalAmount(e.target.value)}
                       className="mt-1 bg-slate-700 border-slate-600 text-white placeholder-slate-400"
@@ -942,11 +993,7 @@ export default function PredictionDashboard() {
                   {error && <p className="text-sm text-red-400">{error}</p>}
                   <Button
                     type="submit"
-                    disabled={
-                      withdrawalLoading ||
-                      Number.parseFloat(withdrawalAmount) < 1000 ||
-                      Number.parseFloat(withdrawalAmount) > user.walletBalance
-                    }
+                    disabled={withdrawalLoading || Number.parseFloat(withdrawalAmount) < 200 || Number.parseFloat(withdrawalAmount) > user.walletBalance}
                     className="w-full bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50"
                   >
                     {withdrawalLoading

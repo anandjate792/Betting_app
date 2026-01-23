@@ -69,6 +69,11 @@ const ICONS = [
   { id: "rabbit", name: "Rabbit", Icon: GiRabbit },
 ];
 
+// Helper function to format slot numbers that restart after 1000
+const formatSlotNumber = (slotNumber: number): number => {
+  return slotNumber > 1000 ? ((slotNumber - 1) % 1000) + 1 : slotNumber;
+};
+
 export default function AdminPredictionPanel() {
   const [currentSlot, setCurrentSlot] = useState<any>(null);
   const [slots, setSlots] = useState<any[]>([]);
@@ -262,7 +267,7 @@ export default function AdminPredictionPanel() {
           <CardHeader>
             <CardTitle className="text-white">Current Active Slot</CardTitle>
             <CardDescription className="text-slate-400">
-              Slot #{currentSlot.slotNumber} • Total Bets:{" "}
+              Slot #{formatSlotNumber(currentSlot.slotNumber || 0)} • Total Bets:{" "}
               {currentSlot.totalBets} • Total Amount: ₹
               {currentSlot.totalAmount.toFixed(2)}
             </CardDescription>
@@ -369,7 +374,7 @@ export default function AdminPredictionPanel() {
               >
                 <div>
                   <p className="font-semibold text-white">
-                    Slot #{slot.slotNumber}
+                    Slot #{formatSlotNumber(slot.slotNumber)}
                   </p>
                   <p className="text-sm text-slate-400">
                     {new Date(slot.startTime).toLocaleString()} -{" "}

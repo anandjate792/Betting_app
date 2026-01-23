@@ -146,7 +146,7 @@ const withdrawalSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$m
     amount: {
         type: Number,
         required: true,
-        min: 1000
+        min: 200
     },
     status: {
         type: String,
@@ -306,6 +306,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2d$token$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/auth-token.ts [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/models/Withdrawal.ts [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$User$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/models/User.ts [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/mongoose [external] (mongoose, cjs)");
+;
 ;
 ;
 ;
@@ -439,9 +441,9 @@ async function POST(request) {
                 status: 400
             });
         }
-        if (amount < 1000) {
+        if (amount < 200) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Minimum withdrawal amount is ₹1000"
+                error: "Minimum withdrawal amount is ₹200"
             }, {
                 status: 400
             });
@@ -454,22 +456,39 @@ async function POST(request) {
             });
         }
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["connectDB"])();
-        user.walletBalance -= amount;
-        await user.save();
-        const withdrawal = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].create({
-            userId: user._id,
-            userName: user.name,
-            amount,
-            status: "pending"
-        });
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            id: withdrawal._id.toString(),
-            amount: withdrawal.amount,
-            status: withdrawal.status,
-            walletBalance: user.walletBalance
-        }, {
-            status: 201
-        });
+        // Use a transaction to ensure both operations succeed or fail together
+        const session = await __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].startSession();
+        session.startTransaction();
+        try {
+            const withdrawal = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$Withdrawal$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].create([
+                {
+                    userId: user._id,
+                    userName: user.name,
+                    amount,
+                    status: "pending"
+                }
+            ], {
+                session
+            });
+            user.walletBalance -= amount;
+            await user.save({
+                session
+            });
+            await session.commitTransaction();
+            session.endSession();
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                id: withdrawal[0]._id.toString(),
+                amount: withdrawal[0].amount,
+                status: withdrawal[0].status,
+                walletBalance: user.walletBalance
+            }, {
+                status: 201
+            });
+        } catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
+        }
     } catch (error) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: error instanceof Error ? error.message : "Server error"

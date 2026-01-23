@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     // Create a 45-second slot starting now
     const nextSlotStart = new Date(now);
-    const nextSlotEnd = new Date(nextSlotStart.getTime() + 45 * 1000);
+    const nextSlotEnd = new Date(nextSlotStart.getTime() + 45 * 200);
 
     const existingSlot = await PredictionSlot.findOne({
       startTime: nextSlotStart,

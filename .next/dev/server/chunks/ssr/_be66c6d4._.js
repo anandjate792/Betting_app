@@ -116,6 +116,13 @@ function WithdrawalsPage() {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         loadWithdrawals(true);
         loadBankDetails();
+        // Set up polling to check for withdrawal status changes every 5 seconds
+        const interval = setInterval(()=>{
+            loadWithdrawals();
+        }, 5000);
+        return ()=>{
+            clearInterval(interval);
+        };
     }, []);
     const loadBankDetails = async ()=>{
         setBankLoading(true);
@@ -185,7 +192,12 @@ function WithdrawalsPage() {
         }
     };
     const handleWithdrawal = async ()=>{
-        if (!withdrawalAmount || parseFloat(withdrawalAmount) <= 0) {
+        if (!withdrawalAmount || parseFloat(withdrawalAmount) < 200) {
+            alert("Minimum withdrawal amount is ₹200");
+            return;
+        }
+        if (!user || user.walletBalance < parseFloat(withdrawalAmount)) {
+            alert("Insufficient wallet balance");
             return;
         }
         setWithdrawalLoading(true);
@@ -213,7 +225,7 @@ function WithdrawalsPage() {
                                 children: "Bank Details"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                lineNumber: 131,
+                                lineNumber: 146,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -221,13 +233,13 @@ function WithdrawalsPage() {
                                 children: "These details will be used for processing your withdrawals"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                lineNumber: 132,
+                                lineNumber: 147,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                        lineNumber: 130,
+                        lineNumber: 145,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -239,7 +251,7 @@ function WithdrawalsPage() {
                                     className: "w-4 h-4 text-blue-400 mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 139,
+                                    lineNumber: 154,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -247,13 +259,13 @@ function WithdrawalsPage() {
                                     children: "Loading bank details..."
                                 }, void 0, false, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 140,
+                                    lineNumber: 155,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                            lineNumber: 138,
+                            lineNumber: 153,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
                             children: [
@@ -264,7 +276,7 @@ function WithdrawalsPage() {
                                             children: "Account Holder Name"
                                         }, void 0, false, {
                                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                            lineNumber: 145,
+                                            lineNumber: 160,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -277,13 +289,13 @@ function WithdrawalsPage() {
                                             placeholder: "Enter account holder name"
                                         }, void 0, false, {
                                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                            lineNumber: 148,
+                                            lineNumber: 163,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 144,
+                                    lineNumber: 159,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -296,7 +308,7 @@ function WithdrawalsPage() {
                                                     children: "Bank Name"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 162,
+                                                    lineNumber: 177,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -309,13 +321,13 @@ function WithdrawalsPage() {
                                                     placeholder: "Enter bank name"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 165,
+                                                    lineNumber: 180,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                            lineNumber: 161,
+                                            lineNumber: 176,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -325,7 +337,7 @@ function WithdrawalsPage() {
                                                     children: "Account Number"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 178,
+                                                    lineNumber: 193,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -338,19 +350,19 @@ function WithdrawalsPage() {
                                                     placeholder: "Enter account number"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 181,
+                                                    lineNumber: 196,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                            lineNumber: 177,
+                                            lineNumber: 192,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 160,
+                                    lineNumber: 175,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -363,7 +375,7 @@ function WithdrawalsPage() {
                                                     children: "IFSC Code"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 196,
+                                                    lineNumber: 211,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -376,13 +388,13 @@ function WithdrawalsPage() {
                                                     placeholder: "Enter IFSC code"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 199,
+                                                    lineNumber: 214,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                            lineNumber: 195,
+                                            lineNumber: 210,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -392,7 +404,7 @@ function WithdrawalsPage() {
                                                     children: "UPI ID (optional)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 212,
+                                                    lineNumber: 227,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -405,19 +417,19 @@ function WithdrawalsPage() {
                                                     placeholder: "your-upi@bank"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 215,
+                                                    lineNumber: 230,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                            lineNumber: 211,
+                                            lineNumber: 226,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 194,
+                                    lineNumber: 209,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -431,7 +443,7 @@ function WithdrawalsPage() {
                                                 className: "w-4 h-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                lineNumber: 236,
+                                                lineNumber: 251,
                                                 columnNumber: 21
                                             }, this),
                                             "Saving..."
@@ -439,20 +451,20 @@ function WithdrawalsPage() {
                                     }, void 0, true) : "Save Bank Details"
                                 }, void 0, false, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 228,
+                                    lineNumber: 243,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true)
                     }, void 0, false, {
                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                        lineNumber: 136,
+                        lineNumber: 151,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                lineNumber: 129,
+                lineNumber: 144,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -465,7 +477,7 @@ function WithdrawalsPage() {
                                 children: "Request Withdrawal"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                lineNumber: 250,
+                                lineNumber: 265,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -473,13 +485,13 @@ function WithdrawalsPage() {
                                 children: "Withdraw money from your wallet"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                lineNumber: 251,
+                                lineNumber: 266,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                        lineNumber: 249,
+                        lineNumber: 264,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -492,18 +504,18 @@ function WithdrawalsPage() {
                                         children: "Amount"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                        lineNumber: 257,
+                                        lineNumber: 272,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
                                         type: "number",
-                                        placeholder: "Enter withdrawal amount",
+                                        placeholder: "Enter withdrawal amount (Minimum: ₹200)",
                                         value: withdrawalAmount,
                                         onChange: (e)=>setWithdrawalAmount(e.target.value),
                                         className: "bg-slate-700 border-slate-600 text-white"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                        lineNumber: 260,
+                                        lineNumber: 275,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -514,18 +526,18 @@ function WithdrawalsPage() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                        lineNumber: 267,
+                                        lineNumber: 282,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                lineNumber: 256,
+                                lineNumber: 271,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                 onClick: handleWithdrawal,
-                                disabled: withdrawalLoading || !withdrawalAmount || parseFloat(withdrawalAmount) <= 0,
+                                disabled: withdrawalLoading || !withdrawalAmount || parseFloat(withdrawalAmount) < 200,
                                 className: "w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50",
                                 children: withdrawalLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
                                     children: [
@@ -533,7 +545,7 @@ function WithdrawalsPage() {
                                             className: "w-4 h-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                            lineNumber: 278,
+                                            lineNumber: 293,
                                             columnNumber: 17
                                         }, this),
                                         "Processing..."
@@ -541,19 +553,19 @@ function WithdrawalsPage() {
                                 }, void 0, true) : "Request Withdrawal"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                lineNumber: 271,
+                                lineNumber: 286,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                        lineNumber: 255,
+                        lineNumber: 270,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                lineNumber: 248,
+                lineNumber: 263,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -566,7 +578,7 @@ function WithdrawalsPage() {
                                 children: "Withdrawal History"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                lineNumber: 291,
+                                lineNumber: 306,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -574,13 +586,13 @@ function WithdrawalsPage() {
                                 children: "View all your withdrawal requests"
                             }, void 0, false, {
                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                lineNumber: 292,
+                                lineNumber: 307,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                        lineNumber: 290,
+                        lineNumber: 305,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -591,7 +603,7 @@ function WithdrawalsPage() {
                                     className: "w-6 h-6 text-blue-400"
                                 }, void 0, false, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 299,
+                                    lineNumber: 314,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -599,20 +611,20 @@ function WithdrawalsPage() {
                                     children: "Loading withdrawals..."
                                 }, void 0, false, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 300,
+                                    lineNumber: 315,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                            lineNumber: 298,
+                            lineNumber: 313,
                             columnNumber: 13
                         }, this) : myWithdrawals.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "text-slate-400 text-center py-8",
                             children: "No withdrawals found"
                         }, void 0, false, {
                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                            lineNumber: 303,
+                            lineNumber: 318,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
                             children: [
@@ -635,7 +647,7 @@ function WithdrawalsPage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                                    lineNumber: 315,
+                                                                    lineNumber: 330,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -643,13 +655,13 @@ function WithdrawalsPage() {
                                                                     children: new Date(w.createdAt).toLocaleString()
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                                    lineNumber: 318,
+                                                                    lineNumber: 333,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                            lineNumber: 314,
+                                                            lineNumber: 329,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -657,28 +669,28 @@ function WithdrawalsPage() {
                                                             children: w.status.charAt(0).toUpperCase() + w.status.slice(1)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                            lineNumber: 322,
+                                                            lineNumber: 337,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 313,
+                                                    lineNumber: 328,
                                                     columnNumber: 23
                                                 }, this)
                                             }, w.id, false, {
                                                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                lineNumber: 309,
+                                                lineNumber: 324,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                        lineNumber: 307,
+                                        lineNumber: 322,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 306,
+                                    lineNumber: 321,
                                     columnNumber: 15
                                 }, this),
                                 hasMore && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -694,7 +706,7 @@ function WithdrawalsPage() {
                                                     className: "w-4 h-4 mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                                    lineNumber: 348,
+                                                    lineNumber: 363,
                                                     columnNumber: 25
                                                 }, this),
                                                 "Loading..."
@@ -702,31 +714,31 @@ function WithdrawalsPage() {
                                         }, void 0, true) : "Load More (10 withdrawals)"
                                     }, void 0, false, {
                                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                        lineNumber: 340,
+                                        lineNumber: 355,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                                    lineNumber: 339,
+                                    lineNumber: 354,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true)
                     }, void 0, false, {
                         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                        lineNumber: 296,
+                        lineNumber: 311,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-                lineNumber: 289,
+                lineNumber: 304,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/dashboard/withdrawals/page.tsx",
-        lineNumber: 127,
+        lineNumber: 142,
         columnNumber: 5
     }, this);
 }

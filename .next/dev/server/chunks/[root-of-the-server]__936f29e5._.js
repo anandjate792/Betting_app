@@ -212,7 +212,7 @@ async function POST(request) {
         const now = new Date();
         // Create a 45-second slot starting now
         const nextSlotStart = new Date(now);
-        const nextSlotEnd = new Date(nextSlotStart.getTime() + 45 * 1000);
+        const nextSlotEnd = new Date(nextSlotStart.getTime() + 45 * 200);
         const existingSlot = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$models$2f$PredictionSlot$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({
             startTime: nextSlotStart,
             endTime: nextSlotEnd

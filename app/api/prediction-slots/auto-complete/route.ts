@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     // Only process slots where endTime has definitely passed (with 1 second buffer for safety)
     const expiredSlots = await PredictionSlot.find({
-      endTime: { $lt: new Date(now.getTime() - 1000) }, // 1 second buffer to ensure time has truly passed
+      endTime: { $gte: new Date(now.getTime() - 1000) }, // Within last 1 second buffer to ensure time has truly passed
       status: "open",
     });
 

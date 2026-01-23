@@ -433,6 +433,10 @@ const ICONS = [
         Icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$icons$2f$gi$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["GiRabbit"]
     }
 ];
+// Helper function to format slot numbers that restart after 1000
+const formatSlotNumber = (slotNumber)=>{
+    return slotNumber > 1000 ? (slotNumber - 1) % 1000 + 1 : slotNumber;
+};
 function AdminPredictionPanel() {
     _s();
     const [currentSlot, setCurrentSlot] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
@@ -585,7 +589,7 @@ function AdminPredictionPanel() {
                                 children: "Prediction Game Management"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 218,
+                                lineNumber: 223,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -593,13 +597,13 @@ function AdminPredictionPanel() {
                                 children: "Auto-create slots every 10 minutes and manage active games"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 221,
+                                lineNumber: 226,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                        lineNumber: 217,
+                        lineNumber: 222,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -611,7 +615,7 @@ function AdminPredictionPanel() {
                                 children: "Create Next Slot Now"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 226,
+                                lineNumber: 231,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -627,7 +631,7 @@ function AdminPredictionPanel() {
                                 children: "Process Expired Slots Now"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 232,
+                                lineNumber: 237,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -635,19 +639,19 @@ function AdminPredictionPanel() {
                                 children: "Auto-complete runs every minute. Expired slots with no admin action will automatically declare the icon with least bets as winner."
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 245,
+                                lineNumber: 250,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                        lineNumber: 225,
+                        lineNumber: 230,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                lineNumber: 216,
+                lineNumber: 221,
                 columnNumber: 7
             }, this),
             slotLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -659,7 +663,7 @@ function AdminPredictionPanel() {
                             className: "w-6 h-6 text-blue-400"
                         }, void 0, false, {
                             fileName: "[project]/components/admin-prediction-panel.tsx",
-                            lineNumber: 255,
+                            lineNumber: 260,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -667,18 +671,18 @@ function AdminPredictionPanel() {
                             children: "Loading current slot..."
                         }, void 0, false, {
                             fileName: "[project]/components/admin-prediction-panel.tsx",
-                            lineNumber: 256,
+                            lineNumber: 261,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                    lineNumber: 254,
+                    lineNumber: 259,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                lineNumber: 253,
+                lineNumber: 258,
                 columnNumber: 9
             }, this) : currentSlot && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                 className: "border-slate-700 bg-slate-800",
@@ -690,14 +694,14 @@ function AdminPredictionPanel() {
                                 children: "Current Active Slot"
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 263,
+                                lineNumber: 268,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 className: "text-slate-400",
                                 children: [
                                     "Slot #",
-                                    currentSlot.slotNumber,
+                                    formatSlotNumber(currentSlot.slotNumber || 0),
                                     " • Total Bets:",
                                     " ",
                                     currentSlot.totalBets,
@@ -706,13 +710,13 @@ function AdminPredictionPanel() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 264,
+                                lineNumber: 269,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                        lineNumber: 262,
+                        lineNumber: 267,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -725,7 +729,7 @@ function AdminPredictionPanel() {
                                         children: "Select Winning Icon"
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                                        lineNumber: 272,
+                                        lineNumber: 277,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -738,12 +742,12 @@ function AdminPredictionPanel() {
                                                     placeholder: "Choose winning icon"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                    lineNumber: 280,
+                                                    lineNumber: 285,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                lineNumber: 279,
+                                                lineNumber: 284,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -763,14 +767,14 @@ function AdminPredictionPanel() {
                                                                     className: "w-4 h-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                                    lineNumber: 291,
+                                                                    lineNumber: 296,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                     children: name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                                    lineNumber: 292,
+                                                                    lineNumber: 297,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -784,36 +788,36 @@ function AdminPredictionPanel() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                                    lineNumber: 293,
+                                                                    lineNumber: 298,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                            lineNumber: 290,
+                                                            lineNumber: 295,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, id, false, {
                                                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                        lineNumber: 289,
+                                                        lineNumber: 294,
                                                         columnNumber: 23
                                                     }, this);
                                                 })
                                             }, void 0, false, {
                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                lineNumber: 282,
+                                                lineNumber: 287,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                                        lineNumber: 275,
+                                        lineNumber: 280,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 271,
+                                lineNumber: 276,
                                 columnNumber: 13
                             }, this),
                             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -821,7 +825,7 @@ function AdminPredictionPanel() {
                                 children: error
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 305,
+                                lineNumber: 310,
                                 columnNumber: 23
                             }, this),
                             message && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -829,7 +833,7 @@ function AdminPredictionPanel() {
                                 children: message
                             }, void 0, false, {
                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                lineNumber: 306,
+                                lineNumber: 311,
                                 columnNumber: 25
                             }, this),
                             (()=>{
@@ -851,7 +855,7 @@ function AdminPredictionPanel() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                    lineNumber: 319,
+                                                    lineNumber: 324,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -859,13 +863,13 @@ function AdminPredictionPanel() {
                                                     children: "Slots must remain open for the full 45 seconds. Please wait for the slot to expire automatically."
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                    lineNumber: 322,
+                                                    lineNumber: 327,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/admin-prediction-panel.tsx",
-                                            lineNumber: 318,
+                                            lineNumber: 323,
                                             columnNumber: 21
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -875,7 +879,7 @@ function AdminPredictionPanel() {
                                             children: loading ? "Completing..." : isExpired ? "Complete Slot & Distribute Winnings" : `Wait ${secondsRemaining}s to Complete`
                                         }, void 0, false, {
                                             fileName: "[project]/components/admin-prediction-panel.tsx",
-                                            lineNumber: 327,
+                                            lineNumber: 332,
                                             columnNumber: 19
                                         }, this)
                                     ]
@@ -884,13 +888,13 @@ function AdminPredictionPanel() {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                        lineNumber: 270,
+                        lineNumber: 275,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                lineNumber: 261,
+                lineNumber: 266,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -902,12 +906,12 @@ function AdminPredictionPanel() {
                             children: "Recent Slots"
                         }, void 0, false, {
                             fileName: "[project]/components/admin-prediction-panel.tsx",
-                            lineNumber: 348,
+                            lineNumber: 353,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                        lineNumber: 347,
+                        lineNumber: 352,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -918,7 +922,7 @@ function AdminPredictionPanel() {
                                     className: "w-6 h-6 text-blue-400"
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                    lineNumber: 353,
+                                    lineNumber: 358,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -926,13 +930,13 @@ function AdminPredictionPanel() {
                                     children: "Loading slots..."
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                    lineNumber: 354,
+                                    lineNumber: 359,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/admin-prediction-panel.tsx",
-                            lineNumber: 352,
+                            lineNumber: 357,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                             children: [
@@ -952,11 +956,11 @@ function AdminPredictionPanel() {
                                                                 className: "font-semibold text-white",
                                                                 children: [
                                                                     "Slot #",
-                                                                    slot.slotNumber
+                                                                    formatSlotNumber(slot.slotNumber)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                                lineNumber: 371,
+                                                                lineNumber: 376,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -969,13 +973,13 @@ function AdminPredictionPanel() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                                lineNumber: 374,
+                                                                lineNumber: 379,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                        lineNumber: 370,
+                                                        lineNumber: 375,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -989,7 +993,7 @@ function AdminPredictionPanel() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                                lineNumber: 380,
+                                                                lineNumber: 385,
                                                                 columnNumber: 19
                                                             }, this),
                                                             slot.winningIcon && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1000,7 +1004,7 @@ function AdminPredictionPanel() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                                lineNumber: 384,
+                                                                lineNumber: 389,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1012,30 +1016,30 @@ function AdminPredictionPanel() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                                lineNumber: 388,
+                                                                lineNumber: 393,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                        lineNumber: 379,
+                                                        lineNumber: 384,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, uniqueKey, true, {
                                                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                lineNumber: 366,
+                                                lineNumber: 371,
                                                 columnNumber: 23
                                             }, this);
                                         })
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                                        lineNumber: 359,
+                                        lineNumber: 364,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                    lineNumber: 358,
+                                    lineNumber: 363,
                                     columnNumber: 15
                                 }, this),
                                 slotsHasMore && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1051,7 +1055,7 @@ function AdminPredictionPanel() {
                                                     className: "w-4 h-4 mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                                    lineNumber: 408,
+                                                    lineNumber: 413,
                                                     columnNumber: 25
                                                 }, this),
                                                 "Loading..."
@@ -1059,31 +1063,31 @@ function AdminPredictionPanel() {
                                         }, void 0, true) : "Load More (10 slots)"
                                     }, void 0, false, {
                                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                                        lineNumber: 400,
+                                        lineNumber: 405,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/admin-prediction-panel.tsx",
-                                    lineNumber: 399,
+                                    lineNumber: 404,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true)
                     }, void 0, false, {
                         fileName: "[project]/components/admin-prediction-panel.tsx",
-                        lineNumber: 350,
+                        lineNumber: 355,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/admin-prediction-panel.tsx",
-                lineNumber: 346,
+                lineNumber: 351,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/admin-prediction-panel.tsx",
-        lineNumber: 215,
+        lineNumber: 220,
         columnNumber: 5
     }, this);
 }

@@ -13,7 +13,7 @@ const withdrawalSchema = new mongoose.Schema({
   amount: {
     type: Number,
     required: true,
-    min: 1000,
+    min: 200,
   },
   status: {
     type: String,

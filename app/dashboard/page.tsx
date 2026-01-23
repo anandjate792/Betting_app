@@ -196,8 +196,8 @@ export default function DashboardPage() {
     loadPreviousSlotsHistory();
 
 
-    // Setup polling for slot changes
-    const slotPollInterval = setInterval(loadCurrentSlot, 15000);
+    // Setup polling for slot changes - reduced frequency to improve performance
+    const slotPollInterval = setInterval(loadCurrentSlot, 30000); // Increased from 15s to 30s
 
     return () => {
       clearInterval(slotPollInterval);
@@ -242,7 +242,7 @@ export default function DashboardPage() {
     };
 
     updateTimer();
-    const timerInterval = setInterval(updateTimer, 1000);
+    const timerInterval = setInterval(updateTimer, 2000); // Increased from 1s to 2s to reduce CPU usage
 
     return () => {
       clearInterval(timerInterval);
@@ -879,30 +879,32 @@ const loadCurrentSlot = async () => {
           </CardHeader>
           <CardContent className="pt-0 px-4 pb-4">
             <div className="flex gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-5 overflow-x-auto pb-2 scrollbar-hide">
-              {winningHistory.map((item, idx) => {
-                const iconData = ICONS.find((i) => i.id === item.winningIcon);
-                return (
-                  <div
-                    key={idx}
-                    className="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 lg:w-24 lg:h-24 xl:w-28 xl:h-28 2xl:w-32 2xl:h-32 bg-slate-700 rounded-lg border-2 border-slate-600 hover:border-blue-400 transition-colors"
-                  >
-                    {iconData ? (
-                      <Image
-                        src={iconData.image}
-                        alt={iconData.name}
-                        width={32}
-                        height={32}
-                        className="w-10 h-10 lg:w-16 lg:h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24"
-                      />
-                    ) : (
-                      <Trophy className="w-10 h-10 lg:w-16 lg:h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 text-yellow-500" />
-                    )}
-                    <span className="text-[9px] lg:text-[10px] xl:text-xs 2xl:text-sm text-slate-400 mt-0.5 lg:mt-1 xl:mt-1.5">
-                      #{item.slotNumber}
-                    </span>
-                  </div>
-                );
-              })}
+              <div className="flex gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-5">
+                {winningHistory.slice(0, 10).map((item, idx) => {
+                  const iconData = ICONS.find((i) => i.id === item.winningIcon);
+                  return (
+                    <div
+                      key={idx}
+                      className="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 lg:w-24 lg:h-24 xl:w-28 xl:h-28 2xl:w-32 2xl:h-32 bg-slate-700 rounded-lg border-2 border-slate-600 hover:border-blue-400 transition-colors"
+                    >
+                      {iconData ? (
+                        <Image
+                          src={iconData.image}
+                          alt={iconData.name}
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 lg:w-12 lg:h-12 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20"
+                        />
+                      ) : (
+                        <Trophy className="w-8 h-8 lg:w-12 lg:h-12 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 text-yellow-500" />
+                      )}
+                      <span className="text-[9px] lg:text-[10px] xl:text-xs 2xl:text-sm text-slate-400 mt-0.5 lg:mt-1 xl:mt-1.5">
+                        #{item.slotNumber}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1142,7 +1144,7 @@ const loadCurrentSlot = async () => {
                 alt={name}
                 width={64}
                 height={64}
-                className="w-20 h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 2xl:w-32 2xl:h-32 object-contain"
+                className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 object-contain"
               />
               <span className="text-[9px] lg:text-[10px] xl:text-sm 2xl:text-base text-slate-300 mt-1 lg:mt-1 xl:mt-1.5 2xl:mt-2 text-center leading-tight">
                 {name}

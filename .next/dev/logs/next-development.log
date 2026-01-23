@@ -1,52 +1,23 @@
-[00:00:00.527] Server  LOG      ✓ Ready in 355ms
-[00:00:04.063] Server  LOG      ○ Compiling /dashboard ...
-[00:00:05.654] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:05.774] Server  LOG     [v0] MongoDB connected
-[00:00:05.778] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:05.778] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:00:05.778] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769180067013}
-[00:00:06.562] Server  LOG     [v0] MongoDB connected
-[00:00:07.971] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+[00:00:00.865] Server  LOG      ✓ Ready in 548ms
+[00:01:11.051] Server  LOG      ○ Compiling /dashboard ...
+[00:01:12.031] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:12.167] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:01:12.167] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:01:12.167] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769180545079}
+[00:01:14.222] Server  LOG     [v0] MongoDB connected
+[00:01:16.994] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined
+[00:01:16.994] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:00:08.455] Browser LOG     Active slot found: 69738b7d7344f02eb85b1dcb open Previous slot: undefined
-[00:00:08.455] Browser LOG     Active slot found: 69738b7d7344f02eb85b1dcb open Previous slot: undefined
-[00:00:23.229] Browser LOG     Active slot found: 69738bb4733b9dbf23af0642 open Previous slot: undefined
-[00:00:26.562] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:26.735] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:26.735] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:00:26.735] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769180087924}
-[00:00:27.135] Browser LOG     Active slot found: 69738bb4733b9dbf23af0642 open Previous slot: undefined
-[00:00:27.388] Browser WARN    Image with src "/umbrella.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+[00:01:17.335] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined
+[00:01:34.813] Server  LOG      ✓ Compiled in 231ms
+[00:01:39.478] Server  LOG      ✓ Compiled in 237ms
+[00:01:44.740] Server  LOG      ✓ Compiled in 119ms
+[00:01:45.359] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined
+[00:01:51.028] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:51.186] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:01:51.186] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:01:51.186] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769180584097}
+[00:01:51.663] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined
+[00:01:52.574] Browser WARN    Image with src "/umbrella.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:00:27.491] Browser LOG     Active slot found: 69738bb4733b9dbf23af0642 open Previous slot: undefined
-[00:00:35.555] Server  LOG      ✓ Compiled in 238ms
-[00:00:41.289] Server  LOG      ✓ Compiled in 295ms
-[00:00:42.803] Browser LOG     Active slot found: 69738bb4733b9dbf23af0642 open Previous slot: undefined
-[00:00:45.546] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:45.673] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:45.673] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:00:45.673] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769180106909}
-[00:00:46.207] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
-Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:00:46.207] Browser LOG     Active slot found: 69738bb4733b9dbf23af0642 open Previous slot: undefined
-[00:00:46.552] Browser LOG     Active slot found: 69738bb4733b9dbf23af0642 open Previous slot: undefined
-[00:00:49.192] Server  LOG      ✓ Compiled in 79ms
-[00:01:01.192] Browser LOG     Active slot found: 69738bb4733b9dbf23af0642 open Previous slot: undefined
-[00:01:17.096] Browser LOG     Active slot found: 69738bea733b9dbf23af06a7 open Previous slot: undefined
-[00:01:31.457] Browser LOG     Active slot found: 69738bea733b9dbf23af06a7 open Previous slot: undefined
-[00:01:46.387] Browser LOG     Active slot found: 69738bea733b9dbf23af06a7 open Previous slot: undefined
-[00:02:00.833] Server  LOG      ✓ Compiled in 75ms
-[00:02:01.171] Browser LOG     Active slot found: 69738bea733b9dbf23af06a7 open Previous slot: undefined
-[00:02:05.746] Server  LOG      ✓ Compiled in 247ms
-[00:02:10.252] Server  LOG      ✓ Compiled in 72ms
-[00:02:17.087] Browser LOG     Active slot found: 69738c26733b9dbf23af06cc open Previous slot: undefined
-[00:02:31.298] Browser LOG     Active slot found: 69738c26733b9dbf23af06cc open Previous slot: undefined
-[00:02:34.207] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:34.331] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:02:34.331] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:02:34.331] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769180215568}
-[00:02:34.839] Browser LOG     Active slot found: 69738c26733b9dbf23af06cc open Previous slot: undefined
-[00:02:34.839] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
-Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:02:35.269] Browser LOG     Active slot found: 69738c26733b9dbf23af06cc open Previous slot: undefined
-[00:02:50.051] Browser LOG     Active slot found: 69738c26733b9dbf23af06cc open Previous slot: undefined
+[00:01:52.575] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined

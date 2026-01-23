@@ -1244,10 +1244,6 @@
     width: calc(var(--spacing) * 11);
   }
 
-  .w-12 {
-    width: calc(var(--spacing) * 12);
-  }
-
   .w-16 {
     width: calc(var(--spacing) * 16);
   }
@@ -5348,12 +5344,6 @@
   }
 
   @media (min-width: 64rem) {
-    .lg\:h-8 {
-      height: calc(var(--spacing) * 8);
-    }
-  }
-
-  @media (min-width: 64rem) {
     .lg\:h-12 {
       height: calc(var(--spacing) * 12);
     }
@@ -5392,12 +5382,6 @@
   @media (min-width: 64rem) {
     .lg\:w-7 {
       width: calc(var(--spacing) * 7);
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .lg\:w-8 {
-      width: calc(var(--spacing) * 8);
     }
   }
 
@@ -5542,12 +5526,6 @@
   }
 
   @media (min-width: 80rem) {
-    .xl\:h-12 {
-      height: calc(var(--spacing) * 12);
-    }
-  }
-
-  @media (min-width: 80rem) {
     .xl\:h-16 {
       height: calc(var(--spacing) * 16);
     }
@@ -5580,12 +5558,6 @@
   @media (min-width: 80rem) {
     .xl\:w-9 {
       width: calc(var(--spacing) * 9);
-    }
-  }
-
-  @media (min-width: 80rem) {
-    .xl\:w-12 {
-      width: calc(var(--spacing) * 12);
     }
   }
 
@@ -5726,12 +5698,6 @@
   }
 
   @media (min-width: 96rem) {
-    .\32 xl\:h-16 {
-      height: calc(var(--spacing) * 16);
-    }
-  }
-
-  @media (min-width: 96rem) {
     .\32 xl\:h-20 {
       height: calc(var(--spacing) * 20);
     }
@@ -5764,12 +5730,6 @@
   @media (min-width: 96rem) {
     .\32 xl\:w-12 {
       width: calc(var(--spacing) * 12);
-    }
-  }
-
-  @media (min-width: 96rem) {
-    .\32 xl\:w-16 {
-      width: calc(var(--spacing) * 16);
     }
   }
 
@@ -6655,6 +6615,21 @@
     a.\[a\&\]\:hover\:text-accent-foreground:hover {
       color: var(--accent-foreground);
     }
+  }
+
+  .animate-spin-slow {
+    animation: 3s linear infinite spin;
+  }
+
+  .scroll-optimized {
+    will-change: transform;
+    contain: layout style paint;
+  }
+
+  .hardware-accelerated {
+    backface-visibility: hidden;
+    perspective: 1000px;
+    transform: translateZ(0);
   }
 }
 

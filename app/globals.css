@@ -115,6 +115,24 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+  
+  /* Performance optimizations for smooth scrolling */
+  .scroll-optimized {
+    will-change: transform;
+    contain: layout style paint;
+  }
+  
+  .hardware-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

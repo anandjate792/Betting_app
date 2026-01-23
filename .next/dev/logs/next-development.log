@@ -1,107 +1,562 @@
-[00:00:00.865] Server  LOG      ✓ Ready in 548ms
-[00:01:11.051] Server  LOG      ○ Compiling /dashboard ...
-[00:01:12.031] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:12.167] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:01:12.167] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:01:12.167] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769180545079}
-[00:01:14.222] Server  LOG     [v0] MongoDB connected
-[00:01:16.994] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined
-[00:01:16.994] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+[00:00:02.015] Server  LOG      ✓ Ready in 1301ms
+[00:00:24.400] Server  LOG      ○ Compiling /dashboard/withdrawals ...
+[00:00:26.181] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:26.369] Browser LOG     🔄 useLoadStore useEffect started
+[00:00:26.369] Browser LOG     🔐 Checking for auth token
+[00:00:26.369] Browser LOG     👤 Fetching user profile...
+[00:00:26.369] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:26.369] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard/withdrawals","route":"/dashboard/withdrawals"}
+[00:00:26.369] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/withdrawals","o":"http://localhost:3000/dashboard/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192489310}
+[00:00:28.653] Server  LOG     [v0] MongoDB connected
+[00:00:29.408] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":859}
+[00:00:29.408] Browser LOG     👑 User role: user
+[00:00:29.408] Browser LOG     💰 Fetching transactions...
+[00:00:29.408] Browser LOG     ⚡ Executing promises in parallel...
+[00:00:29.918] Browser LOG     🎉 All data loaded successfully
+[00:00:32.563] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192495487}
+[00:00:33.941] Browser LOG     Active slot found: 6973bc309f4e9d29524c4d80 open Previous slot: undefined
+[00:00:34.428] Browser LOG     Active slot found: 6973bc309f4e9d29524c4d80 open Previous slot: undefined
+[00:00:36.023] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192498966}
+[00:00:37.606] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192500554}
+[00:00:37.872] Browser LOG     Active slot found: 6973bc309f4e9d29524c4d80 open Previous slot: undefined
+[00:00:38.130] Browser LOG     Active slot found: 6973bc309f4e9d29524c4d80 open Previous slot: undefined
+[00:00:43.589] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:43.777] Browser LOG     🔄 useLoadStore useEffect started
+[00:00:43.777] Browser LOG     🔐 Checking for auth token
+[00:00:43.777] Browser LOG     👤 Fetching user profile...
+[00:00:43.777] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:43.777] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:00:43.777] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192506681}
+[00:00:43.777] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":859}
+[00:00:43.777] Browser LOG     👑 User role: user
+[00:00:43.777] Browser LOG     💰 Fetching transactions...
+[00:00:43.777] Browser LOG     ⚡ Executing promises in parallel...
+[00:00:43.963] Browser LOG     🎉 All data loaded successfully
+[00:00:44.121] Browser LOG     Active slot found: 6973bc309f4e9d29524c4d80 open Previous slot: undefined
+[00:00:44.602] Browser LOG     Active slot found: 6973bc309f4e9d29524c4d80 open Previous slot: undefined
+[00:01:12.376] Server  LOG      ✓ Compiled in 166ms
+[00:01:13.765] Server  LOG     [v0] MongoDB connected
+[00:01:14.091] Browser LOG     Active slot found: 6973bc309f4e9d29524c4d80 open Previous slot: undefined
+[00:01:20.714] Server  LOG      ✓ Compiled in 405ms
+[00:01:29.932] Server  LOG      ✓ Compiled in 223ms
+[00:01:38.506] Server  LOG      ✓ Compiled in 118ms
+[00:01:38.669] Browser ERROR   unhandledRejection: ReferenceError: setBetsSkip is not defined
+[00:01:39.489] Browser LOG     Active slot found: 6973bc729f4e9d29524c4df6 open Previous slot: undefined
+[00:01:49.853] Server  LOG      ✓ Compiled in 90ms
+[00:01:53.726] Server  LOG      ✓ Compiled in 86ms
+[00:01:57.540] Server  LOG      ✓ Compiled in 102ms
+[00:02:04.289] Server  LOG      ✓ Compiled in 88ms
+[00:02:08.910] Browser LOG     Active slot found: 6973bc729f4e9d29524c4df6 open Previous slot: undefined
+[00:02:22.108] Server  LOG      ✓ Compiled in 86ms
+[00:02:22.216] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:25.575] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:26.634] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:26.834] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:27.874] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:27.980] Browser ERROR   Error checking slot result: {}
+[00:02:28.629] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:28.629] Browser ERROR   Error checking slot result: {}
+[00:02:28.629] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:31.717] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:31.718] Browser ERROR   Error checking slot result: {}
+[00:02:31.718] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:33.803] Server  LOG      ✓ Compiled in 133ms
+[00:02:33.906] Browser ERROR   ./app/dashboard/page.tsx:1047:9
+Parsing ecmascript source code failed
+  1045 |         if (bet.status === "won") hasWins = true;
+  1046 |         if (bet.status === "lost") hasLosses = true;
+> 1047 |       });
+       |         ^
+  1048 |       let netResult;
+  1049 |        if(hasWins){
+  1050 |       netResult = totalPayout;
+
+Expected '</', got ';'
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:34.694] Browser ERROR   ./app/dashboard/page.tsx:1047:9
+Parsing ecmascript source code failed
+  1045 |         if (bet.status === "won") hasWins = true;
+  1046 |         if (bet.status === "lost") hasLosses = true;
+> 1047 |       });
+       |         ^
+  1048 |       let netResult;
+  1049 |        if(hasWins){
+  1050 |       netResult = totalPayout;
+
+Expected '</', got ';'
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:34.694] Browser ERROR   Error checking slot result: {}
+[00:02:34.694] Browser ERROR   ./app/dashboard/page.tsx:1047:9
+Parsing ecmascript source code failed
+  1045 |         if (bet.status === "won") hasWins = true;
+  1046 |         if (bet.status === "lost") hasLosses = true;
+> 1047 |       });
+       |         ^
+  1048 |       let netResult;
+  1049 |        if(hasWins){
+  1050 |       netResult = totalPayout;
+
+Expected '</', got ';'
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:37.651] Browser ERROR   Error checking slot result: {}
+[00:02:37.651] Browser ERROR   ./app/dashboard/page.tsx:1047:9
+Parsing ecmascript source code failed
+  1045 |         if (bet.status === "won") hasWins = true;
+  1046 |         if (bet.status === "lost") hasLosses = true;
+> 1047 |       });
+       |         ^
+  1048 |       let netResult;
+  1049 |        if(hasWins){
+  1050 |       netResult = totalPayout;
+
+Expected '</', got ';'
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:38.694] Browser ERROR   Error loading current slot: {}
+[00:02:38.694] Browser ERROR   ./app/dashboard/page.tsx:1047:9
+Parsing ecmascript source code failed
+  1045 |         if (bet.status === "won") hasWins = true;
+  1046 |         if (bet.status === "lost") hasLosses = true;
+> 1047 |       });
+       |         ^
+  1048 |       let netResult;
+  1049 |        if(hasWins){
+  1050 |       netResult = totalPayout;
+
+Expected '</', got ';'
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:40.650] Browser ERROR   Error checking slot result: {}
+[00:02:40.650] Browser ERROR   ./app/dashboard/page.tsx:1047:9
+Parsing ecmascript source code failed
+  1045 |         if (bet.status === "won") hasWins = true;
+  1046 |         if (bet.status === "lost") hasLosses = true;
+> 1047 |       });
+       |         ^
+  1048 |       let netResult;
+  1049 |        if(hasWins){
+  1050 |       netResult = totalPayout;
+
+Expected '</', got ';'
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:02:45.628] Server  LOG      ✓ Compiled in 97ms
+[00:03:09.851] Browser LOG     Active slot found: 6973bccc9f4e9d29524c4e0e open Previous slot: undefined
+[00:03:38.918] Browser LOG     Active slot found: 6973bccc9f4e9d29524c4e0e open Previous slot: undefined
+[00:03:55.603] Server  LOG      ✓ Compiled in 78ms
+[00:03:55.959] Server  LOG      ✓ Compiled in 64ms
+[00:03:56.158] Browser ERROR   Error checking slot result: {}
+[00:03:56.158] Browser ERROR   ./app/dashboard/page.tsx:1047:9
+Parsing ecmascript source code failed
+  1045 |         if (bet.status === "won") hasWins = true;
+  1046 |         if (bet.status === "lost") hasLosses = true;
+> 1047 |       });
+       |         ^
+  1048 |       let netResult;
+  1049 |        if(hasWins){
+  1050 |       netResult = totalPayout;
+
+Expected '</', got ';'
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:03:56.158] Browser ERROR   ./app/dashboard/page.tsx:1047:9
+Parsing ecmascript source code failed
+  1045 |         if (bet.status === "won") hasWins = true;
+  1046 |         if (bet.status === "lost") hasLosses = true;
+> 1047 |       });
+       |         ^
+  1048 |       let netResult;
+  1049 |        if(hasWins){
+  1050 |       netResult = totalPayout;
+
+Expected '</', got ';'
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:03:56.530] Server  LOG      ✓ Compiled in 77ms
+[00:03:56.632] Browser ERROR   ./app/dashboard/page.tsx:1043:26
+Parsing ecmascript source code failed
+  1041 |       let slotBets: any[] = [];
+  1042 |       try {
+> 1043 |         const response = await betApi.getBets(undefined, 100, 0) as any;
+       |                          ^^^^^
+  1044 |         const allBets = Array.isArray(response) ? response : (response?.data || []);
+  1045 |         slotBets = allBets.filter((bet: any) => {
+  1046 |           const betSlotId = bet.slot?.id || bet.slotId;
+
+await isn't allowed in non-async function
+
+Import traces:
+  Client Component Browser:
+    ./app/dashboard/page.tsx [Client Component Browser]
+    ./app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/dashboard/page.tsx [Client Component SSR]
+    ./app/dashboard/page.tsx [Server Component]
+[00:03:58.324] Server  LOG      ✓ Compiled in 54ms
+[00:03:58.772] Server  LOG      ✓ Compiled in 54ms
+[00:03:59.269] Server  LOG      ✓ Compiled in 81ms
+[00:03:59.744] Server  LOG      ✓ Compiled in 89ms
+[00:04:00.147] Server  LOG      ✓ Compiled in 68ms
+[00:04:00.712] Server  LOG      ✓ Compiled in 88ms
+[00:04:01.053] Browser LOG     Active slot found: 6973bcff9f4e9d29524c4e2f open Previous slot: undefined
+[00:04:01.324] Server  LOG      ✓ Compiled in 104ms
+[00:04:02.108] Server  LOG      ✓ Compiled in 66ms
+[00:04:30.207] Server  LOG     [v0] MongoDB connected
+[00:04:30.573] Browser LOG     Active slot found: 6973bcff9f4e9d29524c4e2f open Previous slot: undefined
+[00:04:41.095] Server  LOG      ✓ Compiled in 80ms
+[00:04:47.172] Server  LOG     [v0] MongoDB connected
+[00:04:52.545] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:04:52.810] Browser LOG     🔄 useLoadStore useEffect started
+[00:04:52.810] Browser LOG     🔐 Checking for auth token
+[00:04:52.810] Browser LOG     👤 Fetching user profile...
+[00:04:52.810] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:04:52.810] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:04:52.810] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192755656}
+[00:04:52.810] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":859}
+[00:04:52.810] Browser LOG     👑 User role: user
+[00:04:52.810] Browser LOG     💰 Fetching transactions...
+[00:04:52.810] Browser LOG     ⚡ Executing promises in parallel...
+[00:04:53.145] Browser LOG     🎉 All data loaded successfully
+[00:04:53.819] Server  LOG      ✓ Compiled in 115ms
+[00:04:53.872] Browser LOG     Active slot found: 6973bd349f4e9d29524c4e66 open Previous slot: undefined
+[00:04:54.092] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:01:17.335] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined
-[00:01:34.813] Server  LOG      ✓ Compiled in 231ms
-[00:01:39.478] Server  LOG      ✓ Compiled in 237ms
-[00:01:44.740] Server  LOG      ✓ Compiled in 119ms
-[00:01:45.359] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined
-[00:01:51.028] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:51.186] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:01:51.186] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:01:51.186] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769180584097}
-[00:01:51.663] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined
-[00:01:52.574] Browser WARN    Image with src "/umbrella.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+[00:04:54.435] Browser LOG     Active slot found: 6973bd349f4e9d29524c4e66 open Previous slot: undefined
+[00:05:00.085] Server  LOG      ✓ Compiled in 92ms
+[00:05:06.807] Server  LOG      ✓ Compiled in 90ms
+[00:05:19.265] Server  LOG      ✓ Compiled in 92ms
+[00:05:19.797] Browser LOG     Active slot found: 6973bd349f4e9d29524c4e66 open Previous slot: undefined
+[00:05:38.850] Server  LOG      ✓ Compiled in 94ms
+[00:05:42.881] Server  LOG      ✓ Compiled in 122ms
+[00:05:49.930] Server  LOG      ✓ Compiled in 95ms
+[00:05:50.326] Browser LOG     Active slot found: 6973bd6d9f4e9d29524c4e8f open Previous slot: undefined
+[00:05:59.949] Server  LOG      ✓ Compiled in 84ms
+[00:06:00.303] Server  LOG      ✓ Compiled in 113ms
+[00:06:00.767] Server  LOG      ✓ Compiled in 96ms
+[00:06:01.166] Server  LOG      ✓ Compiled in 85ms
+[00:06:01.587] Browser LOG     Active slot found: 6973bd6d9f4e9d29524c4e8f open Previous slot: undefined
+[00:06:01.675] Server  LOG      ✓ Compiled in 98ms
+[00:06:02.239] Server  LOG      ✓ Compiled in 163ms
+[00:06:03.186] Server  LOG      ✓ Compiled in 0ms
+[00:06:31.222] Server  LOG     [v0] MongoDB connected
+[00:06:31.587] Browser LOG     Active slot found: 6973bd6d9f4e9d29524c4e8f open Previous slot: undefined
+[00:07:02.249] Browser LOG     Active slot found: 6973bdb59f4e9d29524c4ec2 open Previous slot: undefined
+[00:07:16.575] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192899521}
+[00:07:17.815] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/transactions color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/transactions","o":"http://localhost:3000/dashboard/transactions","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192900757}
+[00:07:19.000] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/withdrawals","o":"http://localhost:3000/dashboard/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192901940}
+[00:07:20.283] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/profile color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/profile","o":"http://localhost:3000/dashboard/profile","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192903222}
+[00:07:23.596] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/withdrawals","o":"http://localhost:3000/dashboard/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192906541}
+[00:07:26.300] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/transactions color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/transactions","o":"http://localhost:3000/dashboard/transactions","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192909243}
+[00:07:27.065] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192910013}
+[00:07:28.023] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/withdrawals","o":"http://localhost:3000/dashboard/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192910965}
+[00:07:29.613] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192912553}
+[00:07:29.921] Browser LOG     Active slot found: 6973bdb59f4e9d29524c4ec2 open Previous slot: undefined
+[00:07:30.261] Browser LOG     Active slot found: 6973bdb59f4e9d29524c4ec2 open Previous slot: undefined
+[00:07:39.074] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:07:39.166] Server  LOG     [v0] MongoDB connected
+[00:07:39.209] Browser LOG     🔄 useLoadStore useEffect started
+[00:07:39.209] Browser LOG     🔐 Checking for auth token
+[00:07:39.209] Browser LOG     👤 Fetching user profile...
+[00:07:39.209] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:07:39.209] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:07:39.209] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192922159}
+[00:07:39.410] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":859}
+[00:07:39.410] Browser LOG     👑 User role: user
+[00:07:39.410] Browser LOG     💰 Fetching transactions...
+[00:07:39.410] Browser LOG     ⚡ Executing promises in parallel...
+[00:07:39.678] Browser LOG     Active slot found: 6973bdb59f4e9d29524c4ec2 open Previous slot: undefined
+[00:07:39.907] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:01:52.575] Browser LOG     Active slot found: 69738d85e6a8778a8fabe7af open Previous slot: undefined
-[00:03:22.820] Browser LOG     Active slot found: 69738e03e6a8778a8fabe815 open Previous slot: undefined
-[00:03:51.914] Browser LOG     Active slot found: 69738e03e6a8778a8fabe815 open Previous slot: undefined
-[00:04:23.141] Browser LOG     Active slot found: 69738e3fe6a8778a8fabe82e open Previous slot: undefined
-[00:04:51.647] Browser LOG     Active slot found: 69738e3fe6a8778a8fabe82e open Previous slot: undefined
-[00:05:23.274] Browser LOG     Active slot found: 69738e7be6a8778a8fabe847 open Previous slot: undefined
-[00:05:51.672] Browser LOG     Active slot found: 69738e7be6a8778a8fabe847 open Previous slot: undefined
-[00:06:22.029] Browser LOG     Active slot found: 69738eb6e6a8778a8fabe85c open Previous slot: undefined
-[00:06:51.657] Browser LOG     Active slot found: 69738eb6e6a8778a8fabe85c open Previous slot: undefined
-[00:07:21.901] Browser LOG     Active slot found: 69738ef1f79bbaa16cdbecd8 open Previous slot: undefined
-[00:07:52.219] Browser LOG     Active slot found: 69738ef1f79bbaa16cdbecd8 open Previous slot: undefined
-[00:08:21.812] Browser LOG     Active slot found: 69738f2df79bbaa16cdbecf2 open Previous slot: undefined
-[00:08:52.031] Browser LOG     Active slot found: 69738f2df79bbaa16cdbecf2 open Previous slot: undefined
-[00:09:21.980] Browser LOG     Active slot found: 69738f66ff2e80f2e61b5e94 open Previous slot: undefined
-[00:09:51.765] Browser LOG     Active slot found: 69738f66ff2e80f2e61b5e94 open Previous slot: undefined
-[00:10:21.910] Browser LOG     Active slot found: 69738fa2ff2e80f2e61b5eb3 open Previous slot: undefined
-[00:10:33.742] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:10:33.940] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:10:33.940] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:10:33.940] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769181106846}
-[00:10:34.710] Browser LOG     Active slot found: 69738fa2ff2e80f2e61b5eb3 open Previous slot: undefined
-[00:10:34.834] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+[00:07:40.143] Browser LOG     Active slot found: 6973bdb59f4e9d29524c4ec2 open Previous slot: undefined
+[00:07:40.785] Browser LOG     🎉 All data loaded successfully
+[00:07:55.671] Server  LOG      ✓ Compiled in 100ms
+[00:08:02.136] Server  LOG      ✓ Compiled in 99ms
+[00:08:09.375] Server  LOG      ✓ Compiled in 123ms
+[00:08:10.286] Browser LOG     Active slot found: 6973bdf99f4e9d29524c4f49 open Previous slot: undefined
+[00:08:28.682] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/betting-history color: rgb(120, 120, 120) color: inherit {"dp":"/betting-history","o":"http://localhost:3000/betting-history","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769192971630}
+[00:09:03.591] Server  LOG      ✓ Compiled in 48ms
+[00:09:10.474] Server  LOG      ✓ Compiled in 93ms
+[00:09:10.593] Browser ERROR   ./app/betting-history/page.tsx:368:1
+Parsing ecmascript source code failed
+  366 |     </div>
+  367 |   );
+> 368 | }
+      | ^
+  369 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./app/betting-history/page.tsx [Client Component Browser]
+    ./app/betting-history/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/betting-history/page.tsx [Client Component SSR]
+    ./app/betting-history/page.tsx [Server Component]
+[00:09:41.663] Browser LOG     🔄 useLoadStore useEffect started
+[00:09:41.663] Browser LOG     🔐 Checking for auth token
+[00:09:41.663] Browser LOG     👤 Fetching user profile...
+[00:09:41.663] Browser LOG     🔄 useLoadStore useEffect started
+[00:09:41.663] Browser LOG     🔐 Checking for auth token
+[00:09:41.663] Browser LOG     👤 Fetching user profile...
+[00:09:41.663] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769193044595}
+[00:09:41.866] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":859}
+[00:09:41.866] Browser LOG     👑 User role: user
+[00:09:41.866] Browser LOG     💰 Fetching transactions...
+[00:09:41.866] Browser LOG     ⚡ Executing promises in parallel...
+[00:09:41.989] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":859}
+[00:09:41.989] Browser LOG     👑 User role: user
+[00:09:41.989] Browser LOG     💰 Fetching transactions...
+[00:09:41.989] Browser LOG     ⚡ Executing promises in parallel...
+[00:09:42.158] Browser LOG     🎉 All data loaded successfully
+[00:09:42.508] Browser LOG     🎉 All data loaded successfully
+[00:09:42.841] Browser LOG     Active slot found: 6973be559f4e9d29524c4f7e open Previous slot: undefined
+[00:09:43.415] Browser LOG     Active slot found: 6973be559f4e9d29524c4f7e open Previous slot: undefined
+[00:09:51.218] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:09:51.443] Browser LOG     🔄 useLoadStore useEffect started
+[00:09:51.443] Browser LOG     🔐 Checking for auth token
+[00:09:51.443] Browser LOG     👤 Fetching user profile...
+[00:09:51.443] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:09:51.443] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:09:51.443] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769193054296}
+[00:09:51.443] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":859}
+[00:09:51.443] Browser LOG     👑 User role: user
+[00:09:51.443] Browser LOG     💰 Fetching transactions...
+[00:09:51.443] Browser LOG     ⚡ Executing promises in parallel...
+[00:09:51.833] Browser LOG     🎉 All data loaded successfully
+[00:09:51.833] Browser LOG     Active slot found: 6973be559f4e9d29524c4f7e open Previous slot: undefined
+[00:09:51.833] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:10:35.212] Browser LOG     Active slot found: 69738fa2ff2e80f2e61b5eb3 open Previous slot: undefined
-[00:10:42.826] Server  LOG      ✓ Compiled in 288ms
-[00:10:43.071] Browser ERROR   uncaughtError: ReferenceError: useCallback is not defined
-[00:10:48.968] Server  LOG      ✓ Compiled in 341ms
-[00:10:48.995] Server  WARN     ⚠ Fast Refresh had to perform a full reload due to a runtime error.
-[00:10:51.205] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:10:52.552] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:10:52.552] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:10:52.552] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769181125302}
-[00:10:52.552] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769181125389}
-[00:10:52.552] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:10:55.204] Server  LOG      ✓ Compiled in 177ms
-[00:11:09.689] Server  LOG      ✓ Compiled in 225ms
-[00:11:27.410] Server  LOG      ✓ Compiled in 124ms
-[00:11:36.985] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:11:36.985] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:11:39.740] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769181172642}
-[00:11:40.066] Browser LOG     Active slot found: 69738fdeff2e80f2e61b5ecd open Previous slot: undefined
-[00:11:40.423] Browser LOG     Active slot found: 69738fdeff2e80f2e61b5ecd open Previous slot: undefined
-[00:12:11.034] Browser LOG     Active slot found: 69739013e6a8778a8fabe911 open Previous slot: undefined
-[00:12:40.494] Browser LOG     Active slot found: 69739013e6a8778a8fabe911 open Previous slot: undefined
-[00:13:12.335] Browser LOG     Active slot found: 69739051e6a8778a8fabe92a open Previous slot: undefined
-[00:13:40.168] Browser LOG     Active slot found: 69739051e6a8778a8fabe92a open Previous slot: undefined
-[00:14:11.091] Browser LOG     Active slot found: 6973908be6a8778a8fabe944 open Previous slot: undefined
-[00:23:32.250] Server  WARN     ⚠ Fast Refresh had to perform a full reload when ./app/dashboard/page.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
-[00:23:32.433] Server  LOG      ✓ Compiled in 406ms
-[00:23:32.653] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:23:32.863] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:23:32.863] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:23:32.863] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191635879}
-[00:23:33.396] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
-Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:23:33.396] Browser LOG     Active slot found: 6973b8b5bc2294f3ddcb06b2 open Previous slot: undefined
-[00:23:33.713] Browser LOG     Active slot found: 6973b8b5bc2294f3ddcb06b2 open Previous slot: undefined
-[00:23:41.539] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191644600}
-[00:23:44.725] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191647792}
-[00:23:45.141] Browser LOG     Active slot found: 6973b8b5bc2294f3ddcb06b2 open Previous slot: undefined
-[00:23:45.513] Browser LOG     Active slot found: 6973b8b5bc2294f3ddcb06b2 open Previous slot: undefined
-[00:23:46.844] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191649917}
-[00:23:48.533] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/transactions color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/transactions","o":"http://localhost:3000/dashboard/transactions","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191651597}
-[00:24:48.663] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/withdrawals","o":"http://localhost:3000/dashboard/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191711705}
-[00:24:50.181] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/profile color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/profile","o":"http://localhost:3000/dashboard/profile","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191713251}
-[00:24:51.875] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191714941}
-[00:24:52.843] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
-[00:24:53.155] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
-[00:25:22.017] Server  LOG     [v0] MongoDB connected
-[00:25:22.411] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
-[00:25:23.489] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:25:23.653] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:25:23.653] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:25:23.653] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191746728}
-[00:25:24.226] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
-[00:25:24.388] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
-Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:25:24.526] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
-[00:25:38.384] Server  LOG     [v0] MongoDB connected
-[00:25:54.919] Browser LOG     Active slot found: 6973b961bc2294f3ddcb077f open Previous slot: undefined
-[00:26:23.894] Server  LOG     [v0] MongoDB connected
-[00:26:24.287] Browser LOG     Active slot found: 6973b961bc2294f3ddcb077f open Previous slot: undefined
-[00:26:54.803] Browser LOG     Active slot found: 6973b99dbc2294f3ddcb079e open Previous slot: undefined
-[00:27:24.505] Browser LOG     Active slot found: 6973b99dbc2294f3ddcb079e open Previous slot: undefined
-[00:27:26.999] Server  LOG      ✓ Compiled in 67.6s
+[00:09:52.113] Browser LOG     Active slot found: 6973be559f4e9d29524c4f7e open Previous slot: undefined

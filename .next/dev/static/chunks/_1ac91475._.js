@@ -36,15 +36,24 @@ async function apiCall(endpoint, options = {}) {
     if (token) {
         headers.Authorization = `Bearer ${token}`;
     }
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers
-    });
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "API Error");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(()=>controller.abort(), 10000); // 10 second timeout
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...options,
+            headers,
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "API Error");
+        }
+        return response.json();
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
     }
-    return response.json();
 }
 const authApi = {
     login: (email, password)=>apiCall("/auth/login", {
@@ -485,17 +494,22 @@ const useLoadStore = ()=>{
     _s();
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "useLoadStore.useEffect": ()=>{
+            console.log("🔄 useLoadStore useEffect started");
             const initialize = {
                 "useLoadStore.useEffect.initialize": async ()=>{
+                    console.log("🔐 Checking for auth token");
                     const token = localStorage.getItem("authToken");
                     if (!token) {
+                        console.log("❌ No token found, setting isLoading false");
                         useAppStore.setState({
                             isLoading: false
                         });
                         return;
                     }
                     try {
+                        console.log("👤 Fetching user profile...");
                         const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["authApi"].getProfile();
+                        console.log("✅ Profile fetched:", profile);
                         useAppStore.setState({
                             "useLoadStore.useEffect.initialize": (state)=>({
                                     ...state,
@@ -504,13 +518,19 @@ const useLoadStore = ()=>{
                                 })
                         }["useLoadStore.useEffect.initialize"]);
                         const { role } = profile;
+                        console.log("👑 User role:", role);
+                        const promises = [];
                         if (role === "admin") {
-                            await useAppStore.getState().fetchUsers();
+                            console.log("📋 Fetching users...");
+                            promises.push(useAppStore.getState().fetchUsers());
                         }
-                        // Fetch first page to get total count
-                        await useAppStore.getState().fetchTransactions(10, 0);
+                        console.log("💰 Fetching transactions...");
+                        promises.push(useAppStore.getState().fetchTransactions(10, 0));
+                        console.log("⚡ Executing promises in parallel...");
+                        await Promise.all(promises);
+                        console.log("🎉 All data loaded successfully");
                     } catch (error) {
-                        console.error("Session restore error:", error);
+                        console.error("💥 Session restore error:", error);
                         localStorage.removeItem("authToken");
                         useAppStore.setState({
                             user: null,

@@ -24,6 +24,7 @@
   "/api/users/route": "app/api/users/route.js",
   "/api/withdrawals/[withdrawalId]/route": "app/api/withdrawals/[withdrawalId]/route.js",
   "/api/withdrawals/route": "app/api/withdrawals/route.js",
+  "/betting-history/page": "app/betting-history/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/dashboard/profile/page": "app/dashboard/profile/page.js",
   "/dashboard/transactions/page": "app/dashboard/transactions/page.js",

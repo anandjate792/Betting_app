@@ -1,5 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
   "/api/auth/me/route": "app/api/auth/me/route.js",
   "/api/bank-details/route": "app/api/bank-details/route.js",
   "/api/bets/route": "app/api/bets/route.js",
@@ -8,6 +7,7 @@
   "/api/referrals/route": "app/api/referrals/route.js",
   "/api/transactions/route": "app/api/transactions/route.js",
   "/api/withdrawals/route": "app/api/withdrawals/route.js",
+  "/betting-history/page": "app/betting-history/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/dashboard/profile/page": "app/dashboard/profile/page.js",
   "/dashboard/transactions/page": "app/dashboard/transactions/page.js",

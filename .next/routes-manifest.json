@@ -187,6 +187,12 @@
       "namedRegex": "^/api/withdrawals(?:/)?$"
     },
     {
+      "page": "/betting-history",
+      "regex": "^/betting\\-history(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/betting\\-history(?:/)?$"
+    },
+    {
       "page": "/dashboard",
       "regex": "^/dashboard(?:/)?$",
       "routeKeys": {},

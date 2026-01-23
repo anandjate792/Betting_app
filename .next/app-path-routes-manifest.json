@@ -24,6 +24,7 @@
   "/api/users/route": "/api/users",
   "/api/withdrawals/[withdrawalId]/route": "/api/withdrawals/[withdrawalId]",
   "/api/withdrawals/route": "/api/withdrawals",
+  "/betting-history/page": "/betting-history",
   "/dashboard/page": "/dashboard",
   "/dashboard/profile/page": "/dashboard/profile",
   "/dashboard/transactions/page": "/dashboard/transactions",

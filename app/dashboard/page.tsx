@@ -949,6 +949,13 @@ const loadCurrentSlot = async () => {
       description: "Request withdrawals",
       color: "text-purple-400",
     },
+    {
+      href: "/betting-history",
+      label: "Betting History",
+      icon: Gamepad2,
+      description: "View your betting history",
+      color: "text-orange-400",
+    },
   ];
 
   return (
@@ -1468,252 +1475,6 @@ const loadCurrentSlot = async () => {
         </CardContent>
       </Card>
 
-      {/* My Betting History */}
-      <Card className="border-slate-700 bg-slate-800 mx-auto mt-3 max-w-5xl">
-        <CardHeader className="px-4 py-3">
-          <CardTitle className="text-white text-base">
-            My Betting History
-          </CardTitle>
-          <CardDescription className="text-slate-400 text-xs">
-            View all your bets and their results
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-4">
-          {betsLoading && myBets.length === 0 ? (
-            <div className="flex items-center justify-center py-8">
-              <Spinner className="w-5 h-5 text-blue-400" />
-              <p className="ml-2 text-sm text-slate-400">
-                Loading betting history...
-              </p>
-            </div>
-          ) : myBets.length === 0 ? (
-            <p className="text-slate-400 text-center py-6 text-sm">
-              No betting history found
-            </p>
-          ) : (
-            <>
-              <ScrollArea className="h-[400px]">
-                <div className="space-y-3 pr-4">
-                  {(() => {
-                    // Group bets by slot
-                    const betsBySlot = new Map();
-                    myBets.forEach((bet) => {
-                      const slot = bet.slot;
-                      const slotId =
-                        slot?.id || bet.slotId || `slot-${bet.slotNumber}`;
-                      const slotNumber = slot?.slotNumber || bet.slotNumber;
-
-                      if (!betsBySlot.has(slotId)) {
-                        betsBySlot.set(slotId, {
-                          slotId,
-                          slotNumber,
-                          slot,
-                          bets: [],
-                          totalBetAmount: 0,
-                          totalPayout: 0,
-                          netResult: 0,
-                        });
-                      }
-
-                      const slotGroup = betsBySlot.get(slotId);
-                      slotGroup.bets.push(bet);
-                      slotGroup.totalBetAmount += bet.amount || 0;
-                      slotGroup.totalPayout += bet.payout || 0;
-                    });
-
-                    // Calculate net result for each slot
-                    betsBySlot.forEach((slotGroup) => {
-                      slotGroup.netResult =
-                        slotGroup.totalPayout - slotGroup.totalBetAmount;
-                    });
-
-                    // Convert to array and sort by slot number (newest first)
-                    const slotGroups = Array.from(betsBySlot.values()).sort(
-                      (a, b) => (b.slotNumber || 0) - (a.slotNumber || 0)
-                    );
-
-                    return slotGroups.map((slotGroup) => {
-                      const {
-                        slot,
-                        slotNumber,
-                        bets,
-                        totalBetAmount,
-                        totalPayout,
-                        netResult,
-                      } = slotGroup;
-                      const isCompleted =
-                        slot?.status === "completed" ||
-                        slot?.status === "cancelled";
-                      const isCancelled = slot?.status === "cancelled";
-                      const hasPending = bets.some(
-                        (b: any) => !b.status || b.status === "pending"
-                      );
-
-                      // Determine overall slot status
-                      let overallStatus = "pending";
-                      if (isCancelled) {
-                        overallStatus = "cancelled";
-                      } else if (isCompleted && !hasPending) {
-                        overallStatus =
-                          netResult > 0
-                            ? "won"
-                            : netResult < 0
-                            ? "lost"
-                            : "draw";
-                      }
-
-                      return (
-                        <div
-                          key={slotGroup.slotId}
-                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                        >
-                          {/* Slot Header with Overall Result */}
-                          <div className="flex justify-between items-start mb-3 pb-3 border-b border-slate-600">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <p className="text-base font-bold text-white">
-                                  Slot #{slotNumber || "N/A"}
-                                </p>
-                                {isCompleted &&
-                                  slot?.winningIcon &&
-                                  !isCancelled && (
-                                    <>
-                                      <span className="text-sm text-slate-400">
-                                        •
-                                      </span>
-                                      <span className="text-xs text-slate-400">
-                                        Winner:{" "}
-                                        <span className="font-semibold text-green-300">
-                                          {slot.winningIcon}
-                                        </span>
-                                      </span>
-                                    </>
-                                  )}
-                              </div>
-                              <p className="text-xs text-slate-400">
-                                {slot?.startTime
-                                  ? new Date(slot.startTime).toLocaleString()
-                                  : bets[0]?.createdAt
-                                  ? new Date(bets[0].createdAt).toLocaleString()
-                                  : "Unknown date"}
-                              </p>
-                            </div>
-                            <div className="text-right ml-4">
-                              {overallStatus === "won" && (
-                                <>
-                                  <p className="text-lg font-bold text-green-400">
-                                    +₹{netResult.toFixed(2)}
-                                  </p>
-                                  <span className="text-xs px-2 py-1 rounded-full bg-green-600 text-white inline-block mt-1">
-                                    Won
-                                  </span>
-                                </>
-                              )}
-                              {overallStatus === "lost" && (
-                                <>
-                                  <p className="text-lg font-bold text-red-400">
-                                    -₹{Math.abs(netResult).toFixed(2)}
-                                  </p>
-                                  <span className="text-xs px-2 py-1 rounded-full bg-red-600 text-white inline-block mt-1">
-                                    Lost
-                                  </span>
-                                </>
-                              )}
-                              {overallStatus === "cancelled" && (
-                                <>
-                                  <p className="text-sm text-slate-400">
-                                    Refunded
-                                  </p>
-                                  <span className="text-xs px-2 py-1 rounded-full bg-gray-600 text-white inline-block mt-1">
-                                    Cancelled
-                                  </span>
-                                </>
-                              )}
-                              {overallStatus === "pending" && (
-                                <>
-                                  <p className="text-sm text-slate-400">
-                                    Pending
-                                  </p>
-                                  <span className="text-xs px-2 py-1 rounded-full bg-yellow-600 text-white inline-block mt-1">
-                                    Pending
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Individual Bets */}
-                          <div className="space-y-2">
-                            {bets.map((bet: any) => {
-                              const isWinner = slot?.winningIcon === bet.icon;
-                              let betStatus = bet.status || "pending";
-                              if (!bet.status && isCompleted && !isCancelled) {
-                                betStatus = isWinner ? "won" : "lost";
-                              }
-
-                              return (
-                                <div
-                                  key={bet.id}
-                                  className="flex justify-between items-center p-2 bg-slate-800 rounded border border-slate-600"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-semibold text-blue-300">
-                                      {bet.icon}
-                                    </span>
-                                    <span className="text-xs text-slate-400">
-                                      Bet: ₹{bet.amount.toFixed(2)}
-                                    </span>
-                                  </div>
-                                  <div className="text-right">
-                                    {betStatus === "won" && (
-                                      <span className="text-sm font-semibold text-green-400">
-                                        +₹{(bet.payout || 0).toFixed(2)}
-                                      </span>
-                                    )}
-                                    {betStatus === "lost" && (
-                                      <span className="text-sm font-semibold text-red-400">
-                                        -₹{bet.amount.toFixed(2)}
-                                      </span>
-                                    )}
-                                    {betStatus === "pending" && (
-                                      <span className="text-xs text-slate-400">
-                                        Pending
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-              </ScrollArea>
-              {betsHasMore && (
-                <div className="mt-4 flex justify-center">
-                  <Button
-                    onClick={() => loadMyBets(false)}
-                    disabled={betsLoading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    size="sm"
-                  >
-                    {betsLoading ? (
-                      <>
-                        <Spinner className="w-4 h-4 mr-2" />
-                        Loading...
-                      </>
-                    ) : (
-                      "Load More (10 bets)"
-                    )}
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Previous 10 Slots History */}
       {previousSlotsHistory.length > 0 && (
@@ -1818,7 +1579,7 @@ const loadCurrentSlot = async () => {
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3 mx-auto mb-4 max-w-5xl px-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-3 mx-auto mb-4 max-w-5xl px-3">
         {quickActions.map((action) => {
           const Icon = action.icon;
           return (

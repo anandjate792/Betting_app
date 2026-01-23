@@ -67,3 +67,41 @@ Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
 [00:13:12.335] Browser LOG     Active slot found: 69739051e6a8778a8fabe92a open Previous slot: undefined
 [00:13:40.168] Browser LOG     Active slot found: 69739051e6a8778a8fabe92a open Previous slot: undefined
 [00:14:11.091] Browser LOG     Active slot found: 6973908be6a8778a8fabe944 open Previous slot: undefined
+[00:23:32.250] Server  WARN     ⚠ Fast Refresh had to perform a full reload when ./app/dashboard/page.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[00:23:32.433] Server  LOG      ✓ Compiled in 406ms
+[00:23:32.653] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:23:32.863] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:23:32.863] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:23:32.863] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191635879}
+[00:23:33.396] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[00:23:33.396] Browser LOG     Active slot found: 6973b8b5bc2294f3ddcb06b2 open Previous slot: undefined
+[00:23:33.713] Browser LOG     Active slot found: 6973b8b5bc2294f3ddcb06b2 open Previous slot: undefined
+[00:23:41.539] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191644600}
+[00:23:44.725] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191647792}
+[00:23:45.141] Browser LOG     Active slot found: 6973b8b5bc2294f3ddcb06b2 open Previous slot: undefined
+[00:23:45.513] Browser LOG     Active slot found: 6973b8b5bc2294f3ddcb06b2 open Previous slot: undefined
+[00:23:46.844] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191649917}
+[00:23:48.533] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/transactions color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/transactions","o":"http://localhost:3000/dashboard/transactions","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191651597}
+[00:24:48.663] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/withdrawals","o":"http://localhost:3000/dashboard/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191711705}
+[00:24:50.181] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/profile color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/profile","o":"http://localhost:3000/dashboard/profile","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191713251}
+[00:24:51.875] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191714941}
+[00:24:52.843] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
+[00:24:53.155] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
+[00:25:22.017] Server  LOG     [v0] MongoDB connected
+[00:25:22.411] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
+[00:25:23.489] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:25:23.653] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:25:23.653] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:25:23.653] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769191746728}
+[00:25:24.226] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
+[00:25:24.388] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[00:25:24.526] Browser LOG     Active slot found: 6973b923bc2294f3ddcb072f open Previous slot: undefined
+[00:25:38.384] Server  LOG     [v0] MongoDB connected
+[00:25:54.919] Browser LOG     Active slot found: 6973b961bc2294f3ddcb077f open Previous slot: undefined
+[00:26:23.894] Server  LOG     [v0] MongoDB connected
+[00:26:24.287] Browser LOG     Active slot found: 6973b961bc2294f3ddcb077f open Previous slot: undefined
+[00:26:54.803] Browser LOG     Active slot found: 6973b99dbc2294f3ddcb079e open Previous slot: undefined
+[00:27:24.505] Browser LOG     Active slot found: 6973b99dbc2294f3ddcb079e open Previous slot: undefined
+[00:27:26.999] Server  LOG      ✓ Compiled in 67.6s

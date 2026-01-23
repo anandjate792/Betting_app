@@ -29,5 +29,9 @@
   "/dashboard/transactions/page": "app/dashboard/transactions/page.js",
   "/dashboard/wallet/page": "app/dashboard/wallet/page.js",
   "/dashboard/withdrawals/page": "app/dashboard/withdrawals/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/profile/page": "app/profile/page.js",
+  "/transactions/page": "app/transactions/page.js",
+  "/wallet/page": "app/wallet/page.js",
+  "/withdrawals/page": "app/withdrawals/page.js"
 }

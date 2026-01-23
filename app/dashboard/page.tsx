@@ -929,21 +929,21 @@ const loadCurrentSlot = async () => {
 
   const quickActions = [
     {
-      href: "/dashboard/wallet",
+      href: "/wallet",
       label: "Wallet",
       icon: Wallet,
       description: "View balance and add money",
       color: "text-green-400",
     },
     {
-      href: "/dashboard/transactions",
+      href: "/transactions",
       label: "Transactions",
       icon: ArrowUpDown,
       description: "View transaction history",
       color: "text-blue-400",
     },
     {
-      href: "/dashboard/withdrawals",
+      href: "/withdrawals",
       label: "Withdrawals",
       icon: CreditCard,
       description: "Request withdrawals",

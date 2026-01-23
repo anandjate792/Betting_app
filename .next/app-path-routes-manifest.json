@@ -29,5 +29,9 @@
   "/dashboard/transactions/page": "/dashboard/transactions",
   "/dashboard/wallet/page": "/dashboard/wallet",
   "/dashboard/withdrawals/page": "/dashboard/withdrawals",
-  "/page": "/"
+  "/page": "/",
+  "/profile/page": "/profile",
+  "/transactions/page": "/transactions",
+  "/wallet/page": "/wallet",
+  "/withdrawals/page": "/withdrawals"
 }

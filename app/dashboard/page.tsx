@@ -3,6 +3,8 @@
 import type React from "react";
 import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { useAppStore } from "@/lib/store";
+import { useThrottle } from "@/hooks/use-debounce";
+import { IconSkeleton } from "@/components/ui/loading-skeleton";
 import {
   Card,
   CardContent,
@@ -71,7 +73,15 @@ const ICONS = [
 
 const CHIP_VALUES = [10, 20, 50, 100, 200, 500];
 
-// Memoized Icon Component to prevent unnecessary re-renders
+// Preload images to prevent loading delays
+const preloadImages = () => {
+  ICONS.forEach(icon => {
+    const img = new window.Image()
+    img.src = icon.image
+  })
+}
+
+// Memoized Icon Component with loading states
 const IconButton = memo(({ 
   id, 
   name, 
@@ -95,6 +105,16 @@ const IconButton = memo(({
   hasMyBet: boolean;
   timeRemaining: string;
 }) => {
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false)
+
+  useEffect(() => {
+    const img = new window.Image()
+    img.onload = () => setImageLoaded(true)
+    img.onerror = () => setImageError(true)
+    img.src = image
+  }, [image])
+
   return (
     <button
       type="button"
@@ -120,13 +140,30 @@ const IconButton = memo(({
           </div>
         </>
       )}
-      <Image
-        src={image}
-        alt={name}
-        width={64}
-        height={64}
-        className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 object-contain"
-      />
+      
+      {/* Image with loading state */}
+      <div className="relative w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 flex items-center justify-center">
+        {!imageLoaded && !imageError && (
+          <div className="absolute inset-0 bg-slate-600 animate-pulse rounded" />
+        )}
+        {imageError ? (
+          <div className="absolute inset-0 bg-slate-600 rounded flex items-center justify-center">
+            <span className="text-2xl text-slate-400">?</span>
+          </div>
+        ) : (
+          <Image
+            src={image}
+            alt={name}
+            width={64}
+            height={64}
+            className={`w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 object-contain transition-opacity duration-200 ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            priority={id === 'umbrella' || id === 'football'} // Prioritize first few images
+          />
+        )}
+      </div>
+      
       <span className="text-[9px] lg:text-[10px] xl:text-sm 2xl:text-base text-slate-300 mt-1 lg:mt-1 xl:mt-1.5 2xl:mt-2 text-center leading-tight">
         {name}
       </span>
@@ -250,14 +287,17 @@ export default function DashboardPage() {
   const resultPollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasUserInteractedRef = useRef<boolean>(false);
 
-  // Load initial data
+  // Load initial data and preload images
   useEffect(() => {
+    // Preload images immediately
+    preloadImages()
+    
+    // Load other data
     loadCurrentSlot();
     loadMyBets(true);
     loadReferralInfo();
     loadWinningHistory();
     loadPreviousSlotsHistory();
-
 
     // Setup polling for slot changes - reduced frequency to improve performance
     const slotPollInterval = setInterval(loadCurrentSlot, 30000); // Increased from 15s to 30s
@@ -709,11 +749,12 @@ const loadCurrentSlot = async () => {
     }
   };
 
-  // Handle icon click - place bet with selected chip
-  const handleIconClick = useCallback((iconId: string) => {
+  // Handle icon click - throttled for performance
+  const handleIconClickThrottled = useThrottle((iconId: string) => {
     // Mark user as having interacted
     hasUserInteractedRef.current = true;
     
+    // Early validation to prevent unnecessary work
     if (!currentSlot) {
       setError("No active slot found");
       return;
@@ -739,10 +780,10 @@ const loadCurrentSlot = async () => {
       return;
     }
 
-    // Play belt sound when placing bet
-    playSound('belt');
+    // Play sound asynchronously to not block UI
+    setTimeout(() => playSound('belt'), 0);
 
-    // Optimized state update to prevent hanging
+    // Optimized state update with immediate feedback
     setPlacedBets((prev) => {
       const existingBetIndex = prev.findIndex((bet) => bet.icon === iconId);
       if (existingBetIndex !== -1) {
@@ -758,7 +799,12 @@ const loadCurrentSlot = async () => {
         return [...prev, { icon: iconId, amount: selectedChip }];
       }
     });
-  }, [currentSlot, selectedChip, user]);
+  }, 100); // Throttle to 100ms
+
+  // Wrapper function to maintain the same interface
+  const handleIconClick = useCallback((iconId: string) => {
+    handleIconClickThrottled(iconId);
+  }, [handleIconClickThrottled]);
 
   // Undo last bet
   const handleUndo = () => {
@@ -1161,6 +1207,21 @@ const loadCurrentSlot = async () => {
   </div>
 ) : (
   <div className="space-y-3">
+    {/* Slot Loading State */}
+    {slotLoading ? (
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 lg:p-5 xl:p-6 2xl:p-8 border border-slate-700">
+        <div className="text-center mb-4">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mb-2"></div>
+          <p className="text-sm text-slate-400">Loading game...</p>
+        </div>
+        <div className="grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <IconSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    ) : (
+    <>
     {/* Slot Closed State - Show small animated clock */}
     {timeRemaining === "Slot Closed" && (
       <div className="flex items-center justify-center gap-2 py-2 bg-slate-800/50 rounded-lg border border-slate-700">
@@ -1336,6 +1397,8 @@ const loadCurrentSlot = async () => {
         )}
       </Button>
     </div>
+    </>
+    )}
   </div>
 )}
         </CardContent>

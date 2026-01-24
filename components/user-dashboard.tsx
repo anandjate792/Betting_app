@@ -85,7 +85,7 @@ export default function UserDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-green-400">${user?.walletBalance.toFixed(2)}</div>
+              <div className="text-4xl font-bold text-green-400">₹{user?.walletBalance.toFixed(2)}</div>
               <p className="text-slate-400 text-sm mt-2">Your current wallet balance</p>
             </CardContent>
           </Card>
@@ -111,7 +111,7 @@ export default function UserDashboard() {
                 <CardContent>
                   <form onSubmit={handleSubmitTransaction} className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-slate-300">Amount ($)</label>
+                      <label className="text-sm font-medium text-slate-300">Amount (₹)</label>
                       <Input
                         type="number"
                         placeholder="100"
@@ -196,7 +196,7 @@ export default function UserDashboard() {
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-green-400">${transaction.amount.toFixed(2)}</p>
+                          <p className="text-lg font-bold text-green-400">₹{transaction.amount.toFixed(2)}</p>
                           <span
                             className={`text-xs px-3 py-1 rounded-full ${
                               transaction.status === "pending"

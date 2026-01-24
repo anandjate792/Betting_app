@@ -9,7 +9,7 @@ import {
   Users,
   CheckCircle,
   Wallet,
-  DollarSign,
+  ArrowDownLeft,
   Gamepad2,
   Settings,
   LogOut,
@@ -29,7 +29,7 @@ export default function AdminNavbar() {
     { href: "/admin/users", label: "User Management", icon: Users },
     { href: "/admin/approvals", label: "Approvals", icon: CheckCircle },
     { href: "/admin/add-money", label: "Add Money", icon: Wallet },
-    { href: "/admin/withdrawals", label: "Withdrawals", icon: DollarSign },
+    { href: "/admin/withdrawals", label: "Withdrawals", icon: ArrowDownLeft },
     { href: "/admin/prediction", label: "Prediction Game", icon: Gamepad2 },
   ];
 

@@ -313,7 +313,7 @@ function ApprovalsPage() {
                                                         lineNumber: 162,
                                                         columnNumber: 23
                                                     }, this),
-                                                    " $",
+                                                    " ₹",
                                                     trans.amount.toFixed(2)
                                                 ]
                                             }, void 0, true, {
@@ -445,7 +445,7 @@ function ApprovalsPage() {
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-green-400 font-medium",
                                                 children: [
-                                                    "$",
+                                                    "₹",
                                                     selectedTransaction.amount.toFixed(2)
                                                 ]
                                             }, void 0, true, {
@@ -677,7 +677,7 @@ function ApprovalsPage() {
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                         onClick: ()=>setSelectedTransaction(null),
                                         variant: "outline",
-                                        className: "w-full text-slate-300 border-slate-600 hover:bg-slate-700",
+                                        className: "w-full text-slate-800 border-slate-600 hover:bg-slate-100",
                                         children: "Close"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/approvals/page.tsx",
@@ -842,7 +842,7 @@ function ApprovalsPage() {
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                         className: "text-xl font-bold text-green-400",
                                                                         children: [
-                                                                            "$",
+                                                                            "₹",
                                                                             trans.amount.toFixed(2)
                                                                         ]
                                                                     }, void 0, true, {
@@ -1153,7 +1153,7 @@ function ApprovalsPage() {
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                     className: "py-3 px-2 text-green-400 font-semibold",
                                                                     children: [
-                                                                        "$",
+                                                                        "₹",
                                                                         trans.amount.toFixed(2)
                                                                     ]
                                                                 }, void 0, true, {

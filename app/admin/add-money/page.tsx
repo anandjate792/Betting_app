@@ -63,14 +63,14 @@ export default function AddMoneyPage() {
                 <option value="">Choose a user...</option>
                 {regularUsers.map((u) => (
                   <option key={u.id} value={u.id}>
-                    {u.name} ({u.email}) - ${u.walletBalance.toFixed(2)}
+                    {u.name} ({u.email}) - ₹{u.walletBalance.toFixed(2)}
                   </option>
                 ))}
               </select>
             </div>
             <div>
               <label className="text-sm font-medium text-slate-300">
-                Amount ($)
+                Amount (₹)
               </label>
               <Input
                 type="number"

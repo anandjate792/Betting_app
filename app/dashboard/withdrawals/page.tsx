@@ -124,6 +124,12 @@ export default function WithdrawalsPage() {
       return;
     }
 
+    // Check if bank details are provided
+    if (!bankDetails.accountHolderName || !bankDetails.bankName || !bankDetails.accountNumber || !bankDetails.ifscCode) {
+      alert("Please complete your bank details before requesting a withdrawal. Account holder name, bank name, account number, and IFSC code are required.");
+      return;
+    }
+
     setWithdrawalLoading(true);
     try {
       await withdrawalApi.requestWithdrawal(parseFloat(withdrawalAmount));

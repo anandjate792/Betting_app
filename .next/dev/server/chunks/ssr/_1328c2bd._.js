@@ -35,15 +35,24 @@ async function apiCall(endpoint, options = {}) {
     if (token) {
         headers.Authorization = `Bearer ${token}`;
     }
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers
-    });
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "API Error");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(()=>controller.abort(), 10000); // 10 second timeout
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...options,
+            headers,
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "API Error");
+        }
+        return response.json();
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
     }
-    return response.json();
 }
 const authApi = {
     login: (email, password)=>apiCall("/auth/login", {
@@ -478,29 +487,40 @@ const useAppStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mod
     }));
 const useLoadStore = ()=>{
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        console.log("🔄 useLoadStore useEffect started");
         const initialize = async ()=>{
+            console.log("🔐 Checking for auth token");
             const token = localStorage.getItem("authToken");
             if (!token) {
+                console.log("❌ No token found, setting isLoading false");
                 useAppStore.setState({
                     isLoading: false
                 });
                 return;
             }
             try {
+                console.log("👤 Fetching user profile...");
                 const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["authApi"].getProfile();
+                console.log("✅ Profile fetched:", profile);
                 useAppStore.setState((state)=>({
                         ...state,
                         user: profile,
                         isLoading: false
                     }));
                 const { role } = profile;
+                console.log("👑 User role:", role);
+                const promises = [];
                 if (role === "admin") {
-                    await useAppStore.getState().fetchUsers();
+                    console.log("📋 Fetching users...");
+                    promises.push(useAppStore.getState().fetchUsers());
                 }
-                // Fetch first page to get total count
-                await useAppStore.getState().fetchTransactions(10, 0);
+                console.log("💰 Fetching transactions...");
+                promises.push(useAppStore.getState().fetchTransactions(10, 0));
+                console.log("⚡ Executing promises in parallel...");
+                await Promise.all(promises);
+                console.log("🎉 All data loaded successfully");
             } catch (error) {
-                console.error("Session restore error:", error);
+                console.error("💥 Session restore error:", error);
                 localStorage.removeItem("authToken");
                 useAppStore.setState({
                     user: null,
@@ -990,7 +1010,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/users.js [app-ssr] (ecmascript) <export default as Users>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2d$big$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check-big.js [app-ssr] (ecmascript) <export default as CheckCircle>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$wallet$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Wallet$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/wallet.js [app-ssr] (ecmascript) <export default as Wallet>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$dollar$2d$sign$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__DollarSign$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/dollar-sign.js [app-ssr] (ecmascript) <export default as DollarSign>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$down$2d$left$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowDownLeft$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/arrow-down-left.js [app-ssr] (ecmascript) <export default as ArrowDownLeft>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$gamepad$2d$2$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Gamepad2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/gamepad-2.js [app-ssr] (ecmascript) <export default as Gamepad2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$settings$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Settings$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/settings.js [app-ssr] (ecmascript) <export default as Settings>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$log$2d$out$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__LogOut$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/log-out.js [app-ssr] (ecmascript) <export default as LogOut>");
@@ -1032,7 +1052,7 @@ function AdminNavbar() {
         {
             href: "/admin/withdrawals",
             label: "Withdrawals",
-            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$dollar$2d$sign$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__DollarSign$3e$__["DollarSign"]
+            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$down$2d$left$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowDownLeft$3e$__["ArrowDownLeft"]
         },
         {
             href: "/admin/prediction",

@@ -159,7 +159,7 @@ export default function ApprovalsPage() {
                       <strong>User:</strong> {trans.userName}
                     </p>
                     <p>
-                      <strong>Amount:</strong> ${trans.amount.toFixed(2)}
+                      <strong>Amount:</strong> ₹{trans.amount.toFixed(2)}
                     </p>
                     <p>
                       <strong>Description:</strong> {trans.description}
@@ -197,7 +197,7 @@ export default function ApprovalsPage() {
               </div>
               <div>
                 <p className="text-slate-400">Amount</p>
-                <p className="text-green-400 font-medium">${selectedTransaction.amount.toFixed(2)}</p>
+                <p className="text-green-400 font-medium">₹{selectedTransaction.amount.toFixed(2)}</p>
               </div>
               <div>
                 <p className="text-slate-400">Status</p>
@@ -282,7 +282,7 @@ export default function ApprovalsPage() {
               <Button
                 onClick={() => setSelectedTransaction(null)}
                 variant="outline"
-                className="w-full text-slate-300 border-slate-600 hover:bg-slate-700"
+                className="w-full text-slate-800 border-slate-600 hover:bg-slate-100"
               >
                 Close
               </Button>
@@ -348,7 +348,7 @@ export default function ApprovalsPage() {
                             )}
                           </div>
                           <p className="text-xl font-bold text-green-400">
-                            ${trans.amount.toFixed(2)}
+                            ₹{trans.amount.toFixed(2)}
                           </p>
                         </div>
                         <p className="text-xs text-slate-400 mb-3">
@@ -475,7 +475,7 @@ export default function ApprovalsPage() {
                             {trans.userName}
                           </td>
                           <td className="py-3 px-2 text-green-400 font-semibold">
-                            ${trans.amount.toFixed(2)}
+                            ₹{trans.amount.toFixed(2)}
                           </td>
                           <td className="py-3 px-2">
                             <span

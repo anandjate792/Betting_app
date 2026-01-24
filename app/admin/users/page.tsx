@@ -257,7 +257,7 @@ export default function UsersPage() {
                     <div className="flex items-center gap-3">
                       <div className="text-right">
                         <p className="font-semibold text-green-400">
-                          ${u.walletBalance.toFixed(2)}
+                          ₹{u.walletBalance.toFixed(2)}
                         </p>
                         <p className="text-xs text-slate-400">Balance</p>
                       </div>

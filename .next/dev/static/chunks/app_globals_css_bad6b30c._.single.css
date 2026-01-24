@@ -136,6 +136,7 @@
     --color-purple-700: #8200da;
     --color-purple-900: #59168b;
     --color-pink-500: #f6339a;
+    --color-slate-100: #f1f5f9;
     --color-slate-300: #cad5e2;
     --color-slate-400: #90a1b9;
     --color-slate-500: #62748e;
@@ -243,6 +244,7 @@
       --color-purple-700: lab(36.1758% 69.8525 -80.0381);
       --color-purple-900: lab(24.9401% 45.2703 -51.2728);
       --color-pink-500: lab(56.9303% 76.8162 -8.07021);
+      --color-slate-100: lab(96.286% -.852436 -2.46847);
       --color-slate-300: lab(84.7652% -1.94535 -7.93337);
       --color-slate-400: lab(65.5349% -2.25151 -14.5072);
       --color-slate-500: lab(48.0876% -2.03595 -16.5814);
@@ -2881,6 +2883,10 @@
     color: var(--color-slate-500);
   }
 
+  .text-slate-800 {
+    color: var(--color-slate-800);
+  }
+
   .text-slate-900 {
     color: var(--color-slate-900);
   }
@@ -3747,6 +3753,12 @@
   @media (hover: hover) {
     .hover\:bg-sidebar-accent:hover {
       background-color: var(--sidebar-accent);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-slate-100:hover {
+      background-color: var(--color-slate-100);
     }
   }
 

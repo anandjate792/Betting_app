@@ -1,181 +1,127 @@
-[00:00:00.732] Server  LOG      ✓ Ready in 508ms
-[00:00:05.085] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:05.143] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:05.226] Browser LOG     🔄 useLoadStore useEffect started
-[00:00:05.226] Browser LOG     🔐 Checking for auth token
-[00:00:05.226] Browser LOG     👤 Fetching user profile...
-[00:00:05.329] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:05.329] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/users","route":"/admin/users"}
-[00:00:05.329] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234802279}
-[00:00:05.396] Browser LOG     🔄 useLoadStore useEffect started
-[00:00:05.396] Browser LOG     🔐 Checking for auth token
-[00:00:05.396] Browser LOG     👤 Fetching user profile...
-[00:00:05.396] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:05.396] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard/profile","route":"/dashboard/profile"}
-[00:00:05.396] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/profile color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/profile","o":"http://localhost:3000/dashboard/profile","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234802339}
-[00:00:06.097] Server  LOG     [v0] MongoDB connected
-[00:00:06.319] Browser ERROR   💥 Session restore error: {}
-[00:00:06.759] Server  LOG     [v0] MongoDB connected
-[00:00:06.990] Browser LOG     🚀 Page component started
-[00:00:06.990] Browser LOG     📦 useLoadStore called
-[00:00:06.990] Browser LOG     🚀 Page component started
-[00:00:06.990] Browser LOG     📦 useLoadStore called
-[00:00:06.990] Browser LOG     🔄 useLoadStore useEffect started
-[00:00:06.990] Browser LOG     🔐 Checking for auth token
-[00:00:06.990] Browser LOG     ❌ No token found, setting isLoading false
-[00:00:06.990] Browser LOG     🔄 useLoadStore useEffect started
-[00:00:06.990] Browser LOG     🔐 Checking for auth token
-[00:00:06.990] Browser LOG     ❌ No token found, setting isLoading false
-[00:00:06.990] Browser LOG     🚀 Page component started
-[00:00:06.990] Browser LOG     📦 useLoadStore called
-[00:00:06.990] Browser LOG     🚀 Page component started
-[00:00:06.990] Browser LOG     📦 useLoadStore called
-[00:00:06.990] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234803910}
-[00:00:06.990] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:07.393] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:00:07.394] Browser LOG     👑 User role: admin
-[00:00:07.394] Browser LOG     📋 Fetching users...
-[00:00:07.394] Browser LOG     💰 Fetching transactions...
-[00:00:07.394] Browser LOG     ⚡ Executing promises in parallel...
-[00:00:08.663] Browser LOG     🎉 All data loaded successfully
-[00:00:17.543] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/approvals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/approvals","o":"http://localhost:3000/admin/approvals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234814484}
-[00:00:26.202] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/add-money color: rgb(120, 120, 120) color: inherit {"dp":"/admin/add-money","o":"http://localhost:3000/admin/add-money","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234823151}
-[00:00:27.493] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234824436}
-[00:00:35.862] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:36.052] Browser LOG     🔄 useLoadStore useEffect started
-[00:00:36.052] Browser LOG     🔐 Checking for auth token
-[00:00:36.052] Browser LOG     👤 Fetching user profile...
-[00:00:36.052] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:36.052] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/withdrawals","route":"/admin/withdrawals"}
-[00:00:36.052] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234832955}
-[00:00:36.052] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:00:36.052] Browser LOG     👑 User role: admin
-[00:00:36.052] Browser LOG     📋 Fetching users...
-[00:00:36.052] Browser LOG     💰 Fetching transactions...
-[00:00:36.052] Browser LOG     ⚡ Executing promises in parallel...
-[00:00:36.230] Browser LOG     🎉 All data loaded successfully
-[00:02:09.974] Browser LOG     🚀 Page component started
-[00:02:09.974] Browser LOG     📦 useLoadStore called
-[00:02:09.974] Browser LOG     🚀 Page component started
-[00:02:09.974] Browser LOG     📦 useLoadStore called
-[00:02:09.974] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:02:09.974] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:02:19.222] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234936136}
-[00:02:22.509] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/approvals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/approvals","o":"http://localhost:3000/admin/approvals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234939453}
-[00:02:30.410] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:30.553] Browser LOG     🔄 useLoadStore useEffect started
-[00:02:30.553] Browser LOG     🔐 Checking for auth token
-[00:02:30.553] Browser LOG     👤 Fetching user profile...
-[00:02:30.553] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:02:30.553] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/approvals","route":"/admin/approvals"}
-[00:02:30.553] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/approvals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/approvals","o":"http://localhost:3000/admin/approvals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234947503}
-[00:02:30.696] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:02:30.696] Browser LOG     👑 User role: admin
-[00:02:30.696] Browser LOG     📋 Fetching users...
-[00:02:30.696] Browser LOG     💰 Fetching transactions...
-[00:02:30.696] Browser LOG     ⚡ Executing promises in parallel...
-[00:02:30.829] Browser LOG     🎉 All data loaded successfully
-[00:02:31.479] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:31.652] Browser LOG     🔄 useLoadStore useEffect started
-[00:02:31.652] Browser LOG     🔐 Checking for auth token
-[00:02:31.652] Browser LOG     👤 Fetching user profile...
-[00:02:31.652] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:02:31.652] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/approvals","route":"/admin/approvals"}
-[00:02:31.652] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/approvals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/approvals","o":"http://localhost:3000/admin/approvals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234948563}
-[00:02:31.652] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:02:31.652] Browser LOG     👑 User role: admin
-[00:02:31.652] Browser LOG     📋 Fetching users...
-[00:02:31.652] Browser LOG     💰 Fetching transactions...
-[00:02:31.652] Browser LOG     ⚡ Executing promises in parallel...
-[00:02:31.817] Browser LOG     🎉 All data loaded successfully
-[00:02:34.098] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769234951046}
-[00:03:23.897] Browser LOG     🚀 Page component started
-[00:03:23.897] Browser LOG     📦 useLoadStore called
-[00:03:23.897] Browser LOG     🚀 Page component started
-[00:03:23.897] Browser LOG     📦 useLoadStore called
-[00:03:24.015] Browser LOG     🚀 Page component started
-[00:03:24.015] Browser LOG     📦 useLoadStore called
-[00:03:24.015] Browser LOG     🚀 Page component started
-[00:03:24.015] Browser LOG     📦 useLoadStore called
-[00:03:24.564] Browser LOG     🔄 useLoadStore useEffect started
-[00:03:24.564] Browser LOG     🔐 Checking for auth token
-[00:03:24.564] Browser LOG     👤 Fetching user profile...
-[00:03:24.564] Browser LOG     🔄 useLoadStore useEffect started
-[00:03:24.564] Browser LOG     🔐 Checking for auth token
-[00:03:24.564] Browser LOG     👤 Fetching user profile...
-[00:03:24.564] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769235001511}
-[00:03:24.792] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1059}
-[00:03:24.792] Browser LOG     👑 User role: user
-[00:03:24.793] Browser LOG     💰 Fetching transactions...
-[00:03:24.793] Browser LOG     ⚡ Executing promises in parallel...
-[00:03:24.793] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1059}
-[00:03:24.793] Browser LOG     👑 User role: user
-[00:03:24.793] Browser LOG     💰 Fetching transactions...
-[00:03:24.793] Browser LOG     ⚡ Executing promises in parallel...
-[00:03:24.988] Browser LOG     🎉 All data loaded successfully
-[00:03:25.111] Browser LOG     🎉 All data loaded successfully
-[00:03:25.414] Browser LOG     Active slot found: 6974623a2092cd43835033a3 open Previous slot: undefined
-[00:03:25.623] Browser LOG     Active slot found: 6974623a2092cd43835033a3 open Previous slot: undefined
-[00:03:26.680] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/withdrawals","o":"http://localhost:3000/dashboard/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769235003628}
-[00:04:10.621] Server  LOG      ✓ Compiled in 92ms
-[00:04:46.658] Browser LOG     🚀 Page component started
-[00:04:46.658] Browser LOG     📦 useLoadStore called
-[00:04:46.658] Browser LOG     🚀 Page component started
-[00:04:46.658] Browser LOG     📦 useLoadStore called
-[00:04:46.658] Browser LOG     🔄 useLoadStore useEffect started
-[00:04:46.658] Browser LOG     🔐 Checking for auth token
-[00:04:46.658] Browser LOG     ❌ No token found, setting isLoading false
-[00:04:46.658] Browser LOG     🔄 useLoadStore useEffect started
-[00:04:46.658] Browser LOG     🔐 Checking for auth token
-[00:04:46.658] Browser LOG     ❌ No token found, setting isLoading false
-[00:04:46.658] Browser LOG     🚀 Page component started
-[00:04:46.658] Browser LOG     📦 useLoadStore called
-[00:04:46.658] Browser LOG     🚀 Page component started
-[00:04:46.658] Browser LOG     📦 useLoadStore called
-[00:04:46.658] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769235083598}
-[00:04:47.597] Browser LOG     🚀 Page component started
-[00:04:47.597] Browser LOG     📦 useLoadStore called
-[00:04:47.597] Browser LOG     🚀 Page component started
-[00:04:47.597] Browser LOG     📦 useLoadStore called
-[00:04:47.597] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:04:47.597] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:04:49.898] Browser LOG     🚀 Page component started
-[00:04:49.898] Browser LOG     📦 useLoadStore called
-[00:04:49.898] Browser LOG     🚀 Page component started
-[00:04:49.898] Browser LOG     📦 useLoadStore called
-[00:04:49.898] Browser LOG     🔄 useLoadStore useEffect started
-[00:04:49.898] Browser LOG     🔐 Checking for auth token
-[00:04:49.898] Browser LOG     👤 Fetching user profile...
-[00:04:49.898] Browser LOG     🔄 useLoadStore useEffect started
-[00:04:49.898] Browser LOG     🔐 Checking for auth token
-[00:04:49.898] Browser LOG     👤 Fetching user profile...
-[00:04:49.898] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769235086846}
-[00:04:50.067] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T12:33:51.235Z","email":"user@gmail.com","id":"6938172f2998cf9f8e79c01c","name":"User","referralCode":"USER79C01C","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1449}
-[00:04:50.067] Browser LOG     👑 User role: user
-[00:04:50.067] Browser LOG     💰 Fetching transactions...
-[00:04:50.067] Browser LOG     ⚡ Executing promises in parallel...
-[00:04:50.067] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T12:33:51.235Z","email":"user@gmail.com","id":"6938172f2998cf9f8e79c01c","name":"User","referralCode":"USER79C01C","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1449}
-[00:04:50.067] Browser LOG     👑 User role: user
-[00:04:50.067] Browser LOG     💰 Fetching transactions...
-[00:04:50.067] Browser LOG     ⚡ Executing promises in parallel...
-[00:04:50.385] Browser LOG     Active slot found: 6974628f2092cd4383503411 open Previous slot: undefined
-[00:04:50.578] Browser LOG     Active slot found: 6974628f2092cd4383503411 open Previous slot: undefined
-[00:04:51.986] Browser LOG     🎉 All data loaded successfully
-[00:04:51.987] Browser LOG     🎉 All data loaded successfully
-[00:04:53.413] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/withdrawals","o":"http://localhost:3000/dashboard/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769235090359}
-[00:05:29.792] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/approvals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/approvals","o":"http://localhost:3000/admin/approvals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769235126737}
-[00:05:32.350] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:05:32.559] Browser LOG     🔄 useLoadStore useEffect started
-[00:05:32.559] Browser LOG     🔐 Checking for auth token
-[00:05:32.559] Browser LOG     👤 Fetching user profile...
-[00:05:32.559] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:05:32.559] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/approvals","route":"/admin/approvals"}
-[00:05:32.559] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/approvals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/approvals","o":"http://localhost:3000/admin/approvals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769235129506}
-[00:05:32.559] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:05:32.559] Browser LOG     👑 User role: admin
-[00:05:32.559] Browser LOG     📋 Fetching users...
-[00:05:32.559] Browser LOG     💰 Fetching transactions...
-[00:05:32.559] Browser LOG     ⚡ Executing promises in parallel...
-[00:05:32.867] Browser LOG     🎉 All data loaded successfully
-[00:05:35.239] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769235132152}
-[00:05:36.304] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/withdrawals color: rgb(120, 120, 120) color: inherit {"dp":"/admin/withdrawals","o":"http://localhost:3000/admin/withdrawals","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769235133249}
+[00:00:00.519] Server  LOG      ✓ Ready in 342ms
+[00:00:12.575] Server  LOG     🚀 Page component started
+[00:00:12.576] Server  LOG     📦 useLoadStore called
+[00:00:12.852] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:13.010] Browser LOG     🚀 Page component started
+[00:00:13.011] Browser LOG     📦 useLoadStore called
+[00:00:13.011] Browser LOG     🚀 Page component started
+[00:00:13.011] Browser LOG     📦 useLoadStore called
+[00:00:13.011] Browser LOG     🔄 useLoadStore useEffect started
+[00:00:13.011] Browser LOG     🔐 Checking for auth token
+[00:00:13.011] Browser LOG     👤 Fetching user profile...
+[00:00:13.160] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:13.161] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:00:13.161] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769236664012}
+[00:00:14.774] Server  LOG     [v0] MongoDB connected
+[00:00:18.094] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:18.259] Browser LOG     🔄 useLoadStore useEffect started
+[00:00:18.259] Browser LOG     🔐 Checking for auth token
+[00:00:18.259] Browser LOG     👤 Fetching user profile...
+[00:00:18.259] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:18.259] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:00:18.259] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769236669083}
+[00:00:18.259] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"HR","accountNumber":"123456789","bankName":"SBI","ifscCode":"SBIN6789","upiId":""},"createdAt":"2025-12-09T12:33:51.235Z","email":"user@gmail.com","id":"6938172f2998cf9f8e79c01c","name":"User","referralCode":"USER79C01C","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1249}
+[00:00:18.259] Browser LOG     👑 User role: user
+[00:00:18.259] Browser LOG     💰 Fetching transactions...
+[00:00:18.259] Browser LOG     ⚡ Executing promises in parallel...
+[00:00:18.794] Browser LOG     🎉 All data loaded successfully
+[00:00:19.106] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[00:00:19.564] Browser LOG     Active slot found: 697468be7c15928e9ae51479 open Previous slot: undefined
+[00:00:19.845] Browser LOG     Active slot found: 697468be7c15928e9ae51479 open Previous slot: undefined
+[00:00:48.477] Browser LOG     Active slot found: 697468be7c15928e9ae51479 open Previous slot: undefined
+[00:01:18.860] Browser LOG     Active slot found: 697468f97c15928e9ae514a0 open Previous slot: undefined
+[00:01:48.503] Browser LOG     Active slot found: 697468f97c15928e9ae514a0 open Previous slot: undefined
+[00:01:55.189] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:01:55.189] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
+[00:01:55.189] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769236766042}
+[00:01:59.221] Server  LOG     🚀 Page component started
+[00:01:59.222] Server  LOG     📦 useLoadStore called
+[00:01:59.629] Browser LOG     🚀 Page component started
+[00:01:59.629] Browser LOG     📦 useLoadStore called
+[00:01:59.629] Browser LOG     [2;38;2;124;124;124m%s[0m 🚀 Page component started
+[00:01:59.629] Browser LOG     [2;38;2;124;124;124m%s[0m 📦 useLoadStore called
+[00:01:59.629] Browser LOG     🔄 useLoadStore useEffect started
+[00:01:59.629] Browser LOG     🔐 Checking for auth token
+[00:01:59.629] Browser LOG     👤 Fetching user profile...
+[00:01:59.629] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:01:59.629] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:01:59.629] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769236770474}
+[00:01:59.629] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"HR","accountNumber":"123456789","bankName":"SBI","ifscCode":"SBIN6789","upiId":""},"createdAt":"2025-12-09T12:33:51.235Z","email":"user@gmail.com","id":"6938172f2998cf9f8e79c01c","name":"User","referralCode":"USER79C01C","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1249}
+[00:01:59.629] Browser LOG     👑 User role: user
+[00:01:59.629] Browser LOG     💰 Fetching transactions...
+[00:01:59.629] Browser LOG     ⚡ Executing promises in parallel...
+[00:01:59.629] Browser LOG     🚀 Page component started
+[00:01:59.629] Browser LOG     📦 useLoadStore called
+[00:01:59.629] Browser LOG     [2;38;2;124;124;124m%s[0m 🚀 Page component started
+[00:01:59.629] Browser LOG     [2;38;2;124;124;124m%s[0m 📦 useLoadStore called
+[00:02:00.093] Browser LOG     🚀 Page component started
+[00:02:00.093] Browser LOG     📦 useLoadStore called
+[00:02:00.093] Browser LOG     [2;38;2;124;124;124m%s[0m 🚀 Page component started
+[00:02:00.093] Browser LOG     [2;38;2;124;124;124m%s[0m 📦 useLoadStore called
+[00:02:00.093] Browser LOG     🎉 All data loaded successfully
+[00:02:00.093] Browser LOG     🔄 useLoadStore useEffect started
+[00:02:00.093] Browser LOG     🔐 Checking for auth token
+[00:02:00.093] Browser LOG     👤 Fetching user profile...
+[00:02:00.093] Browser LOG     [2;38;2;124;124;124m%s[0m 🔄 useLoadStore useEffect started
+[00:02:00.093] Browser LOG     [2;38;2;124;124;124m%s[0m 🔐 Checking for auth token
+[00:02:00.093] Browser LOG     [2;38;2;124;124;124m%s[0m 👤 Fetching user profile...
+[00:02:00.093] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769236770750}
+[00:02:00.093] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"HR","accountNumber":"123456789","bankName":"SBI","ifscCode":"SBIN6789","upiId":""},"createdAt":"2025-12-09T12:33:51.235Z","email":"user@gmail.com","id":"6938172f2998cf9f8e79c01c","name":"User","referralCode":"USER79C01C","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1249}
+[00:02:00.093] Browser LOG     👑 User role: user
+[00:02:00.093] Browser LOG     💰 Fetching transactions...
+[00:02:00.093] Browser LOG     ⚡ Executing promises in parallel...
+[00:02:00.093] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"HR","accountNumber":"123456789","bankName":"SBI","ifscCode":"SBIN6789","upiId":""},"createdAt":"2025-12-09T12:33:51.235Z","email":"user@gmail.com","id":"6938172f2998cf9f8e79c01c","name":"User","referralCode":"USER79C01C","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1249}
+[00:02:00.093] Browser LOG     👑 User role: user
+[00:02:00.093] Browser LOG     💰 Fetching transactions...
+[00:02:00.093] Browser LOG     ⚡ Executing promises in parallel...
+[00:02:00.093] Browser LOG     Active slot found: 697468f97c15928e9ae514a0 open Previous slot: undefined
+[00:02:00.582] Browser LOG     Active slot found: 697468f97c15928e9ae514a0 open Previous slot: undefined
+[00:02:00.729] Browser LOG     🎉 All data loaded successfully
+[00:02:00.729] Browser LOG     🎉 All data loaded successfully
+[00:02:02.515] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769236773363}
+[00:02:03.663] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769236774512}
+[00:02:03.985] Browser LOG     Active slot found: 697469267c15928e9ae514eb open Previous slot: undefined
+[00:02:04.146] Browser LOG     Active slot found: 697469267c15928e9ae514eb open Previous slot: undefined
+[00:02:18.731] Browser LOG     Active slot found: 697469267c15928e9ae514eb open Previous slot: undefined
+[00:02:33.818] Browser LOG     Active slot found: 697469267c15928e9ae514eb open Previous slot: undefined
+[00:02:48.497] Browser LOG     Active slot found: 697469267c15928e9ae514eb open Previous slot: undefined
+[00:03:04.281] Browser LOG     Active slot found: 697469637c15928e9ae5152a open Previous slot: undefined
+[00:03:18.515] Browser LOG     Active slot found: 697469637c15928e9ae5152a open Previous slot: undefined
+[00:03:33.855] Browser LOG     Active slot found: 697469637c15928e9ae5152a open Previous slot: undefined
+[00:03:48.514] Browser LOG     Active slot found: 697469637c15928e9ae5152a open Previous slot: undefined
+[00:04:04.185] Browser LOG     Active slot found: 6974699e7c15928e9ae51558 open Previous slot: undefined
+[00:04:18.644] Browser LOG     Active slot found: 6974699e7c15928e9ae51558 open Previous slot: undefined
+[00:04:33.818] Browser LOG     Active slot found: 6974699e7c15928e9ae51558 open Previous slot: undefined
+[00:04:48.623] Browser LOG     Active slot found: 6974699e7c15928e9ae51558 open Previous slot: undefined
+[00:05:04.225] Browser LOG     Active slot found: 697469da7c15928e9ae51587 open Previous slot: undefined
+[00:05:18.595] Browser LOG     Active slot found: 697469da7c15928e9ae51587 open Previous slot: undefined
+[00:05:33.812] Browser LOG     Active slot found: 697469da7c15928e9ae51587 open Previous slot: undefined
+[00:05:48.606] Browser LOG     Active slot found: 697469da7c15928e9ae51587 open Previous slot: undefined
+[00:06:04.226] Browser LOG     Active slot found: 69746a177c15928e9ae515b6 open Previous slot: undefined
+[00:06:18.599] Browser LOG     Active slot found: 69746a177c15928e9ae515b6 open Previous slot: undefined
+[00:06:33.834] Browser LOG     Active slot found: 69746a177c15928e9ae515b6 open Previous slot: undefined
+[00:06:48.585] Browser LOG     Active slot found: 69746a177c15928e9ae515b6 open Previous slot: undefined
+[00:07:04.298] Browser LOG     Active slot found: 69746a537c15928e9ae515e5 open Previous slot: undefined
+[00:07:18.602] Browser LOG     Active slot found: 69746a537c15928e9ae515e5 open Previous slot: undefined
+[00:07:33.816] Browser LOG     Active slot found: 69746a537c15928e9ae515e5 open Previous slot: undefined
+[00:07:34.346] Server  LOG      ✓ Compiled in 415ms
+[00:07:48.599] Browser LOG     Active slot found: 69746a537c15928e9ae515e5 open Previous slot: undefined
+[00:08:02.555] Browser LOG     🔄 useLoadStore useEffect started
+[00:08:02.556] Browser LOG     🔐 Checking for auth token
+[00:08:02.556] Browser LOG     👤 Fetching user profile...
+[00:08:02.556] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:08:02.556] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
+[00:08:02.556] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769237133155}
+[00:08:02.556] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"HR","accountNumber":"123456789","bankName":"SBI","ifscCode":"SBIN6789","upiId":""},"createdAt":"2025-12-09T12:33:51.235Z","email":"user@gmail.com","id":"6938172f2998cf9f8e79c01c","name":"User","referralCode":"USER79C01C","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1249}
+[00:08:02.556] Browser LOG     👑 User role: user
+[00:08:02.556] Browser LOG     💰 Fetching transactions...
+[00:08:02.556] Browser LOG     ⚡ Executing promises in parallel...
+[00:08:02.785] Browser LOG     🎉 All data loaded successfully
+[00:08:03.214] Browser LOG     Active slot found: 69746a8d7c15928e9ae5162b open Previous slot: undefined
+[00:08:03.527] Browser LOG     Active slot found: 69746a8d7c15928e9ae5162b open Previous slot: undefined
+[00:08:18.620] Browser LOG     Active slot found: 69746a8d7c15928e9ae5162b open Previous slot: undefined
+[00:08:32.725] Browser LOG     Active slot found: 69746a8d7c15928e9ae5162b open Previous slot: undefined
+[00:08:38.342] Server  LOG      ✓ Compiled in 307ms
+[00:08:48.865] Browser LOG     Active slot found: 69746abb7c15928e9ae5164f open Previous slot: undefined
+[00:09:02.972] Browser LOG     Active slot found: 69746abb7c15928e9ae5164f open Previous slot: undefined

@@ -2631,6 +2631,10 @@
     font-size: .8rem;
   }
 
+  .text-\[6px\] {
+    font-size: 6px;
+  }
+
   .text-\[7px\] {
     font-size: 7px;
   }
@@ -5406,6 +5410,18 @@
   }
 
   @media (min-width: 64rem) {
+    .lg\:h-5 {
+      height: calc(var(--spacing) * 5);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .lg\:h-6 {
+      height: calc(var(--spacing) * 6);
+    }
+  }
+
+  @media (min-width: 64rem) {
     .lg\:h-7 {
       height: calc(var(--spacing) * 7);
     }
@@ -5438,6 +5454,18 @@
   @media (min-width: 64rem) {
     .lg\:w-4 {
       width: calc(var(--spacing) * 4);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .lg\:w-5 {
+      width: calc(var(--spacing) * 5);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .lg\:w-6 {
+      width: calc(var(--spacing) * 6);
     }
   }
 
@@ -5534,6 +5562,12 @@
   }
 
   @media (min-width: 64rem) {
+    .lg\:text-\[7px\] {
+      font-size: 7px;
+    }
+  }
+
+  @media (min-width: 64rem) {
     .lg\:text-\[8px\] {
       font-size: 8px;
     }
@@ -5582,6 +5616,18 @@
   }
 
   @media (min-width: 80rem) {
+    .xl\:h-6 {
+      height: calc(var(--spacing) * 6);
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .xl\:h-7 {
+      height: calc(var(--spacing) * 7);
+    }
+  }
+
+  @media (min-width: 80rem) {
     .xl\:h-9 {
       height: calc(var(--spacing) * 9);
     }
@@ -5608,6 +5654,18 @@
   @media (min-width: 80rem) {
     .xl\:w-5 {
       width: calc(var(--spacing) * 5);
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .xl\:w-6 {
+      width: calc(var(--spacing) * 6);
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .xl\:w-7 {
+      width: calc(var(--spacing) * 7);
     }
   }
 
@@ -5706,6 +5764,12 @@
   }
 
   @media (min-width: 80rem) {
+    .xl\:text-\[8px\] {
+      font-size: 8px;
+    }
+  }
+
+  @media (min-width: 80rem) {
     .xl\:text-\[9px\] {
       font-size: 9px;
     }
@@ -5742,6 +5806,18 @@
   }
 
   @media (min-width: 96rem) {
+    .\32 xl\:h-7 {
+      height: calc(var(--spacing) * 7);
+    }
+  }
+
+  @media (min-width: 96rem) {
+    .\32 xl\:h-8 {
+      height: calc(var(--spacing) * 8);
+    }
+  }
+
+  @media (min-width: 96rem) {
     .\32 xl\:h-12 {
       height: calc(var(--spacing) * 12);
     }
@@ -5768,6 +5844,18 @@
   @media (min-width: 96rem) {
     .\32 xl\:w-6 {
       width: calc(var(--spacing) * 6);
+    }
+  }
+
+  @media (min-width: 96rem) {
+    .\32 xl\:w-7 {
+      width: calc(var(--spacing) * 7);
+    }
+  }
+
+  @media (min-width: 96rem) {
+    .\32 xl\:w-8 {
+      width: calc(var(--spacing) * 8);
     }
   }
 
@@ -5875,6 +5963,12 @@
     .\32 xl\:text-xs {
       font-size: var(--text-xs);
       line-height: var(--tw-leading, var(--text-xs--line-height));
+    }
+  }
+
+  @media (min-width: 96rem) {
+    .\32 xl\:text-\[9px\] {
+      font-size: 9px;
     }
   }
 

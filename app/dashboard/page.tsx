@@ -138,7 +138,7 @@ const IconButton = memo(({
       onClick={handleClick}
       onTouchStart={handleClick} // Faster touch response
       disabled={disabled}
-      className={`relative flex flex-col items-center justify-center p-2 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square touch-none ${
+      className={`mt-3 relative flex flex-col items-center justify-center p-2 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square touch-none ${
         hasMyBet
           ? "bg-green-600/30 border-green-500"
           : "bg-slate-700/50 border-slate-600 hover:border-slate-500"
@@ -370,7 +370,7 @@ export default function DashboardPage() {
     };
 
     updateTimer();
-    const timerInterval = setInterval(updateTimer, 2000); // Increased from 1s to 2s to reduce CPU usage
+    const timerInterval = setInterval(updateTimer, 1000); // Fixed: 1 second interval for accurate countdown
 
     return () => {
       clearInterval(timerInterval);
@@ -791,6 +791,7 @@ const loadCurrentSlot = async () => {
     if (now >= end) {
       setError("Slot has ended. Bets are no longer accepted.");
       setPlacedBets([]);
+      setTimeRemaining("Slot Closed"); // Also update timer state
       return;
     }
 
@@ -881,6 +882,8 @@ const loadCurrentSlot = async () => {
     const end = new Date(currentSlot.endTime).getTime();
     if (now >= end) {
       setError("Slot has ended. Bets are no longer accepted.");
+      setPlacedBets([]);
+      setTimeRemaining("Slot Closed"); // Also update timer state
       return;
     }
 
@@ -1278,7 +1281,7 @@ const loadCurrentSlot = async () => {
 
     
     {/* Compact Single Screen Betting Interface */}
-    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 lg:p-5 xl:p-6 2xl:p-8 border border-slate-700">
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 lg:p-5 xl:p-6 2xl:p-8 border border-slate-700 ">
                 {/* Icon Grid - Mobile Optimized */}
                 <div className="grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6 mb-3 lg:mb-4 xl:mb-5" 
                      style={{ 

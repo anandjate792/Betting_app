@@ -1,5 +1,15 @@
-export const playSound = (soundType: 'win' | 'lose' | 'belt' | 'clock') => {
+export const playSound = (soundType: 'win' | 'lose' | 'belt' | 'clock' | 'bet-placed') => {
   try {
+    if (soundType === 'bet-placed') {
+      // Play the bet-placed.mp3 file
+      const audio = new Audio('/sounds/bet-placed.mp3');
+      audio.volume = 0.8;
+      audio.play().catch(error => {
+        console.log('Bet placed sound failed:', error);
+      });
+      return;
+    }
+    
     const audio = new Audio();
     
     if (soundType === 'win') {

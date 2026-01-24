@@ -16,6 +16,10 @@ import { betApi } from "@/lib/api";
 import { RefreshCw, Wallet, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+const formatSlotNumber = (slotNumber: number): number => {
+  return slotNumber > 1000 ? ((slotNumber - 1) % 1000) + 1 : slotNumber;
+};
+
 export default function BettingHistoryPage() {
   const { user } = useAppStore();
   const [myBets, setMyBets] = useState<any[]>([]);
@@ -220,7 +224,7 @@ export default function BettingHistoryPage() {
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
                                   <p className="text-base font-bold text-white">
-                                    Slot #{slotNumber || "N/A"}
+                                    Slot #{formatSlotNumber(slotNumber || 0)}
                                   </p>
                                   {isCompleted &&
                                     slot?.winningIcon &&

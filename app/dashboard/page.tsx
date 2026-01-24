@@ -35,6 +35,8 @@ import { authApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster, toast } from "sonner";
 import { playSound } from "@/lib/sounds";
+import BetPlacedVoice from "@/components/bet-placed-voice";
+import WinLossVoice from "@/components/win-loss-voice";
 
 const ICONS = [
   {
@@ -305,6 +307,12 @@ export default function DashboardPage() {
       participated: boolean;
     }>
   >([]);
+  const [betPlaced, setBetPlaced] = useState(false);
+  const [betPlacedAmount, setBetPlacedAmount] = useState<number | undefined>();
+  const [hasUserPlacedBetsInSlot, setHasUserPlacedBetsInSlot] = useState(false);
+  const [winLossResult, setWinLossResult] = useState<"win" | "loss" | null>(null);
+  const [winLossAmount, setWinLossAmount] = useState<number | undefined>();
+  const [winLossSlotNumber, setWinLossSlotNumber] = useState<number | undefined>();
 
   // Refs for tracking
   const checkingResultRef = useRef<boolean>(false);
@@ -468,6 +476,7 @@ const loadCurrentSlot = async () => {
       
       // Clear placed bets when new slot starts
       setPlacedBets([]);
+      setHasUserPlacedBetsInSlot(false);
     }
     
     // Stop previous polling if any
@@ -545,6 +554,16 @@ const loadCurrentSlot = async () => {
           playSound(isWin ? "win" : "lose");
         }
 
+        // Trigger voice notification
+        setWinLossResult(isWin ? "win" : "loss");
+        setWinLossAmount(isWin ? payout : totalBet);
+        setWinLossSlotNumber(slot.slotNumber);
+        setTimeout(() => {
+          setWinLossResult(null);
+          setWinLossAmount(undefined);
+          setWinLossSlotNumber(undefined);
+        }, 100);
+
         localStorage.setItem(resultKey, "true");
 
         setTimeout(() => {
@@ -586,6 +605,7 @@ const loadCurrentSlot = async () => {
     if (!slotId) {
       setCurrentSlotBets([]);
       setAllCurrentSlotBets([]);
+      setHasUserPlacedBetsInSlot(false);
       return;
     }
     try {
@@ -608,10 +628,14 @@ const loadCurrentSlot = async () => {
           ?.filter((b: any) => b.userId === user?.id)
           .map((b: any) => ({ icon: b.icon, amount: b.amount })) || [];
       setCurrentSlotBets(myBetsForSlot);
+      
+      // Set flag if user has placed bets in this slot
+      setHasUserPlacedBetsInSlot(myBetsForSlot.length > 0);
     } catch (error) {
       console.error("Failed to load current slot bet:", error);
       setCurrentSlotBets([]);
       setAllCurrentSlotBets([]);
+      setHasUserPlacedBetsInSlot(false);
     }
   };
 
@@ -795,6 +819,12 @@ const loadCurrentSlot = async () => {
       return;
     }
 
+    // Prevent betting if user has already placed bets in this slot
+    if (hasUserPlacedBetsInSlot) {
+      setError("You have already placed bets in this slot. Wait for the next slot.");
+      return;
+    }
+
     if (selectedChip < 10 || selectedChip > 500) {
       setError("Invalid bet amount selected.");
       return;
@@ -891,6 +921,9 @@ const loadCurrentSlot = async () => {
     setError("");
 
     try {
+      // Store total bet amount before clearing bets
+      const totalBetAmount = getTotalBetAmount();
+      
       // Place each bet
       for (const bet of placedBets) {
         await betApi.placeBet(currentSlot.id, bet.icon, bet.amount);
@@ -909,6 +942,14 @@ const loadCurrentSlot = async () => {
       }
 
       toast.success("Bets placed successfully!");
+      
+      // Trigger voice notification with stored amount
+      setBetPlacedAmount(totalBetAmount);
+      setBetPlaced(true);
+      setTimeout(() => {
+        setBetPlaced(false);
+        setBetPlacedAmount(undefined);
+      }, 100);
     } catch (err: any) {
       const errorMessage = err.message || "Failed to place bets";
       setError(errorMessage);
@@ -964,6 +1005,8 @@ const loadCurrentSlot = async () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-slate-800 pb-6">
       <Toaster position="top-right" richColors />
+      <BetPlacedVoice betPlaced={betPlaced} totalAmount={betPlacedAmount} />
+      <WinLossVoice result={winLossResult} amount={winLossAmount} slotNumber={winLossSlotNumber} />
 
       {/* Top Stats Bar */}
       <div className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700 px-3 py-2">
@@ -1283,7 +1326,7 @@ const loadCurrentSlot = async () => {
     {/* Compact Single Screen Betting Interface */}
     <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-3 lg:p-5 xl:p-6 2xl:p-8 border border-slate-700 ">
                 {/* Icon Grid - Mobile Optimized */}
-                <div className="grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6 mb-3 lg:mb-4 xl:mb-5" 
+                <div className="pr-3 grid grid-cols-4 gap-1.5 lg:gap-3 xl:gap-4 2xl:gap-6 mb-3 lg:mb-4 xl:mb-5" 
                      style={{ 
                        willChange: 'transform',
                        contain: 'layout style paint',
@@ -1304,7 +1347,7 @@ const loadCurrentSlot = async () => {
                         name={name}
                         image={image}
                         onClick={() => handleIconClick(id)}
-                        disabled={timeRemaining === "Slot Closed"}
+                        disabled={timeRemaining === "Slot Closed" || hasUserPlacedBetsInSlot}
                         localBetAmount={localBetAmount}
                         confirmedBetAmount={confirmedBetAmount}
                         totalBetAmount={totalBetAmount}
@@ -1349,7 +1392,7 @@ const loadCurrentSlot = async () => {
           variant="outline"
           size="sm"
           onClick={handleUndo}
-          disabled={placedBets.length === 0 || timeRemaining === "Slot Closed"}
+          disabled={placedBets.length === 0 || timeRemaining === "Slot Closed" || hasUserPlacedBetsInSlot}
           className="flex-1 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 text-xs h-8"
         >
           <Undo2 className="w-3 h-3 mr-1" />
@@ -1360,7 +1403,7 @@ const loadCurrentSlot = async () => {
           variant="outline"
           size="sm"
           onClick={handleRepeat}
-          disabled={timeRemaining === "Slot Closed"}
+          disabled={timeRemaining === "Slot Closed" || hasUserPlacedBetsInSlot}
           className="flex-1 bg-slate-700 border-slate-600 text-white hover:bg-slate-600 text-xs h-8"
         >
           <RotateCcw className="w-3 h-3 mr-1" />
@@ -1371,7 +1414,7 @@ const loadCurrentSlot = async () => {
           variant="outline"
           size="sm"
           onClick={handleClear}
-          disabled={placedBets.length === 0 || timeRemaining === "Slot Closed"}
+          disabled={placedBets.length === 0 || timeRemaining === "Slot Closed" || hasUserPlacedBetsInSlot}
           className="flex-1 bg-red-700 border-red-600 text-white hover:bg-red-600 text-xs h-8"
         >
           <XIcon className="w-3 h-3 mr-1" />
@@ -1415,7 +1458,8 @@ const loadCurrentSlot = async () => {
           placedBets.length === 0 ||
           !currentSlot ||
           Date.now() >= new Date(currentSlot.endTime).getTime() ||
-          timeRemaining === "Slot Closed"
+          timeRemaining === "Slot Closed" ||
+          hasUserPlacedBetsInSlot
         }
         className="w-full bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white disabled:opacity-50 font-bold text-sm py-2.5 rounded-lg border-2 border-red-900 shadow-lg uppercase"
       >
@@ -1428,6 +1472,11 @@ const loadCurrentSlot = async () => {
           <span className="flex items-center justify-center gap-1.5">
             <AnimatedClock size={16} />
             Slot Closed
+          </span>
+        ) : hasUserPlacedBetsInSlot ? (
+          <span className="flex items-center justify-center gap-1.5">
+            <Trophy className="w-4 h-4" />
+            Bets Placed
           </span>
         ) : (
           <span className="flex items-center justify-center gap-1.5">

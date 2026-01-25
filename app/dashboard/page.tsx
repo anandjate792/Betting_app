@@ -967,6 +967,9 @@ const loadCurrentSlot = async () => {
 
       toast.success("Bets placed successfully!");
       
+      // Play bet placed sound
+      playSound('bet-placed');
+      
       // Trigger voice notification with stored amount
       setBetPlacedAmount(totalBetAmount);
       setBetPlaced(true);
@@ -1558,109 +1561,6 @@ const loadCurrentSlot = async () => {
           </div>
         </CardContent>
       </Card>
-
-
-      {/* Previous 10 Slots History */}
-      {previousSlotsHistory.length > 0 && (
-        <Card className="border-slate-700 bg-slate-800 mx-4 mt-4">
-          <CardHeader>
-            <CardTitle className="text-white">
-              Previous 10 Slots History
-            </CardTitle>
-            <CardDescription className="text-slate-400">
-              View results of the last 10 completed slots
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {previousSlotsHistory.map((item, idx) => {
-                const slot = item.slot;
-                const winningIcon = slot?.winningIcon;
-                const iconData = winningIcon
-                  ? ICONS.find((i) => i.id === winningIcon)
-                  : null;
-                const totalUserBetAmount = item.userBets.reduce(
-                  (sum, b) => sum + b.amount,
-                  0
-                );
-                const winningBets = item.userBets.filter(
-                  (b: any) => b.icon === winningIcon
-                );
-                const totalPayout = winningBets.reduce(
-                  (sum: number, b: any) => sum + (b.payout || 0),
-                  0
-                );
-
-                return (
-                  <div
-                    key={slot.id || idx}
-                    className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                  >
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg font-semibold text-white">
-                          Slot #{slot.slotNumber}
-                        </span>
-                        {winningIcon && (
-                          <div className="flex items-center gap-2">
-                            {iconData ? (
-                              <Image
-                                src={iconData.image}
-                                alt={iconData.name}
-                                width={20}
-                                height={20}
-                                className="w-5 h-5 lg:w-7 lg:h-7 xl:w-9 xl:h-9 2xl:w-12 2xl:h-12"
-                              />
-                            ) : (
-                              <Trophy className="w-5 h-5 lg:w-7 lg:h-7 xl:w-9 xl:h-9 2xl:w-12 2xl:h-12 text-yellow-500" />
-                            )}
-                            <span className="text-sm lg:text-base xl:text-lg 2xl:text-xl text-slate-400">
-                              Winner: {winningIcon}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      {item.participated ? (
-                        <span className="px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-full">
-                          Participated
-                        </span>
-                      ) : (
-                        <span className="px-3 py-1 bg-slate-600 text-white text-xs font-semibold rounded-full">
-                          Not Participated
-                        </span>
-                      )}
-                    </div>
-
-                    {item.participated && (
-                      <div className="mt-3 pt-3 border-t border-slate-600">
-                        <p className="text-sm text-slate-400 mb-2">
-                          Your Bets: {item.userBets.length} bet(s) • ₹
-                          {totalUserBetAmount.toFixed(2)}
-                        </p>
-                        {winningBets.length > 0 ? (
-                          <p className="text-sm font-semibold text-green-400">
-                            ✓ Won: +₹{totalPayout.toFixed(2)}
-                          </p>
-                        ) : (
-                          <p className="text-sm font-semibold text-red-400">
-                            ✗ Lost: -₹{totalUserBetAmount.toFixed(2)}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    <p className="text-xs text-slate-500 mt-2">
-                      {slot.endTime
-                        ? new Date(slot.endTime).toLocaleString()
-                        : "Unknown date"}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-3 mx-auto mb-4 max-w-5xl px-3">

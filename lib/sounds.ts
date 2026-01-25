@@ -1,9 +1,39 @@
+// Extend Window interface to include audioContext
+interface ExtendedWindow extends Window {
+  audioContext?: AudioContext;
+}
+
+// Initialize audio context for mobile browsers
+export const initializeAudio = () => {
+  if (typeof window !== 'undefined' && !(window as ExtendedWindow).audioContext) {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    (window as ExtendedWindow).audioContext = audioContext;
+    
+    // Resume audio context if suspended
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    
+    return audioContext;
+  }
+  return (window as ExtendedWindow).audioContext;
+};
+
 export const playSound = (soundType: 'win' | 'lose' | 'belt' | 'clock' | 'bet-placed') => {
   try {
+    // Initialize audio context if not already done
+    const audioContext = initializeAudio();
+
     if (soundType === 'bet-placed') {
       // Play the bet-placed.mp3 file
       const audio = new Audio('/sounds/bet-placed.mp3');
       audio.volume = 0.8;
+      
+      // Ensure audio context is resumed for mobile
+      if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      
       audio.play().catch(error => {
         console.log('Bet placed sound failed:', error);
       });
@@ -11,6 +41,11 @@ export const playSound = (soundType: 'win' | 'lose' | 'belt' | 'clock' | 'bet-pl
     }
     
     const audio = new Audio();
+    
+    // Ensure audio context is resumed for mobile
+    if (audioContext && audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
     
     if (soundType === 'win') {
       // Create a simple win sound using Web Audio API

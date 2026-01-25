@@ -34,7 +34,7 @@ import { betApi, predictionApi, referralApi } from "@/lib/api";
 import { authApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster, toast } from "sonner";
-import { playSound } from "@/lib/sounds";
+import { playSound, initializeAudio } from "@/lib/sounds";
 import BetPlacedVoice from "@/components/bet-placed-voice";
 import WinLossVoice from "@/components/win-loss-voice";
 
@@ -125,8 +125,18 @@ const IconButton = memo(({
     img.src = image
   }, [image])
 
-  // Mobile-optimized click handler
+  // Mobile-optimized click handler with proper touch handling
   const handleClick = useCallback(() => {
+    if (!disabled) {
+      setIsPressed(true)
+      setTimeout(() => setIsPressed(false), 100)
+      onClick()
+    }
+  }, [disabled, onClick])
+
+  // Prevent double-tap zoom and handle touch events properly
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent default to avoid double-tap zoom
     if (!disabled) {
       setIsPressed(true)
       setTimeout(() => setIsPressed(false), 100)
@@ -138,7 +148,8 @@ const IconButton = memo(({
     <button
       type="button"
       onClick={handleClick}
-      onTouchStart={handleClick} // Faster touch response
+      onTouchStart={handleTouchStart}
+      onTouchEnd={(e) => e.preventDefault()} // Prevent default touch end behavior
       disabled={disabled}
       className={`mt-3 relative flex flex-col items-center justify-center p-2 lg:p-3 xl:p-4 2xl:p-5 rounded-lg border transition-all aspect-square touch-none ${
         hasMyBet
@@ -153,7 +164,8 @@ const IconButton = memo(({
       }`}
       style={{
         WebkitTapHighlightColor: 'transparent', // Remove tap highlight
-        willChange: 'transform' // Optimize for animations
+        willChange: 'transform', // Optimize for animations
+        touchAction: 'manipulation' // Improve touch responsiveness
       }}
     >
       {(localBetAmount > 0 || confirmedBetAmount > 0) && (
@@ -800,6 +812,9 @@ const loadCurrentSlot = async () => {
 
   // Handle icon click - mobile-optimized throttling
   const handleIconClickThrottled = useThrottle((iconId: string) => {
+    // Initialize audio context on first user interaction
+    initializeAudio();
+    
     // Mark user as having interacted
     hasUserInteractedRef.current = true;
     
@@ -865,6 +880,9 @@ const loadCurrentSlot = async () => {
   // Undo last bet
   const handleUndo = () => {
     if (placedBets.length > 0) {
+      // Initialize audio context on first user interaction
+      initializeAudio();
+      
       // Mark user as having interacted
       hasUserInteractedRef.current = true;
       
@@ -875,6 +893,9 @@ const loadCurrentSlot = async () => {
   // Repeat last bet pattern
   const handleRepeat = () => {
     if (placedBets.length > 0) {
+      // Initialize audio context on first user interaction
+      initializeAudio();
+      
       // Mark user as having interacted
       hasUserInteractedRef.current = true;
       
@@ -889,6 +910,9 @@ const loadCurrentSlot = async () => {
 
   // Clear all bets
   const handleClear = () => {
+    // Initialize audio context on first user interaction
+    initializeAudio();
+    
     // Mark user as having interacted
     hasUserInteractedRef.current = true;
     
@@ -1313,6 +1337,8 @@ const loadCurrentSlot = async () => {
     {!hasUserInteractedRef.current && timeRemaining !== "Slot Closed" && (
   <div
     onClick={() => {
+      // Initialize audio context on first user interaction
+      initializeAudio();
       hasUserInteractedRef.current = true;
       playSound("clock"); // now allowed
     }}
@@ -1365,6 +1391,9 @@ const loadCurrentSlot = async () => {
             key={value}
             type="button"
             onClick={() => {
+              // Initialize audio context on first user interaction
+              initializeAudio();
+              
               // Mark user as having interacted when selecting chip
               hasUserInteractedRef.current = true;
               setSelectedChip(value);
@@ -1449,6 +1478,9 @@ const loadCurrentSlot = async () => {
       <Button
         type="button"
         onClick={() => {
+          // Initialize audio context on first user interaction
+          initializeAudio();
+          
           // Mark user as having interacted when submitting bets
           hasUserInteractedRef.current = true;
           handleSubmitBets();

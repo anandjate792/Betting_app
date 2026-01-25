@@ -136,6 +136,10 @@ export const predictionApi = {
         }
       );
       if (response.status === 404) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.waitTime !== undefined) {
+          return { waitTime: errorData.waitTime, noSlot: true };
+        }
         return null;
       }
       if (!response.ok) {

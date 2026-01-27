@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Wallet, Upload } from "lucide-react";
+import { Wallet, Upload, Copy, Smartphone } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function WalletPage() {
@@ -94,6 +94,83 @@ export default function WalletPage() {
               ₹{user?.walletBalance.toFixed(2) || "0.00"}
             </div>
             <p className="text-slate-400 text-sm mt-2">Your current wallet balance</p>
+          </CardContent>
+        </Card>
+
+        {/* UPI Payment Details */}
+        <Card className="border-slate-700 bg-slate-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Smartphone className="w-5 h-5" />
+              UPI Payment Details
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Scan the QR code or use the UPI ID to make a payment
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-6 items-center">
+              {/* QR Code */}
+              <div className="flex-shrink-0">
+                <div className="w-48 h-48 bg-white p-4 rounded-lg">
+                  <img 
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=sahilsiddiqui2627ss@oksbi&pn=Sahil%20Siddiqui&am=100&cu=INR"
+                    alt="UPI QR Code"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <p className="text-center text-slate-400 text-sm mt-2">Scan to Pay</p>
+              </div>
+              
+              {/* UPI Details */}
+              <div className="flex-1 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    UPI ID
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value="sahilsiddiqui2627ss@oksbi"
+                      readOnly
+                      className="bg-slate-700 border-slate-600 text-white flex-1"
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => navigator.clipboard.writeText('sahilsiddiqui2627ss@oksbi')}
+                      className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Account Holder
+                  </label>
+                  <Input
+                    type="text"
+                    value="Sahil Siddiqui"
+                    readOnly
+                    className="bg-slate-700 border-slate-600 text-white"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Bank
+                  </label>
+                  <Input
+                    type="text"
+                    value="State Bank of India"
+                    readOnly
+                    className="bg-slate-700 border-slate-600 text-white"
+                  />
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

@@ -12,7 +12,7 @@ const getToken = () => {
 
 async function apiCall<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export const authApi = {
     name: string,
     email: string,
     password: string,
-    referralCode?: string
+    referralCode?: string,
   ) =>
     apiCall("/auth/register", {
       method: "POST",
@@ -108,7 +108,7 @@ export const transactionApi = {
   createTransaction: (
     amount: number,
     description: string,
-    screenshotImage: string
+    screenshotImage: string,
   ) =>
     apiCall("/transactions", {
       method: "POST",
@@ -133,7 +133,7 @@ export const predictionApi = {
             "Content-Type": "application/json",
             ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
           },
-        }
+        },
       );
       if (response.status === 404) {
         const errorData = await response.json().catch(() => ({}));
@@ -167,7 +167,7 @@ export const predictionApi = {
             "Content-Type": "application/json",
             ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
           },
-        }
+        },
       );
 
       if (response.status === 404) {
@@ -219,7 +219,7 @@ export const predictionApi = {
       }`,
       {
         method: "POST",
-      }
+      },
     ),
   getAutoCreateStatus: () =>
     apiCall("/prediction-slots/auto-create", { method: "GET" }),
@@ -271,4 +271,19 @@ export const bankApi = {
       method: "POST",
       body: JSON.stringify(details),
     }),
+};
+
+export const upiSettingsApi = {
+  getUpiSettings: () =>
+    apiCall<{ upiId: string; qrCode: string }>("/upi-settings", {
+      method: "GET",
+    }),
+  updateUpiSettings: (data: { upiId?: string; qrCode?: string }) =>
+    apiCall<{ message: string; upiId: string; qrCode: string }>(
+      "/upi-settings",
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+    ),
 };

@@ -231,10 +231,9 @@ export async function GET(request: NextRequest) {
 
         if (recentlyCompletedSlot) {
           // Don't create new slot yet - let users see the results for 5 seconds
-          const waitTimeRemaining = 5 - Math.floor((now.getTime() - recentlyCompletedSlot.endTime.getTime()) / 1000);
           return NextResponse.json({ 
             error: "Waiting period between slots",
-            waitTime: Math.max(1, waitTimeRemaining) // Ensure at least 1 second
+            waitTime: 5 - Math.floor((now.getTime() - recentlyCompletedSlot.endTime.getTime()) / 1000)
           }, { status: 404 });
         }
 

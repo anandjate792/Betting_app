@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { playSound } from "@/lib/sounds";
 
 export default function BetPlacedVoice({
   betPlaced,
@@ -15,9 +14,23 @@ export default function BetPlacedVoice({
   useEffect(() => {
     if (!betPlaced || hasPlayed.current) return;
 
-    // Play bet-placed.mp3 sound instead of speech synthesis
-    playSound('bet-placed');
-    hasPlayed.current = true;
+    if ("speechSynthesis" in window) {
+      const message = totalAmount 
+        ? `Bet placed successfully for ₹${totalAmount}`
+        : "Bet placed successfully";
+      
+      const msg = new SpeechSynthesisUtterance(message);
+
+      msg.lang = "en-IN"; // sounds good for Indian accent
+      msg.rate = 1;
+      msg.pitch = 1;
+      msg.volume = 1;
+
+      window.speechSynthesis.cancel(); // stop any previous speech
+      window.speechSynthesis.speak(msg);
+
+      hasPlayed.current = true; // prevent replay
+    }
   }, [betPlaced, totalAmount]);
 
   // Reset hasPlayed when betPlaced becomes false (new slot starts)

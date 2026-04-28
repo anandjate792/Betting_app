@@ -11,14 +11,14 @@ export async function POST(request: NextRequest) {
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: "Name, email and password are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (password.length < 6) {
       return NextResponse.json(
         { error: "Password must be at least 6 characters long" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     if (existingUser) {
       return NextResponse.json(
         { error: "Email already exists" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -41,31 +41,24 @@ export async function POST(request: NextRequest) {
         // Increment referrer's referral count
         const currentReferralCount = referrer.referralCount || 0;
         referrer.referralCount = currentReferralCount + 1;
-        
-        // Give 5 rupees per referral, up to 200 rupees (max 200 referrals)
-        const referralReward = 5;
-        const maxReferralEarnings = 200; // Maximum total referral earnings
-        
+
+        // Give ₹25 per referral (no cap on total earnings)
+        const referralReward = 25;
         const currentReferralEarnings = referrer.referralEarnings || 0;
-        if (currentReferralEarnings < maxReferralEarnings) {
-          // Calculate how much more can be earned (remaining amount)
-          const remainingEarnings = maxReferralEarnings - currentReferralEarnings;
-          const rewardAmount = Math.min(referralReward, remainingEarnings);
-          
-          // Add reward to wallet and update referral earnings
-          referrer.walletBalance = (referrer.walletBalance || 0) + rewardAmount;
-          referrer.referralEarnings = currentReferralEarnings + rewardAmount;
-          
-          // Create transaction record
-          await Transaction.create({
-            userId: referrer._id,
-            userName: referrer.name,
-            amount: rewardAmount,
-            description: `Referral reward for referring a new user`,
-            status: "approved",
-          });
-        }
-        
+
+        // Add reward to wallet and update referral earnings
+        referrer.walletBalance = (referrer.walletBalance || 0) + referralReward;
+        referrer.referralEarnings = currentReferralEarnings + referralReward;
+
+        // Create transaction record
+        await Transaction.create({
+          userId: referrer._id,
+          userName: referrer.name,
+          amount: referralReward,
+          description: `Referral bonus: ₹25 for referring ${name}`,
+          status: "approved",
+        });
+
         await referrer.save();
       }
     }
@@ -83,7 +76,7 @@ export async function POST(request: NextRequest) {
     const token = generateToken(
       newUser._id.toString(),
       newUser.email,
-      newUser.role
+      newUser.role,
     );
 
     return NextResponse.json(
@@ -99,16 +92,14 @@ export async function POST(request: NextRequest) {
           createdAt: newUser.createdAt,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Server error",
+        error: error instanceof Error ? error.message : "Server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

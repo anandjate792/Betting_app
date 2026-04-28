@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAppStore } from "@/lib/store";
 import {
   Card,
@@ -11,8 +11,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Wallet, Upload } from "lucide-react";
+import { Wallet, Upload, Copy, Smartphone, QrCode } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+
+interface Upisettings {
+  upiId: string;
+  qrCode: string;
+}
 
 export default function WalletPage() {
   const { user, addTransaction } = useAppStore();
@@ -22,7 +27,27 @@ export default function WalletPage() {
   const [screenshotImage, setScreenshotImage] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [transactionLoading, setTransactionLoading] = useState(false);
+  const [upiSettings, setUpiSettings] = useState<Upisettings | null>(null);
+  const [upiLoading, setUpiLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetchUpiSettings();
+  }, []);
+
+  const fetchUpiSettings = async () => {
+    try {
+      const response = await fetch("/api/upi-settings");
+      if (response.ok) {
+        const data = await response.json();
+        setUpiSettings(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch UPI settings:", error);
+    } finally {
+      setUpiLoading(false);
+    }
+  };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -93,6 +118,80 @@ export default function WalletPage() {
             ₹{user?.walletBalance.toFixed(2) || "0.00"}
           </div>
           <p className="text-slate-400 text-sm mt-2">Your current wallet balance</p>
+        </CardContent>
+      </Card>
+
+      {/* UPI Payment Details */}
+      <Card className="border-slate-700 bg-slate-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-white">
+            <Smartphone className="w-5 h-5" />
+            UPI Payment Details
+          </CardTitle>
+          <CardDescription className="text-slate-400">
+            Scan the QR code or use the UPI ID to make a payment
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {upiLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Spinner className="w-6 h-6 mr-2" />
+              <span className="text-slate-400">Loading UPI settings...</span>
+            </div>
+          ) : upiSettings ? (
+            <div className="flex flex-col md:flex-row gap-6 items-center">
+              {/* QR Code */}
+              <div className="flex-shrink-0">
+                <div className="w-48 h-48 bg-white p-4 rounded-lg">
+                  {upiSettings.qrCode ? (
+                    <img
+                      src={upiSettings.qrCode}
+                      alt="UPI QR Code"
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <QrCode className="w-16 h-16 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                <p className="text-center text-slate-400 text-sm mt-2">Scan to Pay</p>
+              </div>
+              
+              {/* UPI Details */}
+              <div className="flex-1 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    UPI ID
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={upiSettings.upiId || "No UPI ID configured"}
+                      readOnly
+                      className="bg-slate-700 border-slate-600 text-white flex-1"
+                    />
+                    {upiSettings.upiId && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => navigator.clipboard.writeText(upiSettings.upiId)}
+                        className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Smartphone className="w-12 h-12 text-slate-500 mx-auto mb-2" />
+              <p className="text-slate-400">No UPI settings configured</p>
+              <p className="text-slate-500 text-sm">Please contact admin to set up payment details</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAppStore } from "@/lib/store";
+import { upiSettingsApi } from "@/lib/api";
 import {
   Card,
   CardContent,
@@ -11,18 +12,38 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Wallet, Upload } from "lucide-react";
+import { Wallet, Upload, Copy, Smartphone } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function WalletPage() {
   const { user, addTransaction } = useAppStore();
   const [transactionAmount, setTransactionAmount] = useState<string>("");
-  const [transactionDescription, setTransactionDescription] = useState<string>("");
+  const [transactionDescription, setTransactionDescription] =
+    useState<string>("");
   const [utrNumber, setUtrNumber] = useState<string>("");
   const [screenshotImage, setScreenshotImage] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [transactionLoading, setTransactionLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [upiSettings, setUpiSettings] = useState<{
+    upiId: string;
+    qrCode: string;
+  } | null>(null);
+  const [upiLoading, setUpiLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await upiSettingsApi.getUpiSettings();
+        setUpiSettings(data);
+      } catch (error) {
+        console.error("Failed to load UPI settings:", error);
+      } finally {
+        setUpiLoading(false);
+      }
+    };
+    void load();
+  }, []);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,7 +80,7 @@ export default function WalletPage() {
       await addTransaction(
         amount,
         `${transactionDescription} (UTR: ${utrNumber})`,
-        screenshotImage || undefined
+        screenshotImage || undefined,
       );
       setTransactionAmount("");
       setTransactionDescription("");
@@ -69,7 +90,9 @@ export default function WalletPage() {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-      alert("Transaction submitted successfully! It will be reviewed by admin.");
+      alert(
+        "Transaction submitted successfully! It will be reviewed by admin.",
+      );
     } catch (error) {
       console.error("Failed to submit transaction:", error);
       alert("Failed to submit transaction. Please try again.");
@@ -93,7 +116,90 @@ export default function WalletPage() {
             <div className="text-4xl font-bold text-green-400">
               ₹{user?.walletBalance.toFixed(2) || "0.00"}
             </div>
-            <p className="text-slate-400 text-sm mt-2">Your current wallet balance</p>
+            <p className="text-slate-400 text-sm mt-2">
+              Your current wallet balance
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* UPI Payment Details */}
+        <Card className="border-slate-700 bg-slate-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Smartphone className="w-5 h-5" />
+              UPI Payment Details
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Scan the QR code or use the UPI ID to make a payment
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {upiLoading ? (
+              <div className="flex items-center justify-center py-8 text-slate-400">
+                Loading UPI details...
+              </div>
+            ) : upiSettings?.upiId || upiSettings?.qrCode ? (
+              <div className="flex flex-col md:flex-row gap-6 items-center">
+                {/* QR Code */}
+                <div className="flex-shrink-0">
+                  <div className="w-48 h-48 bg-white p-4 rounded-lg">
+                    {upiSettings.qrCode ? (
+                      <img
+                        src={upiSettings.qrCode}
+                        alt="UPI QR Code"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-500 text-sm">
+                        No QR image
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-center text-slate-400 text-sm mt-2">
+                    Scan to Pay
+                  </p>
+                </div>
+
+                {/* UPI Details */}
+                <div className="flex-1 space-y-4">
+                  {upiSettings.upiId && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                        UPI ID
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="text"
+                          value={upiSettings.upiId}
+                          readOnly
+                          className="bg-slate-700 border-slate-600 text-white flex-1"
+                        />
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() =>
+                            navigator.clipboard.writeText(upiSettings.upiId)
+                          }
+                          className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {!upiSettings.upiId && !upiSettings.qrCode && (
+                    <p className="text-slate-400 text-sm">
+                      UPI details not set by admin yet.
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-400 text-sm">
+                UPI payment details not configured. Admin can set them in the
+                dashboard.
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -102,7 +208,8 @@ export default function WalletPage() {
           <CardHeader>
             <CardTitle className="text-white">Upload Transaction</CardTitle>
             <CardDescription className="text-slate-400">
-              Upload a screenshot of your Gpay transaction to add money to your wallet (Minimum: ₹100)
+              Upload a screenshot of your Gpay transaction to add money to your
+              wallet (Minimum: ₹100)
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -175,7 +282,12 @@ export default function WalletPage() {
             </div>
             <Button
               onClick={handleSubmitTransaction}
-              disabled={transactionLoading || !transactionAmount || !transactionDescription || !utrNumber}
+              disabled={
+                transactionLoading ||
+                !transactionAmount ||
+                !transactionDescription ||
+                !utrNumber
+              }
               className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
             >
               {transactionLoading ? (

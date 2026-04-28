@@ -223,17 +223,6 @@ export default function PredictionDashboard() {
     setSlotLoading(true);
     try {
       const slot = (await predictionApi.getCurrentSlot()) as any;
-      
-      // Handle wait time response
-      if (slot && typeof slot === 'object' && 'waitTime' in slot && slot.waitTime !== undefined) {
-        setSlotWaitTime(slot.waitTime);
-        setCurrentSlot(null);
-        setBetsByIcon({});
-        await loadMyCurrentSlotBet(undefined);
-        setSlotLoading(false);
-        return;
-      }
-      
       if (slot) {
         setCurrentSlot(slot);
         setBetsByIcon(
@@ -245,7 +234,14 @@ export default function PredictionDashboard() {
         setSlotWaitTime(null);
       } else {
         setCurrentSlot(null);
-        setSlotWaitTime(null);
+        // Check if it's a waiting period error
+        const response = await fetch('/api/prediction-slots?current=true');
+        const data = await response.json();
+        if (response.status === 404 && data.waitTime !== undefined) {
+          setSlotWaitTime(data.waitTime);
+        } else {
+          setSlotWaitTime(null);
+        }
       }
       await loadMyCurrentSlotBet(slot?.id);
     } catch (error: any) {

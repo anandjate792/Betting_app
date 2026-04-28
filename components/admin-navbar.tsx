@@ -11,7 +11,6 @@ import {
   Wallet,
   ArrowDownLeft,
   Gamepad2,
-  QrCode,
   Settings,
   LogOut,
   Menu,
@@ -31,7 +30,6 @@ export default function AdminNavbar() {
     { href: "/admin/approvals", label: "Approvals", icon: CheckCircle },
     { href: "/admin/add-money", label: "Add Money", icon: Wallet },
     { href: "/admin/withdrawals", label: "Withdrawals", icon: ArrowDownLeft },
-    { href: "/admin/upi-qr", label: "UPI & QR", icon: QrCode },
     { href: "/admin/prediction", label: "Prediction Game", icon: Gamepad2 },
   ];
 
@@ -77,9 +75,7 @@ export default function AdminNavbar() {
               {/* Desktop User Info */}
               <div className="hidden md:block text-right">
                 <p className="text-xs md:text-sm text-slate-400">Admin</p>
-                <p className="text-xs md:text-sm font-semibold text-white">
-                  {user?.name}
-                </p>
+                <p className="text-xs md:text-sm font-semibold text-white">{user?.name}</p>
               </div>
               <Button
                 onClick={() => setShowSettings(true)}
@@ -106,11 +102,7 @@ export default function AdminNavbar() {
                 className="text-slate-400 hover:text-white lg:hidden"
                 size="sm"
               >
-                {mobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
             </div>
           </div>
@@ -139,9 +131,7 @@ export default function AdminNavbar() {
               <div className="pt-4 border-t border-slate-700 space-y-2">
                 <div className="px-4 py-2">
                   <p className="text-xs text-slate-400">Admin</p>
-                  <p className="text-sm font-semibold text-white">
-                    {user?.name}
-                  </p>
+                  <p className="text-sm font-semibold text-white">{user?.name}</p>
                 </div>
                 <Button
                   onClick={() => {
@@ -177,3 +167,4 @@ export default function AdminNavbar() {
     </>
   );
 }
+

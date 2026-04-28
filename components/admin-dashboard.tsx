@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import {
   Card,
@@ -21,11 +21,11 @@ import {
   CheckCircle,
   XCircle,
   Settings,
-  Upload,
 } from "lucide-react";
 import SettingsModal from "./settings-modal";
 import AdminPredictionPanel from "./admin-prediction-panel";
-import { withdrawalApi, predictionApi, upiSettingsApi } from "@/lib/api";
+import { withdrawalApi } from "@/lib/api";
+import { predictionApi } from "@/lib/api";
 
 export default function AdminDashboard() {
   const {
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
   const [newUserPassword, setNewUserPassword] = useState("");
   const [selectedUserId, setSelectedUserId] = useState("");
   const [moneyAmount, setMoneyAmount] = useState("");
-  const [activeTab, setActiveTab] = useState<string>("users");
+  const [activeTab, setActiveTab] = useState("users");
   const [selectedImageTransaction, setSelectedImageTransaction] = useState<
     string | null
   >(null);
@@ -56,12 +56,6 @@ export default function AdminDashboard() {
   const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [withdrawalsLoading, setWithdrawalsLoading] = useState(false);
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
-  const [upiId, setUpiId] = useState("");
-  const [qrCodeImage, setQrCodeImage] = useState<string | null>(null);
-  const [qrPreview, setQrPreview] = useState<string | null>(null);
-  const [upiSettingsLoading, setUpiSettingsLoading] = useState(false);
-  const [upiSettingsSaving, setUpiSettingsSaving] = useState(false);
-  const upiFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const loadAutoCreate = async () => {
@@ -75,53 +69,7 @@ export default function AdminDashboard() {
     void loadAutoCreate();
     loadUsers();
     loadTransactions();
-    loadUpiSettings();
   }, []);
-
-  const loadUpiSettings = async () => {
-    setUpiSettingsLoading(true);
-    try {
-      const data = await upiSettingsApi.getUpiSettings();
-      setUpiId((data as { upiId: string }).upiId || "");
-      const qr = (data as { qrCode: string }).qrCode;
-      setQrCodeImage(qr || null);
-      setQrPreview(qr || null);
-    } catch (error) {
-      console.error("Failed to load UPI settings:", error);
-    } finally {
-      setUpiSettingsLoading(false);
-    }
-  };
-
-  const handleUpiQrImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setQrCodeImage(base64);
-        setQrPreview(base64);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSaveUpiSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setUpiSettingsSaving(true);
-    try {
-      await upiSettingsApi.updateUpiSettings({
-        upiId: upiId.trim(),
-        qrCode: qrCodeImage || undefined,
-      });
-      alert("UPI & QR settings saved. They will show on website and app.");
-    } catch (error) {
-      console.error("Failed to save UPI settings:", error);
-      alert("Failed to save. Please try again.");
-    } finally {
-      setUpiSettingsSaving(false);
-    }
-  };
 
   const loadUsers = async () => {
     setUsersLoading(true);
@@ -148,14 +96,14 @@ export default function AdminDashboard() {
 
   const regularUsers = users.filter((u) => u.role === "user");
   const pendingTransactions = transactions.filter(
-    (t) => t.status === "pending",
+    (t) => t.status === "pending"
   );
   const pendingWithdrawals = withdrawals.filter((w) => w.status === "pending");
   const commissionEarnings = transactions
     .filter(
       (t) =>
         t.userId === user?.id &&
-        t.description.toLowerCase().includes("commission"),
+        t.description.toLowerCase().includes("commission")
     )
     .reduce((sum, t) => sum + t.amount, 0);
 
@@ -294,7 +242,7 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
-            <Card
+            <Card 
               className="border-slate-700 bg-slate-800 cursor-pointer hover:border-purple-500 transition-colors"
               onClick={() => {
                 setActiveTab("withdrawals");
@@ -371,7 +319,7 @@ export default function AdminDashboard() {
 
           {/* Tabs */}
           <Tabs value={activeTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6 bg-slate-700">
+            <TabsList className="grid w-full grid-cols-5 bg-slate-700">
               <TabsTrigger value="users" onClick={() => setActiveTab("users")}>
                 User Management
               </TabsTrigger>
@@ -392,20 +340,11 @@ export default function AdminDashboard() {
                 onClick={() => {
                   setActiveTab("withdrawals");
                   if (withdrawals.length === 0) {
-                    loadWithdrawals();
+                  loadWithdrawals();
                   }
                 }}
               >
                 Withdrawals
-              </TabsTrigger>
-              <TabsTrigger
-                value="upi"
-                onClick={() => {
-                  setActiveTab("upi");
-                  if (!upiId && !qrPreview) loadUpiSettings();
-                }}
-              >
-                UPI & QR
               </TabsTrigger>
               <TabsTrigger
                 value="prediction"
@@ -489,40 +428,34 @@ export default function AdminDashboard() {
                   ) : (
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3 pr-4">
-                        {regularUsers.map((u) => (
-                          <div
-                            key={u.id}
-                            className="flex justify-between items-center p-3 bg-slate-700 rounded-lg"
-                          >
-                            <div>
-                              <p className="font-semibold text-white">
-                                {u.name}
-                              </p>
-                              <p className="text-sm text-slate-400">
-                                {u.email}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="text-right">
-                                <p className="font-semibold text-green-400">
-                                  ${u.walletBalance.toFixed(2)}
-                                </p>
-                                <p className="text-xs text-slate-400">
-                                  Balance
-                                </p>
-                              </div>
-                              <Button
-                                onClick={() => deleteUser(u.id)}
-                                variant="ghost"
-                                className="text-red-400 hover:text-red-600"
-                                size="sm"
-                              >
-                                Delete
-                              </Button>
-                            </div>
+                    {regularUsers.map((u) => (
+                      <div
+                        key={u.id}
+                        className="flex justify-between items-center p-3 bg-slate-700 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-semibold text-white">{u.name}</p>
+                          <p className="text-sm text-slate-400">{u.email}</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="font-semibold text-green-400">
+                              ${u.walletBalance.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-slate-400">Balance</p>
                           </div>
-                        ))}
+                          <Button
+                            onClick={() => deleteUser(u.id)}
+                            variant="ghost"
+                            className="text-red-400 hover:text-red-600"
+                            size="sm"
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </div>
+                    ))}
+                  </div>
                     </ScrollArea>
                   )}
                 </CardContent>
@@ -541,7 +474,7 @@ export default function AdminDashboard() {
                   <CardContent className="space-y-4">
                     {(() => {
                       const trans = transactions.find(
-                        (t) => t.id === selectedImageTransaction,
+                        (t) => t.id === selectedImageTransaction
                       );
                       return trans?.screenshotImage ? (
                         <>
@@ -589,9 +522,7 @@ export default function AdminDashboard() {
                   {transactionsLoading ? (
                     <div className="flex items-center justify-center py-12">
                       <Spinner className="w-6 h-6 text-blue-400" />
-                      <p className="ml-3 text-slate-400">
-                        Loading transactions...
-                      </p>
+                      <p className="ml-3 text-slate-400">Loading transactions...</p>
                     </div>
                   ) : pendingTransactions.length === 0 ? (
                     <p className="text-slate-400 text-center py-8">
@@ -600,70 +531,70 @@ export default function AdminDashboard() {
                   ) : (
                     <ScrollArea className="h-[500px]">
                       <div className="space-y-3 pr-4">
-                        {pendingTransactions.map((trans) => (
-                          <div
-                            key={trans.id}
-                            className="p-4 bg-slate-700 rounded-lg border border-slate-600"
-                          >
-                            <div className="flex justify-between items-start mb-3">
-                              <div>
-                                <p className="font-semibold text-white">
-                                  {trans.userName}
-                                </p>
-                                <p className="text-sm text-slate-400">
-                                  {trans.description}
-                                </p>
-                              </div>
-                              <p className="text-lg font-bold text-green-400">
-                                ${trans.amount.toFixed(2)}
+                      {pendingTransactions.map((trans) => (
+                        <div
+                          key={trans.id}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <p className="font-semibold text-white">
+                                {trans.userName}
+                              </p>
+                              <p className="text-sm text-slate-400">
+                                {trans.description}
                               </p>
                             </div>
-                            <p className="text-xs text-slate-400 mb-3">
-                              {new Date(trans.createdAt).toLocaleString()}
+                            <p className="text-lg font-bold text-green-400">
+                              ${trans.amount.toFixed(2)}
                             </p>
-
-                            {trans.screenshotImage && (
-                              <div className="mb-3">
-                                <img
-                                  src={
-                                    trans.screenshotImage || "/placeholder.svg"
-                                  }
-                                  alt="Transaction screenshot"
-                                  className="w-full max-h-32 object-cover rounded-lg border border-slate-600 cursor-pointer hover:opacity-80 transition"
-                                  onClick={() =>
-                                    setSelectedImageTransaction(trans.id)
-                                  }
-                                />
-                                <p className="text-xs text-slate-400 mt-1">
-                                  Click image to expand
-                                </p>
-                              </div>
-                            )}
-
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={() =>
-                                  approveTransaction(trans.id, user!.id)
-                                }
-                                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                                size="sm"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Approve
-                              </Button>
-                              <Button
-                                onClick={() => rejectTransaction(trans.id)}
-                                variant="destructive"
-                                className="flex-1"
-                                size="sm"
-                              >
-                                <XCircle className="w-4 h-4 mr-2" />
-                                Reject
-                              </Button>
-                            </div>
                           </div>
-                        ))}
-                      </div>
+                          <p className="text-xs text-slate-400 mb-3">
+                            {new Date(trans.createdAt).toLocaleString()}
+                          </p>
+
+                          {trans.screenshotImage && (
+                            <div className="mb-3">
+                              <img
+                                src={
+                                  trans.screenshotImage || "/placeholder.svg"
+                                }
+                                alt="Transaction screenshot"
+                                className="w-full max-h-32 object-cover rounded-lg border border-slate-600 cursor-pointer hover:opacity-80 transition"
+                                onClick={() =>
+                                  setSelectedImageTransaction(trans.id)
+                                }
+                              />
+                              <p className="text-xs text-slate-400 mt-1">
+                                Click image to expand
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() =>
+                                approveTransaction(trans.id, user!.id)
+                              }
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                              size="sm"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Approve
+                            </Button>
+                            <Button
+                              onClick={() => rejectTransaction(trans.id)}
+                              variant="destructive"
+                              className="flex-1"
+                              size="sm"
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                     </ScrollArea>
                   )}
                 </CardContent>
@@ -723,97 +654,6 @@ export default function AdminDashboard() {
               </Card>
             </TabsContent>
 
-            {/* UPI & QR Tab */}
-            <TabsContent value="upi" className="mt-6">
-              <Card className="border-slate-700 bg-slate-800">
-                <CardHeader>
-                  <CardTitle className="text-white">UPI ID & QR Code</CardTitle>
-                  <CardDescription className="text-slate-400">
-                    Set the UPI ID and QR code image shown on the website and
-                    mobile app when users add money.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {upiSettingsLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Spinner className="w-6 h-6 text-blue-400" />
-                      <p className="ml-3 text-slate-400">
-                        Loading UPI settings...
-                      </p>
-                    </div>
-                  ) : (
-                    <form
-                      onSubmit={handleSaveUpiSettings}
-                      className="space-y-6"
-                    >
-                      <div>
-                        <label className="text-sm font-medium text-slate-300 block mb-2">
-                          UPI ID
-                        </label>
-                        <Input
-                          type="text"
-                          placeholder="yourname@upi"
-                          value={upiId}
-                          onChange={(e) => setUpiId(e.target.value)}
-                          className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-slate-300 block mb-2">
-                          QR Code Image
-                        </label>
-                        <input
-                          ref={upiFileInputRef}
-                          type="file"
-                          accept="image/*"
-                          onChange={handleUpiQrImageSelect}
-                          className="hidden"
-                          id="qr-upload"
-                        />
-                        <label
-                          htmlFor="qr-upload"
-                          className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-slate-600 rounded-lg cursor-pointer hover:border-blue-500 transition-colors text-slate-400"
-                        >
-                          <Upload className="w-5 h-5" />
-                          {qrPreview
-                            ? "Change QR image"
-                            : "Upload QR code image"}
-                        </label>
-                        {qrPreview && (
-                          <div className="mt-4 flex flex-col items-start gap-2">
-                            <div className="w-40 h-40 bg-white p-2 rounded-lg">
-                              <img
-                                src={qrPreview}
-                                alt="QR preview"
-                                className="w-full h-full object-contain"
-                              />
-                            </div>
-                            <p className="text-xs text-slate-400">
-                              This QR will be shown on website and app.
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <Button
-                        type="submit"
-                        disabled={upiSettingsSaving}
-                        className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
-                      >
-                        {upiSettingsSaving ? (
-                          <>
-                            <Spinner className="w-4 h-4 mr-2" />
-                            Saving...
-                          </>
-                        ) : (
-                          "Save UPI & QR"
-                        )}
-                      </Button>
-                    </form>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
             {/* Withdrawals Tab */}
             <TabsContent value="withdrawals" className="mt-6">
               {/* Selected Withdrawal Details Modal */}
@@ -834,109 +674,75 @@ export default function AdminDashboard() {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-semibold text-slate-300">
-                          User Information
-                        </p>
-                        <p className="text-white">
-                          {selectedWithdrawal.userName}
-                        </p>
-                        <p className="text-sm text-slate-400">
-                          ID: {selectedWithdrawal.userId}
-                        </p>
+                        <p className="text-sm font-semibold text-slate-300">User Information</p>
+                        <p className="text-white">{selectedWithdrawal.userName}</p>
+                        <p className="text-sm text-slate-400">ID: {selectedWithdrawal.userId}</p>
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-slate-300">
-                          Amount
-                        </p>
+                        <p className="text-sm font-semibold text-slate-300">Amount</p>
                         <p className="text-2xl font-bold text-purple-400">
                           ₹{selectedWithdrawal.amount.toFixed(2)}
                         </p>
                         <p className="text-sm text-slate-400">
-                          Status:{" "}
-                          <span
-                            className={`px-2 py-1 rounded text-xs ${
-                              selectedWithdrawal.status === "pending"
-                                ? "bg-yellow-600 text-white"
-                                : selectedWithdrawal.status === "approved"
-                                  ? "bg-green-600 text-white"
-                                  : "bg-red-600 text-white"
-                            }`}
-                          >
+                          Status: <span className={`px-2 py-1 rounded text-xs ${
+                            selectedWithdrawal.status === 'pending' ? 'bg-yellow-600 text-white' :
+                            selectedWithdrawal.status === 'approved' ? 'bg-green-600 text-white' :
+                            'bg-red-600 text-white'
+                          }`}>
                             {selectedWithdrawal.status}
                           </span>
                         </p>
                       </div>
                     </div>
-
+                    
                     <div>
-                      <p className="text-sm font-semibold text-slate-300 mb-2">
-                        Bank Details
-                      </p>
+                      <p className="text-sm font-semibold text-slate-300 mb-2">Bank Details</p>
                       {selectedWithdrawal.bankDetails ? (
                         <div className="p-4 bg-slate-900 rounded-lg border border-slate-600 space-y-2">
                           {selectedWithdrawal.bankDetails.accountHolderName && (
                             <p className="text-slate-300">
-                              <span className="text-slate-500">
-                                Account Holder:
-                              </span>{" "}
-                              {selectedWithdrawal.bankDetails.accountHolderName}
+                              <span className="text-slate-500">Account Holder:</span> {selectedWithdrawal.bankDetails.accountHolderName}
                             </p>
                           )}
                           {selectedWithdrawal.bankDetails.bankName && (
                             <p className="text-slate-300">
-                              <span className="text-slate-500">Bank Name:</span>{" "}
-                              {selectedWithdrawal.bankDetails.bankName}
+                              <span className="text-slate-500">Bank Name:</span> {selectedWithdrawal.bankDetails.bankName}
                             </p>
                           )}
                           {selectedWithdrawal.bankDetails.accountNumber && (
                             <p className="text-slate-300">
-                              <span className="text-slate-500">
-                                Account Number:
-                              </span>{" "}
-                              {selectedWithdrawal.bankDetails.accountNumber}
+                              <span className="text-slate-500">Account Number:</span> {selectedWithdrawal.bankDetails.accountNumber}
                             </p>
                           )}
                           {selectedWithdrawal.bankDetails.ifscCode && (
                             <p className="text-slate-300">
-                              <span className="text-slate-500">IFSC Code:</span>{" "}
-                              {selectedWithdrawal.bankDetails.ifscCode}
+                              <span className="text-slate-500">IFSC Code:</span> {selectedWithdrawal.bankDetails.ifscCode}
                             </p>
                           )}
                           {selectedWithdrawal.bankDetails.upiId && (
                             <p className="text-slate-300">
-                              <span className="text-slate-500">UPI ID:</span>{" "}
-                              {selectedWithdrawal.bankDetails.upiId}
+                              <span className="text-slate-500">UPI ID:</span> {selectedWithdrawal.bankDetails.upiId}
                             </p>
                           )}
                         </div>
                       ) : (
-                        <p className="text-yellow-400 text-sm">
-                          No bank details provided
-                        </p>
+                        <p className="text-yellow-400 text-sm">No bank details provided</p>
                       )}
                     </div>
-
+                    
                     <div>
-                      <p className="text-sm font-semibold text-slate-300 mb-2">
-                        Request Information
-                      </p>
+                      <p className="text-sm font-semibold text-slate-300 mb-2">Request Information</p>
                       <p className="text-slate-400">
-                        <span className="text-slate-500">Requested:</span>{" "}
-                        {new Date(
-                          selectedWithdrawal.createdAt,
-                        ).toLocaleString()}
+                        <span className="text-slate-500">Requested:</span> {new Date(selectedWithdrawal.createdAt).toLocaleString()}
                       </p>
                       {selectedWithdrawal.updatedAt && (
                         <p className="text-slate-400">
-                          <span className="text-slate-500">Last Updated:</span>{" "}
-                          {new Date(
-                            selectedWithdrawal.updatedAt,
-                          ).toLocaleString()}
+                          <span className="text-slate-500">Last Updated:</span> {new Date(selectedWithdrawal.updatedAt).toLocaleString()}
                         </p>
                       )}
                     </div>
-
-                    {selectedWithdrawal.status === "pending" && (
+                    
+                    {selectedWithdrawal.status === 'pending' && (
                       <div className="flex gap-2 pt-4">
                         <Button
                           onClick={() => {
@@ -964,7 +770,7 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               )}
-
+              
               <Card className="border-slate-700 bg-slate-800">
                 <CardHeader>
                   <CardTitle className="text-white">
@@ -978,9 +784,7 @@ export default function AdminDashboard() {
                   {withdrawalsLoading ? (
                     <div className="flex items-center justify-center py-12">
                       <Spinner className="w-6 h-6 text-blue-400" />
-                      <p className="ml-3 text-slate-400">
-                        Loading withdrawals...
-                      </p>
+                      <p className="ml-3 text-slate-400">Loading withdrawals...</p>
                     </div>
                   ) : withdrawals.length === 0 ? (
                     <p className="text-slate-400 text-center py-8">
@@ -989,49 +793,45 @@ export default function AdminDashboard() {
                   ) : (
                     <ScrollArea className="h-[400px]">
                       <div className="space-y-3 pr-4">
-                        {withdrawals.map((withdrawal) => (
-                          <div
-                            key={withdrawal.id}
-                            onClick={() => setSelectedWithdrawal(withdrawal)}
-                            className="p-4 bg-slate-700 rounded-lg border border-slate-600 cursor-pointer hover:border-purple-500 transition-colors"
-                          >
-                            <div className="flex justify-between items-start mb-3">
-                              <div className="flex-1">
-                                <p className="font-semibold text-white">
-                                  {withdrawal.userName}
-                                </p>
-                                <p className="text-sm text-slate-400">
-                                  Amount: ₹{withdrawal.amount.toFixed(2)}
-                                </p>
-                                <p className="text-xs text-slate-400 mt-1">
-                                  {new Date(
-                                    withdrawal.createdAt,
-                                  ).toLocaleString()}
-                                </p>
-                              </div>
-                              <div className="text-right ml-4">
-                                <p className="text-lg font-bold text-purple-400">
-                                  ₹{withdrawal.amount.toFixed(2)}
-                                </p>
-                                <span
-                                  className={`px-2 py-1 rounded text-xs ${
-                                    withdrawal.status === "pending"
-                                      ? "bg-yellow-600 text-white"
-                                      : withdrawal.status === "approved"
-                                        ? "bg-green-600 text-white"
-                                        : "bg-red-600 text-white"
-                                  }`}
-                                >
-                                  {withdrawal.status}
-                                </span>
-                              </div>
+                      {withdrawals.map((withdrawal) => (
+                        <div
+                          key={withdrawal.id}
+                          onClick={() => setSelectedWithdrawal(withdrawal)}
+                          className="p-4 bg-slate-700 rounded-lg border border-slate-600 cursor-pointer hover:border-purple-500 transition-colors"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              <p className="font-semibold text-white">
+                                {withdrawal.userName}
+                              </p>
+                              <p className="text-sm text-slate-400">
+                                Amount: ₹{withdrawal.amount.toFixed(2)}
+                              </p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {new Date(
+                                  withdrawal.createdAt
+                                ).toLocaleString()}
+                              </p>
                             </div>
-                            <p className="text-xs text-slate-400">
-                              Click to view details
-                            </p>
+                            <div className="text-right ml-4">
+                              <p className="text-lg font-bold text-purple-400">
+                                ₹{withdrawal.amount.toFixed(2)}
+                              </p>
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                withdrawal.status === 'pending' ? 'bg-yellow-600 text-white' :
+                                withdrawal.status === 'approved' ? 'bg-green-600 text-white' :
+                                'bg-red-600 text-white'
+                              }`}>
+                                {withdrawal.status}
+                              </span>
+                            </div>
                           </div>
-                        ))}
-                      </div>
+                          <p className="text-xs text-slate-400">
+                            Click to view details
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                     </ScrollArea>
                   )}
                 </CardContent>
@@ -1045,9 +845,7 @@ export default function AdminDashboard() {
                   {withdrawalsLoading ? (
                     <div className="flex items-center justify-center py-12">
                       <Spinner className="w-6 h-6 text-blue-400" />
-                      <p className="ml-3 text-slate-400">
-                        Loading withdrawals...
-                      </p>
+                      <p className="ml-3 text-slate-400">Loading withdrawals...</p>
                     </div>
                   ) : withdrawals.length === 0 ? (
                     <p className="text-slate-400 text-center py-4">
@@ -1056,57 +854,57 @@ export default function AdminDashboard() {
                   ) : (
                     <ScrollArea className="h-[400px]">
                       <div className="pr-4">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-slate-600">
-                              <th className="text-left py-2 px-2 text-slate-300">
-                                User
-                              </th>
-                              <th className="text-left py-2 px-2 text-slate-300">
-                                Amount
-                              </th>
-                              <th className="text-left py-2 px-2 text-slate-300">
-                                Status
-                              </th>
-                              <th className="text-left py-2 px-2 text-slate-300">
-                                Date
-                              </th>
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-600">
+                            <th className="text-left py-2 px-2 text-slate-300">
+                              User
+                            </th>
+                            <th className="text-left py-2 px-2 text-slate-300">
+                              Amount
+                            </th>
+                            <th className="text-left py-2 px-2 text-slate-300">
+                              Status
+                            </th>
+                            <th className="text-left py-2 px-2 text-slate-300">
+                              Date
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {withdrawals.map((w) => (
+                            <tr
+                              key={w.id}
+                              className="border-b border-slate-700 hover:bg-slate-700/50"
+                            >
+                              <td className="py-3 px-2 text-white">
+                                {w.userName}
+                              </td>
+                              <td className="py-3 px-2 text-purple-400 font-semibold">
+                                ₹{w.amount.toFixed(2)}
+                              </td>
+                              <td className="py-3 px-2">
+                                <span
+                                  className={`text-xs px-2 py-1 rounded-full ${
+                                    w.status === "pending"
+                                      ? "bg-yellow-600 text-white"
+                                      : w.status === "approved"
+                                      ? "bg-green-600 text-white"
+                                      : "bg-red-600 text-white"
+                                  }`}
+                                >
+                                  {w.status.charAt(0).toUpperCase() +
+                                    w.status.slice(1)}
+                                </span>
+                              </td>
+                              <td className="py-3 px-2 text-slate-400">
+                                {new Date(w.createdAt).toLocaleDateString()}
+                              </td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {withdrawals.map((w) => (
-                              <tr
-                                key={w.id}
-                                className="border-b border-slate-700 hover:bg-slate-700/50"
-                              >
-                                <td className="py-3 px-2 text-white">
-                                  {w.userName}
-                                </td>
-                                <td className="py-3 px-2 text-purple-400 font-semibold">
-                                  ₹{w.amount.toFixed(2)}
-                                </td>
-                                <td className="py-3 px-2">
-                                  <span
-                                    className={`text-xs px-2 py-1 rounded-full ${
-                                      w.status === "pending"
-                                        ? "bg-yellow-600 text-white"
-                                        : w.status === "approved"
-                                          ? "bg-green-600 text-white"
-                                          : "bg-red-600 text-white"
-                                    }`}
-                                  >
-                                    {w.status.charAt(0).toUpperCase() +
-                                      w.status.slice(1)}
-                                  </span>
-                                </td>
-                                <td className="py-3 px-2 text-slate-400">
-                                  {new Date(w.createdAt).toLocaleDateString()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                     </ScrollArea>
                   )}
                 </CardContent>
@@ -1137,57 +935,57 @@ export default function AdminDashboard() {
               ) : (
                 <ScrollArea className="h-[400px]">
                   <div className="pr-4">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-slate-600">
-                          <th className="text-left py-2 px-2 text-slate-300">
-                            User
-                          </th>
-                          <th className="text-left py-2 px-2 text-slate-300">
-                            Amount
-                          </th>
-                          <th className="text-left py-2 px-2 text-slate-300">
-                            Status
-                          </th>
-                          <th className="text-left py-2 px-2 text-slate-300">
-                            Date
-                          </th>
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-600">
+                        <th className="text-left py-2 px-2 text-slate-300">
+                          User
+                        </th>
+                        <th className="text-left py-2 px-2 text-slate-300">
+                          Amount
+                        </th>
+                        <th className="text-left py-2 px-2 text-slate-300">
+                          Status
+                        </th>
+                        <th className="text-left py-2 px-2 text-slate-300">
+                          Date
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transactions.map((trans) => (
+                        <tr
+                          key={trans.id}
+                          className="border-b border-slate-700 hover:bg-slate-700/50"
+                        >
+                          <td className="py-3 px-2 text-white">
+                            {trans.userName}
+                          </td>
+                          <td className="py-3 px-2 text-green-400 font-semibold">
+                            ${trans.amount.toFixed(2)}
+                          </td>
+                          <td className="py-3 px-2">
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full ${
+                                trans.status === "pending"
+                                  ? "bg-yellow-600 text-white"
+                                  : trans.status === "approved"
+                                  ? "bg-green-600 text-white"
+                                  : "bg-red-600 text-white"
+                              }`}
+                            >
+                              {trans.status.charAt(0).toUpperCase() +
+                                trans.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2 text-slate-400">
+                            {new Date(trans.createdAt).toLocaleDateString()}
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {transactions.map((trans) => (
-                          <tr
-                            key={trans.id}
-                            className="border-b border-slate-700 hover:bg-slate-700/50"
-                          >
-                            <td className="py-3 px-2 text-white">
-                              {trans.userName}
-                            </td>
-                            <td className="py-3 px-2 text-green-400 font-semibold">
-                              ${trans.amount.toFixed(2)}
-                            </td>
-                            <td className="py-3 px-2">
-                              <span
-                                className={`text-xs px-2 py-1 rounded-full ${
-                                  trans.status === "pending"
-                                    ? "bg-yellow-600 text-white"
-                                    : trans.status === "approved"
-                                      ? "bg-green-600 text-white"
-                                      : "bg-red-600 text-white"
-                                }`}
-                              >
-                                {trans.status.charAt(0).toUpperCase() +
-                                  trans.status.slice(1)}
-                              </span>
-                            </td>
-                            <td className="py-3 px-2 text-slate-400">
-                              {new Date(trans.createdAt).toLocaleDateString()}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 </ScrollArea>
               )}
             </CardContent>

@@ -1,6 +1,6 @@
 var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/auth/login/route.js")
-R.c("server/chunks/node_modules_ef8bccf8._.js")
-R.c("server/chunks/[root-of-the-server]__422f3fd4._.js")
-R.c("server/chunks/_next-internal_server_app_api_auth_login_route_actions_d02a8f19.js")
-R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/auth/login/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
-module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/auth/login/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports
+R.c("server/chunks/16479_54ea929d._.js")
+R.c("server/chunks/[root-of-the-server]__41c0854e._.js")
+R.c("server/chunks/b1735_Betting_app__next-internal_server_app_api_auth_login_route_actions_66ac55fd.js")
+R.m("[project]/OneDrive/Desktop/Betting_app/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/OneDrive/Desktop/Betting_app/app/api/auth/login/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/OneDrive/Desktop/Betting_app/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/OneDrive/Desktop/Betting_app/app/api/auth/login/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports

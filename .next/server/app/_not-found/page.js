@@ -1,0 +1,13 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/_not-found/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__db8e04ce._.js")
+R.c("server/chunks/ssr/16479_next_dist_a356f5f1._.js")
+R.c("server/chunks/ssr/16479_next_dist_esm_build_templates_app-page_caa9623a.js")
+R.c("server/chunks/ssr/[root-of-the-server]__f1ade9be._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__a833879b._.js")
+R.c("server/chunks/ssr/16479_next_dist_4f3fc631._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__22112430._.js")
+R.c("server/chunks/ssr/16479_next_dist_client_components_abdae6fc._.js")
+R.c("server/chunks/ssr/16479_next_dist_client_components_builtin_forbidden_27d933cf.js")
+R.c("server/chunks/ssr/13466_Desktop_Betting_app__next-internal_server_app__not-found_page_actions_a87223c9.js")
+R.m(6415)
+module.exports=R.m(6415).exports

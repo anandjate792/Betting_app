@@ -1,165 +1,120 @@
-[00:00:00.825] Server  LOG      ✓ Ready in 609ms
-[00:00:03.200] Server  LOG     🚀 Page component started
-[00:00:03.200] Server  LOG     📦 useLoadStore called
-[00:00:03.423] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:03.837] Browser LOG     🚀 Page component started
-[00:00:03.837] Browser LOG     📦 useLoadStore called
-[00:00:03.837] Browser LOG     🚀 Page component started
-[00:00:03.837] Browser LOG     📦 useLoadStore called
-[00:00:03.837] Browser LOG     🔄 useLoadStore useEffect started
-[00:00:03.838] Browser LOG     🔐 Checking for auth token
-[00:00:03.838] Browser LOG     ❌ No token found, setting isLoading false
-[00:00:03.838] Browser LOG     🚀 Page component started
-[00:00:03.838] Browser LOG     📦 useLoadStore called
-[00:00:03.838] Browser LOG     🚀 Page component started
-[00:00:03.838] Browser LOG     📦 useLoadStore called
-[00:00:03.838] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:04.137] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:04.137] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:00:04.137] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844239276}
-[00:00:24.081] Server  LOG     🚀 Page component started
-[00:00:24.082] Server  LOG     📦 useLoadStore called
-[00:00:24.312] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:24.557] Browser LOG     🚀 Page component started
-[00:00:24.557] Browser LOG     📦 useLoadStore called
-[00:00:24.557] Browser LOG     🚀 Page component started
-[00:00:24.557] Browser LOG     📦 useLoadStore called
-[00:00:24.557] Browser LOG     🔄 useLoadStore useEffect started
-[00:00:24.557] Browser LOG     🔐 Checking for auth token
-[00:00:24.557] Browser LOG     ❌ No token found, setting isLoading false
-[00:00:24.557] Browser LOG     🚀 Page component started
-[00:00:24.557] Browser LOG     📦 useLoadStore called
-[00:00:24.557] Browser LOG     🚀 Page component started
-[00:00:24.557] Browser LOG     📦 useLoadStore called
-[00:00:24.557] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:24.810] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:24.811] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
-[00:00:24.811] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844259950}
-[00:00:25.752] Browser LOG     🚀 Page component started
-[00:00:25.752] Browser LOG     📦 useLoadStore called
-[00:00:25.752] Browser LOG     🚀 Page component started
-[00:00:25.752] Browser LOG     📦 useLoadStore called
-[00:00:25.752] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:25.752] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:00:44.759] Server  LOG     [v0] MongoDB connected
-[00:00:45.291] Browser LOG     🚀 Page component started
-[00:00:45.291] Browser LOG     📦 useLoadStore called
-[00:00:45.291] Browser LOG     🚀 Page component started
-[00:00:45.291] Browser LOG     📦 useLoadStore called
-[00:00:45.522] Browser LOG     🚀 Page component started
-[00:00:45.522] Browser LOG     📦 useLoadStore called
-[00:00:45.522] Browser LOG     🚀 Page component started
-[00:00:45.522] Browser LOG     📦 useLoadStore called
-[00:00:46.084] Browser LOG     🔄 useLoadStore useEffect started
-[00:00:46.084] Browser LOG     🔐 Checking for auth token
-[00:00:46.084] Browser LOG     👤 Fetching user profile...
-[00:00:46.084] Browser LOG     🔄 useLoadStore useEffect started
-[00:00:46.084] Browser LOG     🔐 Checking for auth token
-[00:00:46.084] Browser LOG     👤 Fetching user profile...
-[00:00:46.084] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844281192}
-[00:00:46.387] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:00:46.387] Browser LOG     👑 User role: admin
-[00:00:46.387] Browser LOG     📋 Fetching users...
-[00:00:46.387] Browser LOG     💰 Fetching transactions...
-[00:00:46.387] Browser LOG     ⚡ Executing promises in parallel...
-[00:00:46.387] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:00:46.387] Browser LOG     👑 User role: admin
-[00:00:46.387] Browser LOG     📋 Fetching users...
-[00:00:46.387] Browser LOG     💰 Fetching transactions...
-[00:00:46.387] Browser LOG     ⚡ Executing promises in parallel...
-[00:00:47.479] Browser LOG     🎉 All data loaded successfully
-[00:00:47.644] Browser LOG     🎉 All data loaded successfully
-[00:01:05.591] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:05.591] Browser LOG     🔄 useLoadStore useEffect started
-[00:01:05.591] Browser LOG     🔐 Checking for auth token
-[00:01:05.591] Browser LOG     👤 Fetching user profile...
-[00:01:05.809] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:01:05.810] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/users","route":"/admin/users"}
-[00:01:05.810] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844300843}
-[00:01:05.810] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:01:05.810] Browser LOG     👑 User role: admin
-[00:01:05.810] Browser LOG     📋 Fetching users...
-[00:01:05.810] Browser LOG     💰 Fetching transactions...
-[00:01:05.810] Browser LOG     ⚡ Executing promises in parallel...
-[00:01:06.112] Browser LOG     🎉 All data loaded successfully
-[00:02:23.116] Server  LOG      ✓ Compiled in 76ms
-[00:02:25.965] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:26.113] Browser LOG     🔄 useLoadStore useEffect started
-[00:02:26.113] Browser LOG     🔐 Checking for auth token
-[00:02:26.113] Browser LOG     👤 Fetching user profile...
-[00:02:26.113] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:02:26.113] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/users","route":"/admin/users"}
-[00:02:26.113] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844381252}
-[00:02:26.246] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:02:26.246] Browser LOG     👑 User role: admin
-[00:02:26.246] Browser LOG     📋 Fetching users...
-[00:02:26.246] Browser LOG     💰 Fetching transactions...
-[00:02:26.246] Browser LOG     ⚡ Executing promises in parallel...
-[00:02:26.605] Browser LOG     🎉 All data loaded successfully
-[00:02:29.826] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:29.971] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:02:29.971] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/upi-qr","route":"/admin/upi-qr"}
-[00:02:29.971] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/upi-qr color: rgb(120, 120, 120) color: inherit {"dp":"/admin/upi-qr","o":"http://localhost:3000/admin/upi-qr","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844385110}
-[00:02:32.326] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:32.326] Browser LOG     🔄 useLoadStore useEffect started
-[00:02:32.326] Browser LOG     🔐 Checking for auth token
-[00:02:32.326] Browser LOG     👤 Fetching user profile...
-[00:02:32.602] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:02:32.602] Browser LOG     👑 User role: admin
-[00:02:32.602] Browser LOG     📋 Fetching users...
-[00:02:32.602] Browser LOG     💰 Fetching transactions...
-[00:02:32.602] Browser LOG     ⚡ Executing promises in parallel...
-[00:02:32.602] Browser LOG     🎉 All data loaded successfully
-[00:02:32.602] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:02:32.602] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/users","route":"/admin/users"}
-[00:02:32.602] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844387741}
-[00:02:48.052] Server  LOG      ✓ Compiled in 63ms
-[00:02:50.844] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/upi-qr color: rgb(120, 120, 120) color: inherit {"dp":"/admin/upi-qr","o":"http://localhost:3000/admin/upi-qr","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844405982}
-[00:02:50.938] Server  LOG     [v0] MongoDB connected
-[00:02:50.939] Server  LOG     [v0] MongoDB connected
-[00:03:59.827] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:03:59.987] Browser LOG     🔄 useLoadStore useEffect started
-[00:03:59.987] Browser LOG     🔐 Checking for auth token
-[00:03:59.987] Browser LOG     👤 Fetching user profile...
-[00:03:59.987] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:03:59.987] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard","route":"/dashboard"}
-[00:03:59.988] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard","o":"http://localhost:3000/dashboard","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844475127}
-[00:04:00.313] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1059}
-[00:04:00.313] Browser LOG     👑 User role: user
-[00:04:00.313] Browser LOG     💰 Fetching transactions...
-[00:04:00.313] Browser LOG     ⚡ Executing promises in parallel...
-[00:04:00.665] Browser LOG     🎉 All data loaded successfully
-[00:04:00.873] Browser WARN    Image with src "/football.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
-Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[00:04:01.929] Browser LOG     Active slot found: 697daefd58a352c0c14f1554 open Previous slot: undefined
-[00:04:02.342] Browser LOG     Active slot found: 697daefd58a352c0c14f1554 open Previous slot: undefined
-[00:04:03.763] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769844478896}
-[00:06:12.341] Server  LOG      ✓ Compiled in 100ms
-[00:06:27.514] Server  LOG      ✓ Compiled in 184ms
-[00:15:55.591] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/transactions color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/transactions","o":"http://localhost:3000/dashboard/transactions","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769845190721}
-[00:15:56.442] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769845191580}
-[00:22:14.531] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:22:14.820] Browser LOG     🔄 useLoadStore useEffect started
-[00:22:14.820] Browser LOG     🔐 Checking for auth token
-[00:22:14.820] Browser LOG     👤 Fetching user profile...
-[00:22:14.820] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":1047}
-[00:22:14.820] Browser LOG     👑 User role: admin
-[00:22:14.820] Browser LOG     📋 Fetching users...
-[00:22:14.820] Browser LOG     💰 Fetching transactions...
-[00:22:14.820] Browser LOG     ⚡ Executing promises in parallel...
-[00:22:14.820] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:22:14.820] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/upi-qr","route":"/admin/upi-qr"}
-[00:22:14.820] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/upi-qr color: rgb(120, 120, 120) color: inherit {"dp":"/admin/upi-qr","o":"http://localhost:3000/admin/upi-qr","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769845569957}
-[00:22:15.155] Browser LOG     🎉 All data loaded successfully
-[00:22:20.764] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:22:20.954] Browser LOG     🔄 useLoadStore useEffect started
-[00:22:20.954] Browser LOG     🔐 Checking for auth token
-[00:22:20.954] Browser LOG     👤 Fetching user profile...
-[00:22:20.954] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:22:20.954] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/dashboard/wallet","route":"/dashboard/wallet"}
-[00:22:20.954] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/dashboard/wallet color: rgb(120, 120, 120) color: inherit {"dp":"/dashboard/wallet","o":"http://localhost:3000/dashboard/wallet","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1769845576032}
-[00:22:20.954] Browser LOG     ✅ Profile fetched: {"bankDetails":{"accountHolderName":"Hemant","accountNumber":"000987564322","bankName":"SBI","ifscCode":"SBIN00456","upiId":""},"createdAt":"2025-12-09T12:26:14.936Z","email":"test@example.com","id":"69381566ca90aafe99df1e31","name":"Test User","referralCode":"TESTDF1E31","referralCount":0,"referralEarnings":0,"role":"user","walletBalance":1059}
-[00:22:20.954] Browser LOG     👑 User role: user
-[00:22:20.954] Browser LOG     💰 Fetching transactions...
-[00:22:20.954] Browser LOG     ⚡ Executing promises in parallel...
-[00:22:21.095] Browser LOG     🎉 All data loaded successfully
+[00:00:02.303] Server  LOG      ✓ Ready in 1526ms
+[00:00:44.609] Server  LOG      ○ Compiling / ...
+[00:00:47.663] Server  LOG     🚀 Page component started
+[00:00:47.665] Server  LOG     📦 useLoadStore called
+[00:00:48.275] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:48.523] Browser LOG     🚀 Page component started
+[00:00:48.524] Browser LOG     📦 useLoadStore called
+[00:00:48.524] Browser LOG     🚀 Page component started
+[00:00:48.524] Browser LOG     📦 useLoadStore called
+[00:00:48.524] Browser LOG     🔄 useLoadStore useEffect started
+[00:00:48.524] Browser LOG     🔐 Checking for auth token
+[00:00:48.524] Browser LOG     👤 Fetching user profile...
+[00:00:48.831] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:48.831] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:00:48.831] Browser LOG     %c[Vercel Web Analytics]%c [view] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1777355268306} /_vercel/insights/view
+[00:00:50.543] Browser ERROR   💥 Session restore error: {}
+[00:00:50.543] Browser LOG     🚀 Page component started
+[00:00:50.543] Browser LOG     📦 useLoadStore called
+[00:00:50.543] Browser LOG     🚀 Page component started
+[00:00:50.543] Browser LOG     📦 useLoadStore called
+[00:00:51.158] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:01:11.149] Server  LOG     🚀 Page component started
+[00:01:11.150] Server  LOG     📦 useLoadStore called
+[00:01:11.491] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:11.704] Browser LOG     🚀 Page component started
+[00:01:11.704] Browser LOG     📦 useLoadStore called
+[00:01:11.704] Browser LOG     🚀 Page component started
+[00:01:11.704] Browser LOG     📦 useLoadStore called
+[00:01:11.704] Browser LOG     🔄 useLoadStore useEffect started
+[00:01:11.704] Browser LOG     🔐 Checking for auth token
+[00:01:11.704] Browser LOG     ❌ No token found, setting isLoading false
+[00:01:11.704] Browser LOG     🚀 Page component started
+[00:01:11.704] Browser LOG     📦 useLoadStore called
+[00:01:11.704] Browser LOG     🚀 Page component started
+[00:01:11.704] Browser LOG     📦 useLoadStore called
+[00:01:11.704] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:01:11.704] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:01:11.704] Browser LOG     %c[Vercel Web Analytics]%c [view] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1777355291186} /_vercel/insights/view
+[00:01:12.187] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:01:12.852] Browser LOG     🚀 Page component started
+[00:01:12.852] Browser LOG     📦 useLoadStore called
+[00:01:12.852] Browser LOG     🚀 Page component started
+[00:01:12.852] Browser LOG     📦 useLoadStore called
+[00:01:12.852] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:01:12.852] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:01:19.219] Server  LOG     [v0] MongoDB connected
+[00:01:19.731] Browser LOG     🚀 Page component started
+[00:01:19.731] Browser LOG     📦 useLoadStore called
+[00:01:19.731] Browser LOG     🚀 Page component started
+[00:01:19.731] Browser LOG     📦 useLoadStore called
+[00:01:20.204] Browser LOG     🚀 Page component started
+[00:01:20.204] Browser LOG     📦 useLoadStore called
+[00:01:20.204] Browser LOG     🚀 Page component started
+[00:01:20.204] Browser LOG     📦 useLoadStore called
+[00:01:21.691] Browser LOG     🚀 Page component started
+[00:01:21.691] Browser LOG     📦 useLoadStore called
+[00:01:21.691] Browser LOG     🚀 Page component started
+[00:01:21.691] Browser LOG     📦 useLoadStore called
+[00:01:21.691] Browser LOG     🔄 useLoadStore useEffect started
+[00:01:21.691] Browser LOG     🔐 Checking for auth token
+[00:01:21.691] Browser LOG     👤 Fetching user profile...
+[00:01:21.691] Browser LOG     🔄 useLoadStore useEffect started
+[00:01:21.691] Browser LOG     🔐 Checking for auth token
+[00:01:21.691] Browser LOG     👤 Fetching user profile...
+[00:01:21.691] Browser LOG     %c[Vercel Web Analytics]%c [view] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1777355301095} /_vercel/insights/view
+[00:01:21.970] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":2107}
+[00:01:21.970] Browser LOG     👑 User role: admin
+[00:01:21.970] Browser LOG     📋 Fetching users...
+[00:01:21.970] Browser LOG     💰 Fetching transactions...
+[00:01:21.970] Browser LOG     ⚡ Executing promises in parallel...
+[00:01:22.088] Browser LOG     ✅ Profile fetched: {"bankDetails":{},"createdAt":"2025-12-09T11:54:07.591Z","email":"admin@gmail.com","id":"69380ddfca90aafe99df1e30","name":"Hemant","referralCount":0,"referralEarnings":0,"role":"admin","walletBalance":2107}
+[00:01:22.089] Browser LOG     👑 User role: admin
+[00:01:22.089] Browser LOG     📋 Fetching users...
+[00:01:22.089] Browser LOG     💰 Fetching transactions...
+[00:01:22.089] Browser LOG     ⚡ Executing promises in parallel...
+[00:01:23.034] Browser LOG     🎉 All data loaded successfully
+[00:01:23.175] Browser LOG     🎉 All data loaded successfully
+[00:01:39.250] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:39.476] Browser LOG     🔄 useLoadStore useEffect started
+[00:01:39.476] Browser LOG     🔐 Checking for auth token
+[00:01:39.476] Browser LOG     ❌ No token found, setting isLoading false
+[00:01:39.476] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:01:39.476] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/users","route":"/admin/users"}
+[00:01:39.476] Browser LOG     %c[Vercel Web Analytics]%c [view] http://localhost:3000/admin/users color: rgb(120, 120, 120) color: inherit {"dp":"/admin/users","o":"http://localhost:3000/admin/users","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1777355318940} /_vercel/insights/view
+[00:01:44.315] Server  LOG     🚀 Page component started
+[00:01:44.315] Server  LOG     📦 useLoadStore called
+[00:01:44.613] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:44.613] Browser LOG     🚀 Page component started
+[00:01:44.613] Browser LOG     📦 useLoadStore called
+[00:01:44.613] Browser LOG     🚀 Page component started
+[00:01:44.613] Browser LOG     📦 useLoadStore called
+[00:01:44.877] Browser LOG     🔄 useLoadStore useEffect started
+[00:01:44.877] Browser LOG     🔐 Checking for auth token
+[00:01:44.877] Browser LOG     ❌ No token found, setting isLoading false
+[00:01:44.877] Browser LOG     🚀 Page component started
+[00:01:44.877] Browser LOG     📦 useLoadStore called
+[00:01:44.877] Browser LOG     🚀 Page component started
+[00:01:44.877] Browser LOG     📦 useLoadStore called
+[00:01:44.877] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:01:44.877] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:01:44.877] Browser LOG     %c[Vercel Web Analytics]%c [view] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1777355324278} /_vercel/insights/view
+[00:01:44.877] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:01:46.954] Server  LOG     🚀 Page component started
+[00:01:46.955] Server  LOG     📦 useLoadStore called
+[00:01:47.321] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:47.555] Browser LOG     🚀 Page component started
+[00:01:47.555] Browser LOG     📦 useLoadStore called
+[00:01:47.555] Browser LOG     🚀 Page component started
+[00:01:47.555] Browser LOG     📦 useLoadStore called
+[00:01:47.555] Browser LOG     🔄 useLoadStore useEffect started
+[00:01:47.555] Browser LOG     🔐 Checking for auth token
+[00:01:47.555] Browser LOG     ❌ No token found, setting isLoading false
+[00:01:47.555] Browser LOG     🚀 Page component started
+[00:01:47.555] Browser LOG     📦 useLoadStore called
+[00:01:47.555] Browser LOG     🚀 Page component started
+[00:01:47.555] Browser LOG     📦 useLoadStore called
+[00:01:47.556] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:01:47.556] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[00:01:47.556] Browser LOG     %c[Vercel Web Analytics]%c [view] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1777355327031} /_vercel/insights/view
+[00:01:47.830] Browser WARN    Image with src "http://localhost:3000/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
